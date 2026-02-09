@@ -1,0 +1,16 @@
+{
+  "" : {
+    "const-values" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/xctest-dynamic-overlay/build/xctest-dynamic-overlay.build/Release-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/arm64/IssueReportingPackageSupport-primary.swiftconstvalues",
+    "dependencies" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/xctest-dynamic-overlay/build/xctest-dynamic-overlay.build/Release-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/arm64/IssueReportingPackageSupport-primary.d",
+    "diagnostics" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/xctest-dynamic-overlay/build/xctest-dynamic-overlay.build/Release-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/arm64/IssueReportingPackageSupport-primary.dia",
+    "emit-module-dependencies" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/xctest-dynamic-overlay/build/xctest-dynamic-overlay.build/Release-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/arm64/IssueReportingPackageSupport-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/xctest-dynamic-overlay/build/xctest-dynamic-overlay.build/Release-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/arm64/IssueReportingPackageSupport-primary-emit-module.dia",
+    "pch" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/xctest-dynamic-overlay/build/xctest-dynamic-overlay.build/Release-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/arm64/IssueReportingPackageSupport-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/xctest-dynamic-overlay/build/xctest-dynamic-overlay.build/Release-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/arm64/IssueReportingPackageSupport-primary.swiftdeps"
+  },
+  "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReportingPackageSupport/_Test.swift" : {
+    "index-unit-output-path" : "/xctest-dynamic-overlay.build/Release-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/arm64/_Test.o",
+    "llvm-bc" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/xctest-dynamic-overlay/build/xctest-dynamic-overlay.build/Release-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/arm64/_Test.bc",
+    "object" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/xctest-dynamic-overlay/build/xctest-dynamic-overlay.build/Release-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/arm64/_Test.o"
+  }
+}

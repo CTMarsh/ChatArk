@@ -1,0 +1,85 @@
+import SwiftUI
+import SwiftData
+
+@main
+struct ChatAppMain: App {
+    @State private var authViewModel = AuthViewModel()
+    @State private var settingsViewModel = SettingsViewModel()
+    @State private var deepLinkConversationId: UUID?
+
+    var body: some Scene {
+        WindowGroup {
+            appContent
+                .environment(authViewModel)
+                .environment(settingsViewModel)
+                .preferredColorScheme(settingsViewModel.colorScheme)
+                .tint(Color(hex: settingsViewModel.accentColor))
+                .modelContainer(CacheManager.shared.container)
+                .onOpenURL { url in
+                    handleDeepLink(url)
+                }
+                #if os(macOS)
+                .frame(minWidth: 800, minHeight: 500)
+                #endif
+        }
+        #if os(macOS)
+        .defaultSize(width: 1100, height: 700)
+        .commands {
+            CommandGroup(after: .newItem) {
+                Button("New Conversation") {
+                    // Trigger new conversation
+                }
+                .keyboardShortcut("n", modifiers: .command)
+
+                Button("Search") {
+                    // Trigger search
+                }
+                .keyboardShortcut("f", modifiers: .command)
+            }
+        }
+        #endif
+
+        #if os(macOS)
+        Settings {
+            PreferencesWindow()
+                .environment(settingsViewModel)
+        }
+
+        MenuBarExtra("ChatArk", systemImage: "bubble.left.and.bubble.right.fill") {
+            MenuBarExtraContent()
+                .environment(authViewModel)
+        }
+        #endif
+    }
+
+    @ViewBuilder
+    private var appContent: some View {
+        #if os(macOS)
+        MacRootView()
+        #elseif os(watchOS)
+        WatchRootView()
+        #else
+        RootView()
+        #endif
+    }
+
+    private func handleDeepLink(_ url: URL) {
+        guard url.scheme == "chatark" else { return }
+
+        switch url.host {
+        case "conversation":
+            if let idString = url.pathComponents.dropFirst().first,
+               let id = UUID(uuidString: idString) {
+                deepLinkConversationId = id
+            }
+        case "share":
+            if let shareId = url.pathComponents.dropFirst().first {
+                Task {
+                    await PendingShareHandler.shared.processPendingShare(shareId: shareId)
+                }
+            }
+        default:
+            break
+        }
+    }
+}

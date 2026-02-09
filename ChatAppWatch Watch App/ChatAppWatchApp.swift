@@ -1,0 +1,17 @@
+//
+//  ChatAppWatchApp.swift
+//  ChatAppWatch Watch App
+//
+//  Created by Chris Marsh on 08/02/2026.
+//
+
+import SwiftUI
+
+@main
+struct ChatAppWatch_Watch_AppApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}

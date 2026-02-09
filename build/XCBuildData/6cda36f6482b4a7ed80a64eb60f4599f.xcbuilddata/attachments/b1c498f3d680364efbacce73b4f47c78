@@ -1,0 +1,26 @@
+{
+  "" : {
+    "const-values" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/Nuke/build/Nuke.build/Release-iphonesimulator/NukeVideo.build/Objects-normal/arm64/NukeVideo-primary.swiftconstvalues",
+    "dependencies" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/Nuke/build/Nuke.build/Release-iphonesimulator/NukeVideo.build/Objects-normal/arm64/NukeVideo-primary.d",
+    "diagnostics" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/Nuke/build/Nuke.build/Release-iphonesimulator/NukeVideo.build/Objects-normal/arm64/NukeVideo-primary.dia",
+    "emit-module-dependencies" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/Nuke/build/Nuke.build/Release-iphonesimulator/NukeVideo.build/Objects-normal/arm64/NukeVideo-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/Nuke/build/Nuke.build/Release-iphonesimulator/NukeVideo.build/Objects-normal/arm64/NukeVideo-primary-emit-module.dia",
+    "pch" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/Nuke/build/Nuke.build/Release-iphonesimulator/NukeVideo.build/Objects-normal/arm64/NukeVideo-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/Nuke/build/Nuke.build/Release-iphonesimulator/NukeVideo.build/Objects-normal/arm64/NukeVideo-primary.swiftdeps"
+  },
+  "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/Nuke/Sources/NukeVideo/AVDataAsset.swift" : {
+    "index-unit-output-path" : "/Nuke.build/Release-iphonesimulator/NukeVideo.build/Objects-normal/arm64/AVDataAsset.o",
+    "llvm-bc" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/Nuke/build/Nuke.build/Release-iphonesimulator/NukeVideo.build/Objects-normal/arm64/AVDataAsset.bc",
+    "object" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/Nuke/build/Nuke.build/Release-iphonesimulator/NukeVideo.build/Objects-normal/arm64/AVDataAsset.o"
+  },
+  "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/Nuke/Sources/NukeVideo/ImageDecoders+Video.swift" : {
+    "index-unit-output-path" : "/Nuke.build/Release-iphonesimulator/NukeVideo.build/Objects-normal/arm64/ImageDecoders+Video.o",
+    "llvm-bc" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/Nuke/build/Nuke.build/Release-iphonesimulator/NukeVideo.build/Objects-normal/arm64/ImageDecoders+Video.bc",
+    "object" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/Nuke/build/Nuke.build/Release-iphonesimulator/NukeVideo.build/Objects-normal/arm64/ImageDecoders+Video.o"
+  },
+  "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/Nuke/Sources/NukeVideo/VideoPlayerView.swift" : {
+    "index-unit-output-path" : "/Nuke.build/Release-iphonesimulator/NukeVideo.build/Objects-normal/arm64/VideoPlayerView.o",
+    "llvm-bc" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/Nuke/build/Nuke.build/Release-iphonesimulator/NukeVideo.build/Objects-normal/arm64/VideoPlayerView.bc",
+    "object" : "/Users/chrismarsh/Library/Developer/Xcode/DerivedData/ChatApp-cglsbaxksnoglfflzujqublbqabn/SourcePackages/checkouts/Nuke/build/Nuke.build/Release-iphonesimulator/NukeVideo.build/Objects-normal/arm64/VideoPlayerView.o"
+  }
+}

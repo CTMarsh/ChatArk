@@ -1,0 +1,75 @@
+import SwiftUI
+import NukeUI
+
+struct FileAttachmentView: View {
+    let fileUrl: String
+    let fileName: String?
+    let fileSize: Int64?
+    let fileType: String?
+    let messageType: MessageType
+
+    var body: some View {
+        if messageType == .image, let url = URL(string: fileUrl) {
+            LazyImage(url: url) { state in
+                if let image = state.image {
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                } else if state.isLoading {
+                    ProgressView()
+                        .frame(width: 200, height: 150)
+                } else {
+                    fileFallback
+                }
+            }
+            .frame(maxWidth: 280, maxHeight: 280)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        } else {
+            fileFallback
+        }
+    }
+
+    private var fileFallback: some View {
+        HStack(spacing: 10) {
+            Image(systemName: fileIcon)
+                .font(.title2)
+                .foregroundStyle(.blue)
+                .frame(width: 40, height: 40)
+                .background(Color.blue.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(fileName ?? "File")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .lineLimit(1)
+
+                if let fileSize {
+                    Text(FileValidator.formatFileSize(fileSize))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Spacer()
+
+            Image(systemName: "arrow.down.circle")
+                .font(.title3)
+                .foregroundStyle(.blue)
+        }
+        .padding(10)
+        .background(Color.gray.opacity(0.12))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .frame(maxWidth: 280)
+    }
+
+    private var fileIcon: String {
+        guard let fileType else { return "doc" }
+        if fileType.hasPrefix("image/") { return "photo" }
+        if fileType.hasPrefix("video/") { return "film" }
+        if fileType.hasPrefix("audio/") { return "waveform" }
+        if fileType.contains("pdf") { return "doc.richtext" }
+        if fileType.contains("zip") || fileType.contains("archive") { return "archivebox" }
+        return "doc"
+    }
+}

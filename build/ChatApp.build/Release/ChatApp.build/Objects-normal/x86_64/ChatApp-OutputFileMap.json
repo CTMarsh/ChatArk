@@ -1,0 +1,201 @@
+{
+  "" : {
+    "const-values" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatApp-primary.swiftconstvalues",
+    "dependencies" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatApp-primary.d",
+    "diagnostics" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatApp-primary.dia",
+    "emit-module-dependencies" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatApp-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatApp-primary-emit-module.dia",
+    "pch" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatApp-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatApp-primary.swiftdeps"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/ChatAppApp.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatAppApp.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatAppApp.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatAppApp.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/NotificationServiceExtension/NotificationService.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/NotificationService.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/NotificationService.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/NotificationService.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/ShareExtension/ShareViewController.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ShareViewController.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ShareViewController.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ShareViewController.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/LiveActivity/ChatLiveActivity.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatLiveActivity.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatLiveActivity.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatLiveActivity.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Views/Auth/ForgotPasswordView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ForgotPasswordView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ForgotPasswordView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ForgotPasswordView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Views/Auth/LoginView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/LoginView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/LoginView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/LoginView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Views/Auth/MFASetupView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/MFASetupView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/MFASetupView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/MFASetupView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Views/Auth/MFAVerifyView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/MFAVerifyView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/MFAVerifyView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/MFAVerifyView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Views/Auth/SignupView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/SignupView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/SignupView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/SignupView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Views/Chat/ChatView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Views/Chat/ConversationListView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ConversationListView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ConversationListView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ConversationListView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Views/Chat/GroupInfoView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/GroupInfoView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/GroupInfoView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/GroupInfoView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Views/Chat/NewConversationView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/NewConversationView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/NewConversationView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/NewConversationView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Views/Settings/AccessibilitySettingsView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/AccessibilitySettingsView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/AccessibilitySettingsView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/AccessibilitySettingsView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Views/Settings/AppearanceSettingsView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/AppearanceSettingsView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/AppearanceSettingsView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/AppearanceSettingsView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Views/Settings/MessageSettingsView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/MessageSettingsView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/MessageSettingsView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/MessageSettingsView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Views/Settings/NotificationSettingsView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/NotificationSettingsView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/NotificationSettingsView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/NotificationSettingsView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Views/Settings/PrivacySettingsView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/PrivacySettingsView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/PrivacySettingsView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/PrivacySettingsView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Views/Settings/ProfileSettingsView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ProfileSettingsView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ProfileSettingsView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ProfileSettingsView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Views/Settings/SecuritySettingsView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/SecuritySettingsView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/SecuritySettingsView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/SecuritySettingsView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Views/Settings/SettingsView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/SettingsView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/SettingsView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/SettingsView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Views/UserSearchView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/UserSearchView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/UserSearchView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/UserSearchView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/Widgets/ChatWidgetBundle.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatWidgetBundle.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatWidgetBundle.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatWidgetBundle.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iOS/iOSRootView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/iOSRootView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/iOSRootView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/iOSRootView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iPad/KeyboardShortcuts.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/KeyboardShortcuts.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/KeyboardShortcuts.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/KeyboardShortcuts.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iPad/Views/MultiWindowSupport.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/MultiWindowSupport.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/MultiWindowSupport.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/MultiWindowSupport.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/iPad/Views/SplitChatView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/SplitChatView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/SplitChatView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/SplitChatView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/macOS/Views/MainWindow.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/MainWindow.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/MainWindow.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/MainWindow.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/macOS/Views/MenuBarExtra.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/MenuBarExtra.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/MenuBarExtra.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/MenuBarExtra.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/macOS/Views/PreferencesWindow.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/PreferencesWindow.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/PreferencesWindow.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/PreferencesWindow.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatApp/macOS/macOSRootView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/macOSRootView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/macOSRootView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/macOSRootView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatAppWatch/ChatAppWatchApp.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatAppWatchApp.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatAppWatchApp.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/ChatAppWatchApp.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatAppWatch/Views/WatchChatView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/WatchChatView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/WatchChatView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/WatchChatView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatAppWatch/Views/WatchConversationList.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/WatchConversationList.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/WatchConversationList.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/WatchConversationList.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatAppWatch/Views/WatchQuickReply.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/WatchQuickReply.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/WatchQuickReply.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/WatchQuickReply.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatAppWatch/Views/WatchStatusView.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/WatchStatusView.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/WatchStatusView.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/WatchStatusView.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/ChatWatchComplication/UnreadComplication.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/UnreadComplication.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/UnreadComplication.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/UnreadComplication.o"
+  },
+  "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "index-unit-output-path" : "/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/chrismarsh/Documents/ClaudeCodeProjects/Chat-App-Clients/ChatApp/build/ChatApp.build/Release/ChatApp.build/Objects-normal/x86_64/GeneratedAssetSymbols.o"
+  }
+}
