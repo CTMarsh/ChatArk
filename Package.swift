@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "ChatApp",
+    name: "ChatArk",
     platforms: [
         .iOS(.v18),
         .macOS(.v15),

@@ -6,15 +6,15 @@
 2. **File > New > Project**
 3. Select **Multiplatform > App**
 4. Configure:
-   - Product Name: `ChatApp`
+   - Product Name: `ChatArk`
    - Team: Your Apple Developer team
    - Organization Identifier: `com.chrismarsh`
    - Bundle Identifier: `com.chrismarsh.chatark`
    - Interface: **SwiftUI**
    - Storage: **SwiftData**
    - Testing: Include Tests
-5. Save into the `Chat-App-Clients/` directory (alongside the existing `ChatApp/` folder)
-6. **Delete** the auto-generated ContentView.swift and ChatAppApp.swift files that Xcode creates
+5. Save into the `Chat-App-Clients/` directory (alongside the existing `ChatArk/` folder)
+6. **Delete** the auto-generated ContentView.swift and ChatArkApp.swift files that Xcode creates
 
 ## Step 2: Configure Deployment Targets
 
@@ -43,8 +43,8 @@
 ## Step 4: Add Shared Code
 
 1. In the Project Navigator, right-click the project
-2. **Add Files to "ChatApp"**
-3. Navigate to `ChatApp/Shared/` and add the entire folder
+2. **Add Files to "ChatArk"**
+3. Navigate to `ChatArk/Shared/` and add the entire folder
 4. In the file inspector, ensure these files are added to **all targets** (iOS, macOS, watchOS):
    - All files in `Shared/Models/`
    - All files in `Shared/Services/`
@@ -57,24 +57,24 @@
 
 ### iOS/iPadOS Target
 Add these folders to the **iOS target only**:
-- `iOS/` (all files including ChatAppApp.swift)
+- `iOS/` (all files including ChatArkApp.swift)
 - `iPad/` (all files)
 
-Set `iOS/ChatAppApp.swift` as the app entry point:
+Set `iOS/ChatArkApp.swift` as the app entry point:
 - Select iOS target > Build Settings > search "INFOPLIST_FILE" > set to `iOS/Info.plist`
 
 ### macOS Target
 Add to **macOS target only**:
-- `macOS/` (all files including ChatAppApp.swift)
+- `macOS/` (all files including ChatArkApp.swift)
 
-Set `macOS/ChatAppApp.swift` as the app entry point:
+Set `macOS/ChatArkApp.swift` as the app entry point:
 - Select macOS target > Build Settings > search "INFOPLIST_FILE" > set to `macOS/Info.plist`
 
 ### watchOS Target
 Add to **watchOS target only**:
-- `watchOS/` (all files including ChatAppWatchApp.swift)
+- `watchOS/` (all files including ChatArkWatchApp.swift)
 
-Set `watchOS/ChatAppWatchApp.swift` as the app entry point:
+Set `watchOS/ChatArkWatchApp.swift` as the app entry point:
 - Select watchOS target > Build Settings > search "INFOPLIST_FILE" > set to `watchOS/Info.plist`
 
 ## Step 6: Add Extension Targets
@@ -120,9 +120,9 @@ For each target, set the entitlements file:
 
 | Target | Entitlements File |
 |--------|-------------------|
-| iOS | `iOS/ChatApp.entitlements` |
-| macOS | `macOS/ChatApp.entitlements` |
-| watchOS | `watchOS/ChatAppWatch.entitlements` |
+| iOS | `iOS/ChatArk.entitlements` |
+| macOS | `macOS/ChatArk.entitlements` |
+| watchOS | `watchOS/ChatArkWatch.entitlements` |
 
 In each target's **Signing & Capabilities** tab, add:
 - Push Notifications
@@ -169,9 +169,9 @@ Get the keys from your Supabase dashboard:
 
 Each target must have exactly **one** `@main` entry point. If you see duplicate `@main` errors:
 
-- iOS target should only compile `iOS/ChatAppApp.swift` (not macOS or watchOS app files)
-- macOS target should only compile `macOS/ChatAppApp.swift`
-- watchOS target should only compile `watchOS/ChatAppWatchApp.swift`
+- iOS target should only compile `iOS/ChatArkApp.swift` (not macOS or watchOS app files)
+- macOS target should only compile `macOS/ChatArkApp.swift`
+- watchOS target should only compile `watchOS/ChatArkWatchApp.swift`
 
 Ensure platform-specific files are **only** in their respective target memberships.
 
