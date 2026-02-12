@@ -16,9 +16,11 @@ struct RecentConversationsWidgetView: View {
 
     private var emptyState: some View {
         VStack(spacing: 8) {
-            Image(systemName: "bubble.left.and.bubble.right")
-                .font(.title)
-                .foregroundStyle(.secondary)
+            Image("AppLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 40, height: 40)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             Text("No Conversations")
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -140,13 +142,15 @@ struct UnreadCountWidgetView: View {
 
     private var smallView: some View {
         VStack(spacing: 8) {
-            Image(systemName: "bubble.left.and.bubble.right.fill")
-                .font(.title)
-                .foregroundStyle(Color(widgetHex: SharedDataReader.accentColorHex()))
+            Image("AppLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 36, height: 36)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             Text("\(entry.unreadCount)")
                 .font(.system(size: 44, weight: .bold, design: .rounded))
                 .minimumScaleFactor(0.5)
-            Text(entry.unreadCount == 1 ? "unread" : "unread")
+            Text("unread")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -183,3 +187,36 @@ struct UnreadCountWidgetView: View {
         Label("\(entry.unreadCount) unread messages", systemImage: "bubble.left.fill")
     }
 }
+
+#if DEBUG
+import WidgetKit
+
+private let previewConversations = [
+    WidgetConversationSummary(id: "1", name: "Alice Johnson", avatarUrl: nil, lastMessageContent: "Hey, how are you?", lastMessageDate: .now, lastMessageSenderName: "Alice", unreadCount: 2, participantNames: ["Alice"], type: "direct"),
+    WidgetConversationSummary(id: "2", name: "Team Chat", avatarUrl: nil, lastMessageContent: "Meeting at 3pm", lastMessageDate: Date(timeIntervalSinceNow: -3600), lastMessageSenderName: "Bob", unreadCount: 0, participantNames: ["Alice", "Bob"], type: "group"),
+    WidgetConversationSummary(id: "3", name: "Bob Smith", avatarUrl: nil, lastMessageContent: "Sounds good!", lastMessageDate: Date(timeIntervalSinceNow: -7200), lastMessageSenderName: "Bob", unreadCount: 1, participantNames: ["Bob"], type: "direct"),
+]
+
+#Preview("Recent Conversations", as: .systemMedium) {
+    RecentConversationsWidget()
+} timeline: {
+    RecentConversationsEntry(date: .now, conversations: previewConversations)
+}
+
+#Preview("Unread Count", as: .systemSmall) {
+    UnreadCountWidget()
+} timeline: {
+    WidgetUnreadCountEntry(date: .now, unreadCount: 5)
+}
+
+#Preview("Unread Circular", as: .accessoryCircular) {
+    UnreadCountWidget()
+} timeline: {
+    WidgetUnreadCountEntry(date: .now, unreadCount: 3)
+}
+
+#Preview("Conversation Row") {
+    WidgetConversationRow(conversation: previewConversations[0])
+        .padding()
+}
+#endif

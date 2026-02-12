@@ -3,6 +3,7 @@ import SwiftUI
 struct TypingIndicator: View {
     let userNames: [String]
     @State private var animationPhase = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         if !userNames.isEmpty {
@@ -12,7 +13,8 @@ struct TypingIndicator: View {
                         Circle()
                             .fill(.secondary)
                             .frame(width: 6, height: 6)
-                            .offset(y: animationPhase == index ? -4 : 0)
+                            .offset(y: reduceMotion ? 0 : (animationPhase == index ? -4 : 0))
+                            .opacity(reduceMotion ? (index == animationPhase ? 1.0 : 0.4) : 1.0)
                     }
                 }
                 .padding(.horizontal, 12)
@@ -25,9 +27,21 @@ struct TypingIndicator: View {
                     .foregroundStyle(.secondary)
             }
             .padding(.horizontal)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(typingText)
             .onAppear {
-                withAnimation(.easeInOut(duration: 0.4).repeatForever()) {
-                    animationPhase = (animationPhase + 1) % 3
+                if reduceMotion {
+                    // Use timer-based phase change without animation
+                    Task {
+                        while !Task.isCancelled {
+                            try? await Task.sleep(for: .milliseconds(600))
+                            animationPhase = (animationPhase + 1) % 3
+                        }
+                    }
+                } else {
+                    withAnimation(.easeInOut(duration: 0.4).repeatForever()) {
+                        animationPhase = (animationPhase + 1) % 3
+                    }
                 }
             }
         }
@@ -41,3 +55,13 @@ struct TypingIndicator: View {
         }
     }
 }
+
+#if DEBUG
+#Preview("Single user") {
+    TypingIndicator(userNames: ["Alice"])
+}
+
+#Preview("Multiple users") {
+    TypingIndicator(userNames: ["Alice", "Bob"])
+}
+#endif

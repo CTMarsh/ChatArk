@@ -13,7 +13,7 @@ struct MFAVerifyView: View {
                 VStack(spacing: 8) {
                     Image(systemName: "lock.fill")
                         .font(.system(size: 50))
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(NauticalTheme.ocean)
 
                     Text("Two-Factor Authentication")
                         .font(.title2)
@@ -55,7 +55,7 @@ struct MFAVerifyView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(.blue)
+                        .background(NauticalTheme.ocean)
                         .foregroundStyle(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
@@ -74,3 +74,10 @@ struct MFAVerifyView: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    MFAVerifyView(factorId: "preview-factor-id")
+        .environment(AuthViewModel())
+}
+#endif

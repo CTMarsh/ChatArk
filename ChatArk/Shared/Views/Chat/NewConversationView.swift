@@ -89,7 +89,7 @@ struct NewConversationView: View {
 
                                 if selectedUsers.contains(where: { $0.id == profile.id }) {
                                     Image(systemName: "checkmark.circle.fill")
-                                        .foregroundStyle(.blue)
+                                        .foregroundStyle(NauticalTheme.ocean)
                                 }
                             }
                         }
@@ -172,3 +172,9 @@ struct NewConversationView: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    NewConversationView(onCreated: { _ in })
+}
+#endif

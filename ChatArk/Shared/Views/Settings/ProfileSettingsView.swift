@@ -73,3 +73,11 @@ struct ProfileSettingsView: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    NavigationStack {
+        ProfileSettingsView()
+    }
+}
+#endif

@@ -45,7 +45,7 @@ final class ProfileViewModel {
                 bio = prefs.bio ?? ""
             }
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
         }
     }
 
@@ -64,9 +64,9 @@ final class ProfileViewModel {
                 .eq("id", value: userId.uuidString)
                 .execute()
 
-            try await preferencesService.updatePreference(key: "bio", value: .string(bio))
+            try await preferencesService.updatePreference(key: .bio, value: .string(bio))
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
         }
     }
 
@@ -83,7 +83,7 @@ final class ProfileViewModel {
             profile?.avatarUrl = url
             return url
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
             return nil
         }
     }

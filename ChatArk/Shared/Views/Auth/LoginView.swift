@@ -13,9 +13,11 @@ struct LoginView: View {
                 VStack(spacing: 32) {
                     // Logo
                     VStack(spacing: 8) {
-                        Image(systemName: "bubble.left.and.bubble.right.fill")
-                            .font(.system(size: 60))
-                            .foregroundStyle(.blue)
+                        Image("AppLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 120, height: 120)
+                            .clipShape(RoundedRectangle(cornerRadius: 28))
 
                         Text("ChatArk")
                             .font(.largeTitle)
@@ -64,7 +66,7 @@ struct LoginView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(.blue)
+                            .background(NauticalTheme.ocean)
                             .foregroundStyle(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
@@ -102,3 +104,10 @@ struct LoginView: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    LoginView()
+        .environment(AuthViewModel())
+}
+#endif

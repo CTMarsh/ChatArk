@@ -2,6 +2,30 @@ import Foundation
 import SwiftUI
 import Supabase
 
+enum ChatViewError: LocalizedError {
+    case networkUnavailable
+    case sessionExpired
+    case fileTooLarge(maxMB: Int)
+    case uploadFailed(String)
+    case sendFailed(String)
+    case loadFailed(String)
+    case messageTooLong(Int)
+    case generic(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .networkUnavailable: "No internet connection. Your message will be sent when you're back online."
+        case .sessionExpired: "Your session has expired. Please sign in again."
+        case .fileTooLarge(let maxMB): "File exceeds the \(maxMB)MB limit. Please choose a smaller file."
+        case .messageTooLong(let max): "Message exceeds the \(max) character limit."
+        case .uploadFailed(let detail): "Failed to upload file: \(detail)"
+        case .sendFailed(let detail): "Failed to send message: \(detail)"
+        case .loadFailed(let detail): "Failed to load messages: \(detail)"
+        case .generic(let detail): detail
+        }
+    }
+}
+
 @MainActor
 @Observable
 final class ChatViewModel {
@@ -11,18 +35,26 @@ final class ChatViewModel {
     var isLoading = false
     var isSending = false
     var error: String?
+    var chatError: ChatViewError?
     var hasMore = true
     var replyingTo: Message?
     var editingMessage: Message?
     var pinnedMessages: [Message] = []
     var senderProfiles: [UUID: Profile] = [:]
+    var failedMessageIds: Set<UUID> = []
+    var sendingMessageIds: Set<UUID> = []
+
+    static let maxMessageLength = 10_000
 
     let conversationId: UUID
     private let chatService: ChatService
+    // Rate limit: 10 messages burst, 1 per second refill
+    private let sendRateLimiter = RateLimiter(maxTokens: 10, refillInterval: 1.0)
     private let conversationService: ConversationService
     private let realtimeService: RealtimeService
     private let presenceService: PresenceService
     private var currentUserId: UUID?
+    private var reconnectionTask: Task<Void, Never>?
 
     init(
         conversationId: UUID,
@@ -44,6 +76,7 @@ final class ChatViewModel {
     func loadMessages() async {
         isLoading = true
         error = nil
+        chatError = nil
         defer { isLoading = false }
 
         do {
@@ -52,7 +85,13 @@ final class ChatViewModel {
             try await conversationService.updateLastReadAt(conversationId: conversationId)
             await fetchSenderProfiles(for: messages)
         } catch {
-            self.error = error.localizedDescription
+            let desc = ErrorSanitizer.sanitize(error)
+            self.error = desc
+            if !NetworkMonitor.shared.isConnected {
+                chatError = .networkUnavailable
+            } else {
+                chatError = .loadFailed(desc)
+            }
         }
     }
 
@@ -70,17 +109,18 @@ final class ChatViewModel {
                 messages.append(contentsOf: older)
             }
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
         }
     }
 
     // MARK: - Subscribe
 
     func subscribe() async {
-        await realtimeService.subscribeToMessages(conversationId: conversationId)
-        await realtimeService.subscribeToReactions(conversationId: conversationId)
-        await realtimeService.subscribeToReadReceipts(conversationId: conversationId)
-        await realtimeService.subscribeToTyping(conversationId: conversationId)
+        async let msgs: Void = realtimeService.subscribeToMessages(conversationId: conversationId)
+        async let reactions: Void = realtimeService.subscribeToReactions(conversationId: conversationId)
+        async let receipts: Void = realtimeService.subscribeToReadReceipts(conversationId: conversationId)
+        async let typing: Void = realtimeService.subscribeToTyping(conversationId: conversationId)
+        _ = await (msgs, reactions, receipts, typing)
 
         realtimeService.onNewMessage = { [weak self] message in
             guard let self, message.conversationId == self.conversationId else { return }
@@ -137,37 +177,114 @@ final class ChatViewModel {
                 }
             }
         }
+
+        reconnectionTask = Task { await realtimeService.monitorConnection() }
     }
 
     func unsubscribe() async {
+        reconnectionTask?.cancel()
         await realtimeService.unsubscribeFromConversation(conversationId)
     }
 
-    // MARK: - Send Message
+    // MARK: - Send Message (Optimistic)
 
     func sendMessage(content: String, type: MessageType = .text, fileUrl: String? = nil, fileName: String? = nil, fileSize: Int64? = nil, fileType: String? = nil) async {
+        guard let userId = currentUserId else {
+            chatError = .sessionExpired
+            return
+        }
+
+        guard content.count <= Self.maxMessageLength else {
+            chatError = .messageTooLong(Self.maxMessageLength)
+            return
+        }
+
+        guard sendRateLimiter.tryConsume() else {
+            chatError = .generic("Sending too fast. Please wait a moment.")
+            return
+        }
+
+        if !NetworkMonitor.shared.isConnected {
+            chatError = .networkUnavailable
+        }
+
+        // Create optimistic local message
+        let placeholderId = UUID()
+        let placeholder = Message(
+            id: placeholderId,
+            conversationId: conversationId,
+            senderId: userId,
+            content: content,
+            type: type,
+            replyToId: replyingTo?.id,
+            createdAt: Date(),
+            fileUrl: fileUrl,
+            fileName: fileName,
+            fileSize: fileSize,
+            fileType: fileType
+        )
+
+        // Insert optimistically before API call
+        sendingMessageIds.insert(placeholderId)
+        messages.insert(placeholder, at: 0)
+        let savedReplyTo = replyingTo
+        replyingTo = nil
         isSending = true
-        defer { isSending = false }
 
         do {
-            let message = try await chatService.sendMessage(
+            let realMessage = try await chatService.sendMessage(
                 conversationId: conversationId,
                 content: content,
                 type: type,
-                replyToId: replyingTo?.id,
+                replyToId: savedReplyTo?.id,
                 fileUrl: fileUrl,
                 fileName: fileName,
                 fileSize: fileSize,
                 fileType: fileType
             )
-            replyingTo = nil
-            // Insert immediately so the message appears without waiting for realtime
-            if !messages.contains(where: { $0.id == message.id }) {
-                messages.insert(message, at: 0)
+            // Replace placeholder with real message from server
+            sendingMessageIds.remove(placeholderId)
+            if let index = messages.firstIndex(where: { $0.id == placeholderId }) {
+                messages[index] = realMessage
             }
+            chatError = nil
         } catch {
-            self.error = error.localizedDescription
+            // Mark as failed — keep in list so user can retry
+            sendingMessageIds.remove(placeholderId)
+            failedMessageIds.insert(placeholderId)
+            let desc = ErrorSanitizer.sanitize(error)
+            if desc.lowercased().contains("jwt") || desc.lowercased().contains("auth") {
+                chatError = .sessionExpired
+            } else {
+                chatError = .sendFailed(desc)
+            }
+            self.error = desc
         }
+
+        isSending = false
+    }
+
+    func retryMessage(_ messageId: UUID) async {
+        guard let index = messages.firstIndex(where: { $0.id == messageId }),
+              failedMessageIds.contains(messageId) else { return }
+
+        let message = messages[index]
+        failedMessageIds.remove(messageId)
+        messages.remove(at: index)
+
+        await sendMessage(
+            content: message.content,
+            type: message.type ?? .text,
+            fileUrl: message.fileUrl,
+            fileName: message.fileName,
+            fileSize: message.fileSize,
+            fileType: message.fileType
+        )
+    }
+
+    func discardFailedMessage(_ messageId: UUID) {
+        failedMessageIds.remove(messageId)
+        messages.removeAll { $0.id == messageId }
     }
 
     // MARK: - Edit Message
@@ -177,7 +294,7 @@ final class ChatViewModel {
             _ = try await chatService.editMessage(messageId: messageId, newContent: newContent)
             editingMessage = nil
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
         }
     }
 
@@ -187,7 +304,7 @@ final class ChatViewModel {
         do {
             try await chatService.deleteMessage(messageId: messageId)
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
         }
     }
 
@@ -197,7 +314,7 @@ final class ChatViewModel {
         do {
             _ = try await chatService.addReaction(messageId: messageId, emoji: emoji)
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
         }
     }
 
@@ -205,7 +322,7 @@ final class ChatViewModel {
         do {
             try await chatService.removeReaction(reactionId: reactionId)
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
         }
     }
 
@@ -215,7 +332,7 @@ final class ChatViewModel {
         do {
             try await chatService.pinMessage(messageId: messageId)
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
         }
     }
 
@@ -223,8 +340,20 @@ final class ChatViewModel {
         do {
             try await chatService.unpinMessage(messageId: messageId)
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
         }
+    }
+
+    // MARK: - Read Receipts
+
+    func markMessageRead(_ messageId: UUID) async {
+        guard let userId = currentUserId else { return }
+        // Only mark others' messages as read
+        guard let message = messages.first(where: { $0.id == messageId }),
+              message.senderId != userId else { return }
+        do {
+            try await chatService.markAsRead(messageId: messageId)
+        } catch {}
     }
 
     // MARK: - Typing Indicator
@@ -263,11 +392,12 @@ final class ChatViewModel {
     }
 
     private func fetchSenderProfiles(for messages: [Message]) async {
-        let unknownSenderIds = Set(messages.map(\.senderId)).subtracting(senderProfiles.keys)
-        for senderId in unknownSenderIds {
-            if let profile = try? await presenceService.fetchProfile(userId: senderId) {
-                senderProfiles[senderId] = profile
-            }
+        let unknownSenderIds = Array(Set(messages.map(\.senderId)).subtracting(senderProfiles.keys))
+        guard !unknownSenderIds.isEmpty else { return }
+
+        let profiles = (try? await presenceService.fetchProfiles(userIds: unknownSenderIds)) ?? []
+        for profile in profiles {
+            senderProfiles[profile.id] = profile
         }
     }
 }

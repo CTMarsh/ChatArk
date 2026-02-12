@@ -11,7 +11,7 @@ struct MessageSettingsView: View {
                     get: { viewModel.enterKeyBehavior },
                     set: {
                         viewModel.enterKeyBehavior = $0
-                        viewModel.updatePreference(key: "enter_key_behavior", value: .string($0.rawValue))
+                        viewModel.updatePreference(key: .enterKeyBehavior, value: .string($0.rawValue))
                     }
                 )) {
                     Text("Send Message").tag(EnterKeyBehavior.send)
@@ -22,7 +22,7 @@ struct MessageSettingsView: View {
                     get: { viewModel.linkPreviewsEnabled },
                     set: {
                         viewModel.linkPreviewsEnabled = $0
-                        viewModel.updatePreference(key: "link_previews_enabled", value: .bool($0))
+                        viewModel.updatePreference(key: .linkPreviewsEnabled, value: .bool($0))
                     }
                 ))
             }
@@ -32,7 +32,7 @@ struct MessageSettingsView: View {
                     get: { viewModel.sendTypingIndicators },
                     set: {
                         viewModel.sendTypingIndicators = $0
-                        viewModel.updatePreference(key: "send_typing_indicators", value: .bool($0))
+                        viewModel.updatePreference(key: .sendTypingIndicators, value: .bool($0))
                     }
                 ))
 
@@ -40,7 +40,7 @@ struct MessageSettingsView: View {
                     get: { viewModel.sendReadReceipts },
                     set: {
                         viewModel.sendReadReceipts = $0
-                        viewModel.updatePreference(key: "send_read_receipts", value: .bool($0))
+                        viewModel.updatePreference(key: .sendReadReceipts, value: .bool($0))
                     }
                 ))
             }
@@ -50,7 +50,7 @@ struct MessageSettingsView: View {
                     get: { viewModel.emojiSkinTone },
                     set: {
                         viewModel.emojiSkinTone = $0
-                        viewModel.updatePreference(key: "emoji_skin_tone", value: .string($0.rawValue))
+                        viewModel.updatePreference(key: .emojiSkinTone, value: .string($0.rawValue))
                     }
                 )) {
                     Text("👋").tag(EmojiSkinTone.default)
@@ -65,3 +65,12 @@ struct MessageSettingsView: View {
         .navigationTitle("Messages")
     }
 }
+
+#if DEBUG
+#Preview {
+    NavigationStack {
+        MessageSettingsView()
+    }
+    .environment(SettingsViewModel())
+}
+#endif

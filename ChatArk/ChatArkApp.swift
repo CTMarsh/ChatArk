@@ -3,6 +3,12 @@ import SwiftData
 
 @main
 struct ChatArkMain: App {
+    #if os(iOS)
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    #elseif os(macOS)
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    #endif
+
     @State private var authViewModel = AuthViewModel()
     @State private var settingsViewModel = SettingsViewModel()
     @State private var deepLinkConversationId: UUID?
@@ -13,7 +19,7 @@ struct ChatArkMain: App {
                 .environment(authViewModel)
                 .environment(settingsViewModel)
                 .preferredColorScheme(settingsViewModel.colorScheme)
-                .tint(Color(hex: settingsViewModel.accentColor))
+                .tint(settingsViewModel._tintColor)
                 .modelContainer(CacheManager.shared.container)
                 .onOpenURL { url in
                     handleDeepLink(url)
@@ -73,7 +79,9 @@ struct ChatArkMain: App {
                 deepLinkConversationId = id
             }
         case "share":
-            if let shareId = url.pathComponents.dropFirst().first {
+            // Validate shareId is a UUID to prevent path traversal
+            if let shareId = url.pathComponents.dropFirst().first,
+               UUID(uuidString: shareId) != nil {
                 Task {
                     await PendingShareHandler.shared.processPendingShare(shareId: shareId)
                 }

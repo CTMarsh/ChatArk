@@ -41,8 +41,11 @@ struct ChatWidgetsLiveActivity: Widget {
                         .lineLimit(2)
                 }
             } compactLeading: {
-                Image(systemName: "bubble.left.fill")
-                    .foregroundStyle(.blue)
+                Image("AppLogo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+                    .clipShape(RoundedRectangle(cornerRadius: 5))
             } compactTrailing: {
                 if context.state.unreadCount > 0 {
                     Text("\(context.state.unreadCount)")
@@ -50,8 +53,11 @@ struct ChatWidgetsLiveActivity: Widget {
                         .fontWeight(.bold)
                 }
             } minimal: {
-                Image(systemName: "bubble.left.fill")
-                    .foregroundStyle(.blue)
+                Image("AppLogo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+                    .clipShape(RoundedRectangle(cornerRadius: 5))
             }
             .widgetURL(URL(string: "chatark://conversation/\(context.attributes.conversationId)"))
         }
@@ -99,7 +105,7 @@ struct ChatWidgetsLiveActivity: Widget {
             .fontWeight(.semibold)
             .foregroundStyle(.white)
             .frame(width: 32, height: 32)
-            .background(.blue)
+            .background(Color(widgetHex: "4A8BC2"))
             .clipShape(Circle())
     }
 
@@ -110,7 +116,20 @@ struct ChatWidgetsLiveActivity: Widget {
             .foregroundStyle(.white)
             .padding(.horizontal, 8)
             .padding(.vertical, 2)
-            .background(.blue)
+            .background(Color(widgetHex: "4A8BC2"))
             .clipShape(Capsule())
     }
 }
+
+#if DEBUG
+#Preview("Live Activity", as: .content, using: ChatWidgetsAttributes(conversationName: "Team Chat", conversationId: "preview-123")) {
+    ChatWidgetsLiveActivity()
+} contentStates: {
+    ChatWidgetsAttributes.ContentState(
+        lastMessageSender: "Alice",
+        lastMessageContent: "The build is passing now!",
+        unreadCount: 3,
+        timestamp: .now
+    )
+}
+#endif

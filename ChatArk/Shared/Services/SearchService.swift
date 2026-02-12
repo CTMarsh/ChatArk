@@ -4,6 +4,8 @@ import Supabase
 @MainActor
 final class SearchService {
     private let client: SupabaseClient
+    // Rate limit: 5 searches burst, 1 per 2 seconds refill
+    private let searchRateLimiter = RateLimiter(maxTokens: 5, refillInterval: 2.0)
 
     nonisolated init(client: SupabaseClient = supabaseClient) {
         self.client = client
@@ -27,6 +29,10 @@ final class SearchService {
     }
 
     func searchProfiles(query: String, limit: Int = 20) async throws -> [Profile] {
+        guard searchRateLimiter.tryConsume() else {
+            throw ChatError.rateLimited
+        }
+
         guard let userId = client.auth.currentUser?.id else {
             throw ChatError.notAuthenticated
         }
@@ -42,7 +48,7 @@ final class SearchService {
 
         var dbQuery2 = client.from("profiles")
             .select()
-            .or("username.ilike.%\(query)%,display_name.ilike.%\(query)%")
+            .or("username.ilike.%\(PostgRESTSanitizer.sanitize(query))%,display_name.ilike.%\(PostgRESTSanitizer.sanitize(query))%")
             .neq("id", value: userId.uuidString)
 
         if !blockedIds.isEmpty {

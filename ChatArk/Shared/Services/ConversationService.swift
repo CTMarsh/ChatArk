@@ -89,13 +89,18 @@ final class ConversationService {
             throw ChatError.notAuthenticated
         }
 
+        let trimmedName = String(name.prefix(100))
+        guard !trimmedName.trimmingCharacters(in: .whitespaces).isEmpty else {
+            throw ConversationError.createFailed
+        }
+
         var conversationValues: [String: AnyJSON] = [
             "type": .string("group"),
-            "name": .string(name),
+            "name": .string(trimmedName),
             "created_by": .string(userId.uuidString),
         ]
         if let description {
-            conversationValues["description"] = .string(description)
+            conversationValues["description"] = .string(String(description.prefix(500)))
         }
 
         let conversation: Conversation = try await client.from("conversations")
@@ -142,9 +147,9 @@ final class ConversationService {
             .execute()
     }
 
-    func updateParticipantRole(conversationId: UUID, userId: UUID, role: String) async throws {
+    func updateParticipantRole(conversationId: UUID, userId: UUID, role: ParticipantRole) async throws {
         try await client.from("conversation_participants")
-            .update(["role": AnyJSON.string(role)])
+            .update(["role": AnyJSON.string(role.rawValue)])
             .eq("conversation_id", value: conversationId.uuidString)
             .eq("user_id", value: userId.uuidString)
             .execute()
@@ -220,6 +225,12 @@ final class ConversationService {
 }
 
 // MARK: - Errors
+
+enum ParticipantRole: String, Sendable {
+    case admin
+    case moderator
+    case member
+}
 
 enum ConversationError: LocalizedError {
     case createFailed

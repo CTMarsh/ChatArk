@@ -1,6 +1,30 @@
 import Foundation
 import Supabase
 
+/// Type-safe preference keys — prevents injection via raw string interpolation in PostgREST filters.
+enum PreferenceKey: String, Sendable {
+    case theme
+    case fontSize = "font_size"
+    case accentColor = "accent_color"
+    case messageDensity = "message_density"
+    case enterKeyBehavior = "enter_key_behavior"
+    case linkPreviewsEnabled = "link_previews_enabled"
+    case sendTypingIndicators = "send_typing_indicators"
+    case sendReadReceipts = "send_read_receipts"
+    case emojiSkinTone = "emoji_skin_tone"
+    case desktopNotifications = "desktop_notifications"
+    case soundNotifications = "sound_notifications"
+    case dndEnabled = "dnd_enabled"
+    case dndStartTime = "dnd_start_time"
+    case dndEndTime = "dnd_end_time"
+    case showOnlineStatus = "show_online_status"
+    case showReadReceipts = "show_read_receipts"
+    case showTypingIndicator = "show_typing_indicator"
+    case reduceMotion = "reduce_motion"
+    case highContrast = "high_contrast"
+    case bio
+}
+
 @MainActor
 final class PreferencesService {
     private let client: SupabaseClient
@@ -24,23 +48,23 @@ final class PreferencesService {
         return preferences.first
     }
 
-    func updatePreference(key: String, value: AnyJSON) async throws {
+    func updatePreference(key: PreferenceKey, value: AnyJSON) async throws {
         guard let userId = client.auth.currentUser?.id else {
             throw ChatError.notAuthenticated
         }
 
         try await client.from("user_preferences")
-            .update([key: value, "updated_at": AnyJSON.string(ISO8601DateFormatter().string(from: Date()))])
+            .update([key.rawValue: value, "updated_at": AnyJSON.string(ISO8601DateFormatter().string(from: Date()))])
             .eq("user_id", value: userId.uuidString)
             .execute()
     }
 
-    func updatePreferences(_ updates: [String: AnyJSON]) async throws {
+    func updatePreferences(_ updates: [PreferenceKey: AnyJSON]) async throws {
         guard let userId = client.auth.currentUser?.id else {
             throw ChatError.notAuthenticated
         }
 
-        var allUpdates = updates
+        var allUpdates = Dictionary(uniqueKeysWithValues: updates.map { ($0.key.rawValue, $0.value) })
         allUpdates["updated_at"] = .string(ISO8601DateFormatter().string(from: Date()))
 
         try await client.from("user_preferences")

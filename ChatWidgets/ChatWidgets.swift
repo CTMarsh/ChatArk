@@ -8,21 +8,22 @@ struct RecentConversationsEntry: TimelineEntry {
     let conversations: [WidgetConversationSummary]
 }
 
-struct RecentConversationsProvider: TimelineProvider {
+struct RecentConversationsProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> RecentConversationsEntry {
         RecentConversationsEntry(date: .now, conversations: [])
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (RecentConversationsEntry) -> Void) {
+    func snapshot(for configuration: ConversationCountIntent, in context: Context) async -> RecentConversationsEntry {
         let conversations = SharedDataReader.conversations()
-        completion(RecentConversationsEntry(date: .now, conversations: Array(conversations.prefix(5))))
+        let count = configuration.conversationCount
+        return RecentConversationsEntry(date: .now, conversations: Array(conversations.prefix(count)))
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<RecentConversationsEntry>) -> Void) {
+    func timeline(for configuration: ConversationCountIntent, in context: Context) async -> Timeline<RecentConversationsEntry> {
         let conversations = SharedDataReader.conversations()
-        let entry = RecentConversationsEntry(date: .now, conversations: Array(conversations.prefix(5)))
-        let timeline = Timeline(entries: [entry], policy: .after(.now.addingTimeInterval(900)))
-        completion(timeline)
+        let count = configuration.conversationCount
+        let entry = RecentConversationsEntry(date: .now, conversations: Array(conversations.prefix(count)))
+        return Timeline(entries: [entry], policy: .after(.now.addingTimeInterval(900)))
     }
 }
 
@@ -30,7 +31,7 @@ struct RecentConversationsWidget: Widget {
     let kind = "RecentConversationsWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: RecentConversationsProvider()) { entry in
+        AppIntentConfiguration(kind: kind, intent: ConversationCountIntent.self, provider: RecentConversationsProvider()) { entry in
             RecentConversationsWidgetView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }

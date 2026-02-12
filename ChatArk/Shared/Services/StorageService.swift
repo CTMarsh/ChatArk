@@ -26,6 +26,11 @@ final class StorageService {
             throw StorageError.fileTooLarge
         }
 
+        let validation = FileValidator.validate(data: data, fileName: fileName)
+        if !validation.isValid {
+            throw StorageError.fileTypeNotAllowed(validation.error ?? "File type not allowed")
+        }
+
         let timestamp = Int(Date().timeIntervalSince1970)
         let ext = (fileName as NSString).pathExtension
         let path = "\(userId.uuidString)/\(conversationId.uuidString)/\(timestamp).\(ext)"
@@ -53,7 +58,17 @@ final class StorageService {
             throw ChatError.notAuthenticated
         }
 
-        let path = "\(userId.uuidString)/avatar.\(contentType == "image/png" ? "png" : "jpg")"
+        guard data.count <= Self.maxFileSize else {
+            throw StorageError.fileTooLarge
+        }
+
+        let avatarFileName = "avatar.\(contentType == "image/png" ? "png" : "jpg")"
+        let validation = FileValidator.validate(data: data, fileName: avatarFileName)
+        if !validation.isValid {
+            throw StorageError.fileTypeNotAllowed(validation.error ?? "File type not allowed")
+        }
+
+        let path = "\(userId.uuidString)/\(avatarFileName)"
 
         try await client.storage.from("avatars")
             .upload(
@@ -113,6 +128,7 @@ private struct ScanResult: Codable {
 
 enum StorageError: LocalizedError {
     case fileTooLarge
+    case fileTypeNotAllowed(String)
     case virusDetected(String)
     case uploadFailed
     case downloadFailed
@@ -120,6 +136,7 @@ enum StorageError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .fileTooLarge: "File exceeds the 50MB size limit"
+        case .fileTypeNotAllowed(let detail): detail
         case .virusDetected(let message): "File rejected: \(message)"
         case .uploadFailed: "Failed to upload file"
         case .downloadFailed: "Failed to download file"

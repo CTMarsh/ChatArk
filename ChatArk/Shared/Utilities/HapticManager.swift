@@ -23,8 +23,16 @@ enum HapticManager {
         impact(.light)
     }
 
+    static func messageReceived() {
+        impact(.soft)
+    }
+
     static func reactionAdded() {
         impact(.medium)
+    }
+
+    static func navigationTap() {
+        selection()
     }
 
     static func error() {
@@ -35,8 +43,16 @@ enum HapticManager {
         WKInterfaceDevice.current().play(.click)
     }
 
+    static func messageReceived() {
+        WKInterfaceDevice.current().play(.notification)
+    }
+
     static func reactionAdded() {
         WKInterfaceDevice.current().play(.success)
+    }
+
+    static func navigationTap() {
+        WKInterfaceDevice.current().play(.click)
     }
 
     static func error() {
@@ -45,7 +61,9 @@ enum HapticManager {
     #else
     // macOS - no haptics
     static func messageSent() {}
+    static func messageReceived() {}
     static func reactionAdded() {}
+    static func navigationTap() {}
     static func error() {}
     #endif
 }

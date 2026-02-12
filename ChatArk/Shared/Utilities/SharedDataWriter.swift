@@ -1,4 +1,6 @@
 import Foundation
+import CryptoKit
+import os.log
 #if canImport(WidgetKit)
 import WidgetKit
 #endif
@@ -45,6 +47,7 @@ final class SharedDataWriter {
     static let shared = SharedDataWriter()
 
     private let suiteName = "group.com.chrismarsh.chatark"
+    private let logger = Logger(subsystem: "com.chrismarsh.chatark", category: "SharedDataWriter")
     private let encoder: JSONEncoder = {
         let e = JSONEncoder()
         e.dateEncodingStrategy = .iso8601
@@ -74,8 +77,16 @@ final class SharedDataWriter {
             )
         }
 
-        guard let data = try? encoder.encode(Array(summaries)) else { return }
-        defaults?.set(data, forKey: "recent_conversations")
+        guard let data = try? encoder.encode(Array(summaries)) else {
+            logger.error("Failed to encode conversation summaries")
+            return
+        }
+        guard let encrypted = AppGroupEncryption.encrypt(data) else {
+            logger.error("Failed to encrypt conversation data for App Group")
+            return
+        }
+        defaults?.set(encrypted, forKey: "recent_conversations")
+        defaults?.set(Date().timeIntervalSince1970, forKey: "conversations_updated_at")
 
         let totalUnread = details.reduce(0) { $0 + $1.unreadCount }
         defaults?.set(totalUnread, forKey: "total_unread_count")
@@ -85,11 +96,19 @@ final class SharedDataWriter {
         #endif
     }
 
-    // MARK: - Current User
+    // MARK: - Current User (encrypted)
 
     func writeCurrentUser(id: String, name: String) {
-        defaults?.set(id, forKey: "current_user_id")
-        defaults?.set(name, forKey: "current_user_name")
+        if let encryptedId = AppGroupEncryption.encryptString(id) {
+            defaults?.set(encryptedId, forKey: "current_user_id")
+        } else {
+            logger.error("Failed to encrypt current_user_id for App Group")
+        }
+        if let encryptedName = AppGroupEncryption.encryptString(name) {
+            defaults?.set(encryptedName, forKey: "current_user_name")
+        } else {
+            logger.error("Failed to encrypt current_user_name for App Group")
+        }
     }
 
     // MARK: - Accent Color
@@ -106,12 +125,45 @@ final class SharedDataWriter {
         defaults?.set(Date().timeIntervalSince1970, forKey: "watch_last_sync")
     }
 
+    // MARK: - Auth Session (for watch companion, encrypted)
+
+    func writeAuthSession(accessToken: String, refreshToken: String) {
+        if let encryptedAccess = AppGroupEncryption.encryptString(accessToken) {
+            defaults?.set(encryptedAccess, forKey: "auth_access_token")
+        } else {
+            logger.error("Failed to encrypt auth access token for App Group")
+        }
+        if let encryptedRefresh = AppGroupEncryption.encryptString(refreshToken) {
+            defaults?.set(encryptedRefresh, forKey: "auth_refresh_token")
+        } else {
+            logger.error("Failed to encrypt auth refresh token for App Group")
+        }
+    }
+
+    func clearAuthSession() {
+        defaults?.removeObject(forKey: "auth_access_token")
+        defaults?.removeObject(forKey: "auth_refresh_token")
+    }
+
+    static func readAuthSession() -> (accessToken: String, refreshToken: String)? {
+        guard let defaults = UserDefaults(suiteName: "group.com.chrismarsh.chatark"),
+              let encryptedAccess = defaults.data(forKey: "auth_access_token"),
+              let encryptedRefresh = defaults.data(forKey: "auth_refresh_token"),
+              let accessToken = AppGroupEncryption.decryptString(encryptedAccess),
+              let refreshToken = AppGroupEncryption.decryptString(encryptedRefresh) else {
+            return nil
+        }
+        return (accessToken, refreshToken)
+    }
+
     // MARK: - Clear
 
     func clearAll() {
         let keys = ["recent_conversations", "total_unread_count", "current_user_id",
                      "current_user_name", "accent_color", "watch_unread_count",
-                     "watch_recent_names", "watch_last_sync"]
+                     "watch_recent_names", "watch_last_sync",
+                     "auth_access_token", "auth_refresh_token",
+                     "conversations_updated_at"]
         keys.forEach { defaults?.removeObject(forKey: $0) }
 
         #if canImport(WidgetKit)

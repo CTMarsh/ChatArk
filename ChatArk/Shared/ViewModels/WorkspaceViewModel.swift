@@ -26,7 +26,7 @@ final class WorkspaceViewModel {
                 selectedWorkspace = workspaces.first
             }
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
         }
     }
 
@@ -42,7 +42,7 @@ final class WorkspaceViewModel {
             members = try await workspaceService.fetchMembers(workspaceId: workspace.id)
             widgets = try await workspaceService.fetchWidgets(workspaceId: workspace.id)
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
         }
     }
 
@@ -52,7 +52,7 @@ final class WorkspaceViewModel {
             workspaces.append(workspace)
             selectedWorkspace = workspace
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
         }
     }
 
@@ -64,7 +64,7 @@ final class WorkspaceViewModel {
                 selectedWorkspace = workspaces.first
             }
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
         }
     }
 
@@ -74,7 +74,7 @@ final class WorkspaceViewModel {
             try await workspaceService.addMember(workspaceId: workspace.id, userId: userId)
             await loadWorkspaceDetails()
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
         }
     }
 
@@ -84,7 +84,7 @@ final class WorkspaceViewModel {
             try await workspaceService.removeMember(workspaceId: workspace.id, userId: userId)
             members.removeAll { $0.userId == userId }
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
         }
     }
 }

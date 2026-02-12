@@ -34,7 +34,7 @@ struct ForgotPasswordView: View {
                     VStack(spacing: 12) {
                         Image(systemName: "key.fill")
                             .font(.system(size: 50))
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(NauticalTheme.ocean)
 
                         Text("Reset Password")
                             .font(.title2)
@@ -77,7 +77,7 @@ struct ForgotPasswordView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(.blue)
+                            .background(NauticalTheme.ocean)
                             .foregroundStyle(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
@@ -95,3 +95,10 @@ struct ForgotPasswordView: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    ForgotPasswordView()
+        .environment(AuthViewModel())
+}
+#endif

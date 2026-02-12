@@ -56,8 +56,8 @@ final class KeychainAuthStorage: AuthLocalStorage, @unchecked Sendable {
 
     init() {
         keychain = Keychain(service: "com.chrismarsh.chatark.auth")
-            .accessibility(.afterFirstUnlock)
-            .synchronizable(true)
+            .accessibility(.afterFirstUnlockThisDeviceOnly)
+            .synchronizable(false)
     }
 
     func store(key: String, value: Data) throws {

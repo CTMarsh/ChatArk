@@ -22,3 +22,12 @@ struct AccessibilitySettingsView: View {
         .navigationTitle("Accessibility")
     }
 }
+
+#if DEBUG
+#Preview {
+    NavigationStack {
+        AccessibilitySettingsView()
+    }
+    .environment(SettingsViewModel())
+}
+#endif

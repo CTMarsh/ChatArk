@@ -70,3 +70,9 @@ struct EmojiPicker: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    EmojiPicker(onSelect: { _ in })
+}
+#endif

@@ -22,6 +22,7 @@ struct WatchQuickReply: View {
                 // Predefined replies
                 ForEach(quickReplies, id: \.self) { reply in
                     Button {
+                        HapticManager.messageSent()
                         onSend(reply)
                     } label: {
                         Text(reply)
@@ -38,6 +39,7 @@ struct WatchQuickReply: View {
 
                 if !messageText.isEmpty {
                     Button("Send") {
+                        HapticManager.messageSent()
                         onSend(messageText)
                     }
                     .buttonStyle(.borderedProminent)
@@ -52,4 +54,10 @@ struct WatchQuickReply: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    WatchQuickReply(conversationId: PreviewData.dmConvId, onSend: { _ in })
+}
+#endif
 #endif

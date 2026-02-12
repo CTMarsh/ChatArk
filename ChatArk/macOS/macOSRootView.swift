@@ -17,6 +17,10 @@ struct MacRootView: View {
                 LoginView()
                     .frame(width: 400, height: 500)
 
+            case .needsEmailConfirmation(let email):
+                EmailConfirmationView(email: email)
+                    .frame(width: 400, height: 500)
+
             case .needsMFAEnrollment:
                 MFASetupView()
                     .frame(width: 400, height: 600)
@@ -26,10 +30,15 @@ struct MacRootView: View {
                     .frame(width: 400, height: 400)
 
             case .authenticated:
-                MainWindow()
-                    .task {
-                        await settingsViewModel.loadPreferences()
+                VStack(spacing: 0) {
+                    if !NetworkMonitor.shared.isConnected {
+                        OfflineBanner()
                     }
+                    MainWindow()
+                }
+                .task {
+                    await settingsViewModel.loadPreferences()
+                }
             }
         }
         .task {
@@ -37,4 +46,12 @@ struct MacRootView: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    MacRootView()
+        .environment(AuthViewModel())
+        .environment(SettingsViewModel())
+}
+#endif
 #endif

@@ -52,3 +52,11 @@ struct UserSearchView: View {
         .navigationTitle("Find People")
     }
 }
+
+#if DEBUG
+#Preview {
+    NavigationStack {
+        UserSearchView(onSelectUser: { _ in })
+    }
+}
+#endif

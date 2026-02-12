@@ -66,3 +66,12 @@ struct PrivacySettingsView: View {
         blockedProfiles = profiles
     }
 }
+
+#if DEBUG
+#Preview {
+    NavigationStack {
+        PrivacySettingsView()
+    }
+    .environment(SettingsViewModel())
+}
+#endif

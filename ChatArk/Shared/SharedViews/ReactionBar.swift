@@ -25,7 +25,16 @@ struct ReactionBar: View {
                     .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("\(group.emoji) \(group.count) reaction\(group.count == 1 ? "" : "s")\(group.currentUserReacted ? ", you reacted" : "")")
+                .accessibilityHint("Double tap to toggle reaction")
             }
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    ReactionBar(reactions: PreviewData.sampleReactions, onTap: { _ in })
+        .padding()
+}
+#endif

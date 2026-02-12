@@ -13,7 +13,10 @@ final class SettingsViewModel {
     var theme: Theme = .system
     var uiScale: UIScale = .comfortable
     var fontSize: FontSize = .medium
-    var accentColor: String = "#3b82f6"
+    var accentColor: String = NauticalTheme.defaultAccentHex {
+        didSet { _tintColor = Color(hex: accentColor) }
+    }
+    private(set) var _tintColor: Color = NauticalTheme.ocean
     var messageDensity: MessageDensity = .default
     var enterKeyBehavior: EnterKeyBehavior = .send
     var linkPreviewsEnabled = true
@@ -51,7 +54,7 @@ final class SettingsViewModel {
             preferences = prefs
             applyFromPreferences(prefs!)
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
         }
     }
 
@@ -59,7 +62,7 @@ final class SettingsViewModel {
         theme = prefs.theme ?? .system
         uiScale = prefs.uiScale ?? .comfortable
         fontSize = prefs.fontSize ?? .medium
-        accentColor = prefs.accentColor ?? "#3b82f6"
+        accentColor = prefs.accentColor ?? NauticalTheme.defaultAccentHex
         messageDensity = prefs.messageDensity ?? .default
         enterKeyBehavior = prefs.enterKeyBehavior ?? .send
         linkPreviewsEnabled = prefs.linkPreviewsEnabled ?? true
@@ -80,63 +83,64 @@ final class SettingsViewModel {
 
     // MARK: - Update (debounced)
 
-    func updatePreference(key: String, value: AnyJSON) {
-        debounceTasks[key]?.cancel()
-        debounceTasks[key] = Task {
+    func updatePreference(key: PreferenceKey, value: AnyJSON) {
+        let rawKey = key.rawValue
+        debounceTasks[rawKey]?.cancel()
+        debounceTasks[rawKey] = Task {
             try? await Task.sleep(for: .milliseconds(300))
             guard !Task.isCancelled else { return }
             do {
                 try await preferencesService.updatePreference(key: key, value: value)
             } catch {
-                self.error = error.localizedDescription
+                self.error = ErrorSanitizer.sanitize(error)
             }
         }
     }
 
     func updateTheme(_ newTheme: Theme) {
         theme = newTheme
-        updatePreference(key: "theme", value: .string(newTheme.rawValue))
+        updatePreference(key: .theme, value: .string(newTheme.rawValue))
     }
 
     func updateFontSize(_ newSize: FontSize) {
         fontSize = newSize
-        updatePreference(key: "font_size", value: .string(newSize.rawValue))
+        updatePreference(key: .fontSize, value: .string(newSize.rawValue))
     }
 
     func updateAccentColor(_ color: String) {
         accentColor = color
-        updatePreference(key: "accent_color", value: .string(color))
+        updatePreference(key: .accentColor, value: .string(color))
         SharedDataWriter.shared.writeAccentColor(color)
     }
 
     func toggleDND(_ enabled: Bool) {
         dndEnabled = enabled
-        updatePreference(key: "dnd_enabled", value: .bool(enabled))
+        updatePreference(key: .dndEnabled, value: .bool(enabled))
     }
 
     func toggleOnlineStatus(_ show: Bool) {
         showOnlineStatus = show
-        updatePreference(key: "show_online_status", value: .bool(show))
+        updatePreference(key: .showOnlineStatus, value: .bool(show))
     }
 
     func toggleReadReceipts(_ show: Bool) {
         showReadReceipts = show
-        updatePreference(key: "show_read_receipts", value: .bool(show))
+        updatePreference(key: .showReadReceipts, value: .bool(show))
     }
 
     func toggleTypingIndicator(_ show: Bool) {
         showTypingIndicator = show
-        updatePreference(key: "show_typing_indicator", value: .bool(show))
+        updatePreference(key: .showTypingIndicator, value: .bool(show))
     }
 
     func toggleReduceMotion(_ reduce: Bool) {
         reduceMotion = reduce
-        updatePreference(key: "reduce_motion", value: .bool(reduce))
+        updatePreference(key: .reduceMotion, value: .bool(reduce))
     }
 
     func toggleHighContrast(_ contrast: Bool) {
         highContrast = contrast
-        updatePreference(key: "high_contrast", value: .bool(contrast))
+        updatePreference(key: .highContrast, value: .bool(contrast))
     }
 
     // MARK: - Color Scheme

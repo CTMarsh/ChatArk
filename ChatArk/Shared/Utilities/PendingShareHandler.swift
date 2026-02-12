@@ -93,30 +93,32 @@ final class PendingShareHandler {
         messageType: MessageType,
         contentType: String
     ) async throws {
+        // Sanitize fileName to prevent path traversal (e.g. "../../secret.txt")
+        let sanitizedFileName = URL(fileURLWithPath: fileName).lastPathComponent
         let fm = FileManager.default
         guard let shareDir = fm.containerURL(forSecurityApplicationGroupIdentifier: suiteName)?
             .appendingPathComponent("PendingShares", isDirectory: true)
             .appendingPathComponent(shareId, isDirectory: true) else { return }
 
-        let fileUrl = shareDir.appendingPathComponent(fileName)
+        let fileUrl = shareDir.appendingPathComponent(sanitizedFileName)
         guard let fileData = try? Data(contentsOf: fileUrl) else {
-            logger.error("Cannot read shared file: \(fileName, privacy: .public)")
+            logger.error("Cannot read shared file: \(sanitizedFileName, privacy: .public)")
             return
         }
 
         let uploadedUrl = try await storageService.uploadMessageAttachment(
             data: fileData,
-            fileName: fileName,
+            fileName: sanitizedFileName,
             contentType: contentType,
             conversationId: conversationId
         )
 
         _ = try await chatService.sendMessage(
             conversationId: conversationId,
-            content: fileName,
+            content: sanitizedFileName,
             type: messageType,
             fileUrl: uploadedUrl,
-            fileName: fileName,
+            fileName: sanitizedFileName,
             fileSize: Int64(fileData.count),
             fileType: contentType
         )

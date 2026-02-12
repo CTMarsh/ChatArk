@@ -12,13 +12,13 @@ struct PinnedMessageBanner: View {
                 HStack(spacing: 8) {
                     Image(systemName: "pin.fill")
                         .font(.caption)
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(NauticalTheme.golden)
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Pinned Message")
                             .font(.caption)
                             .fontWeight(.semibold)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(NauticalTheme.golden)
 
                         Text(latest.content)
                             .font(.caption)
@@ -34,7 +34,7 @@ struct PinnedMessageBanner: View {
                             .fontWeight(.bold)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(Color.orange.opacity(0.2))
+                            .background(NauticalTheme.golden.opacity(0.2))
                             .clipShape(Capsule())
                     }
 
@@ -50,3 +50,9 @@ struct PinnedMessageBanner: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    PinnedMessageBanner(messages: [PreviewData.pinnedMessage], onTap: { _ in })
+}
+#endif

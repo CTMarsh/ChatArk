@@ -5,6 +5,7 @@ struct ConversationListView: View {
     @Environment(AuthViewModel.self) private var authViewModel
     @State private var viewModel = ConversationListViewModel()
     @State private var showNewConversation = false
+    @State private var showMessageSearch = false
     @State private var selectedConversation: ConversationWithDetails?
     @State private var conversationToDelete: ConversationWithDetails?
 
@@ -14,11 +15,18 @@ struct ConversationListView: View {
                 if viewModel.isLoading && viewModel.conversations.isEmpty {
                     ProgressView("Loading conversations...")
                 } else if viewModel.conversations.isEmpty {
-                    ContentUnavailableView(
-                        "No Conversations",
-                        systemImage: "bubble.left.and.bubble.right",
-                        description: Text("Start a new conversation to begin chatting")
-                    )
+                    ContentUnavailableView {
+                        Label("No Conversations", systemImage: "bubble.left.and.bubble.right")
+                    } description: {
+                        Text("Start chatting by tapping the compose button above.")
+                    } actions: {
+                        Button {
+                            showNewConversation = true
+                        } label: {
+                            Text("New Conversation")
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
                 } else {
                     List {
                         SearchBar(text: $viewModel.searchQuery)
@@ -57,6 +65,14 @@ struct ConversationListView: View {
                     }
                 }
 
+                ToolbarItem {
+                    Button {
+                        showMessageSearch = true
+                    } label: {
+                        Image(systemName: "magnifyingglass")
+                    }
+                }
+
                 ToolbarItem(placement: .navigation) {
                     NavigationLink(value: "settings") {
                         Image(systemName: "gearshape")
@@ -92,6 +108,9 @@ struct ConversationListView: View {
                     Task { await viewModel.loadConversations() }
                 }
             }
+            .sheet(isPresented: $showMessageSearch) {
+                MessageSearchView(conversationId: nil)
+            }
         }
         .task {
             await viewModel.loadConversations()
@@ -99,3 +118,10 @@ struct ConversationListView: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    ConversationListView()
+        .environment(AuthViewModel())
+}
+#endif

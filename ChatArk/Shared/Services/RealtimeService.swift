@@ -261,6 +261,20 @@ final class RealtimeService {
         try? await channel.track(["status": status.rawValue])
     }
 
+    // MARK: - Reconnection
+
+    func monitorConnection() async {
+        while !Task.isCancelled {
+            try? await Task.sleep(for: .seconds(10))
+            guard NetworkMonitor.shared.isConnected else { continue }
+            for (_, channel) in channels {
+                if channel.status != .subscribed {
+                    try? await channel.subscribeWithError()
+                }
+            }
+        }
+    }
+
     // MARK: - Unsubscribe
 
     func unsubscribe(channelKey: String) async {

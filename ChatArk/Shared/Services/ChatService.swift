@@ -145,6 +145,13 @@ final class ChatService {
             throw ChatError.notAuthenticated
         }
 
+        // Validate emoji: must be 1-2 characters and contain at least one emoji scalar
+        guard !emoji.isEmpty,
+              emoji.count <= 2,
+              emoji.unicodeScalars.contains(where: { $0.properties.isEmoji && $0.value > 0x23 }) else {
+            throw ChatError.permissionDenied
+        }
+
         return try await client.from("message_reactions")
             .insert([
                 "message_id": AnyJSON.string(messageId.uuidString),
@@ -253,6 +260,7 @@ enum ChatError: LocalizedError {
     case messageSendFailed
     case messageNotFound
     case permissionDenied
+    case rateLimited
 
     var errorDescription: String? {
         switch self {
@@ -260,6 +268,7 @@ enum ChatError: LocalizedError {
         case .messageSendFailed: "Failed to send message"
         case .messageNotFound: "Message not found"
         case .permissionDenied: "You don't have permission for this action"
+        case .rateLimited: "Too many requests. Please wait a moment."
         }
     }
 }

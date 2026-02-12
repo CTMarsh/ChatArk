@@ -162,3 +162,30 @@ struct WatchComplicationEntryView: View {
         }
     }
 }
+
+#if DEBUG
+private let previewWatchEntry = WatchUnreadCountEntry(
+    date: .now,
+    unreadCount: 5,
+    recentNames: ["Alice", "Team Chat"],
+    isStale: false
+)
+
+#Preview("Circular", as: .accessoryCircular) {
+    UnreadComplication()
+} timeline: {
+    previewWatchEntry
+}
+
+#Preview("Rectangular", as: .accessoryRectangular) {
+    UnreadComplication()
+} timeline: {
+    previewWatchEntry
+}
+
+#Preview("Inline", as: .accessoryInline) {
+    UnreadComplication()
+} timeline: {
+    previewWatchEntry
+}
+#endif

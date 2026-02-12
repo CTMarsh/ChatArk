@@ -38,10 +38,19 @@ final class PresenceService {
             .value
     }
 
+    func fetchProfiles(userIds: [UUID]) async throws -> [Profile] {
+        guard !userIds.isEmpty else { return [] }
+        return try await client.from("profiles")
+            .select()
+            .in("id", values: userIds.map(\.uuidString))
+            .execute()
+            .value
+    }
+
     func searchProfiles(query: String, limit: Int = 20) async throws -> [Profile] {
         try await client.from("profiles")
             .select()
-            .or("username.ilike.%\(query)%,display_name.ilike.%\(query)%")
+            .or("username.ilike.%\(PostgRESTSanitizer.sanitize(query))%,display_name.ilike.%\(PostgRESTSanitizer.sanitize(query))%")
             .limit(limit)
             .execute()
             .value

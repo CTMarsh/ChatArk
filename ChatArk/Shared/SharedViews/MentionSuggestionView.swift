@@ -55,3 +55,14 @@ struct MentionSuggestionView: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    MentionSuggestionView(
+        participants: [PreviewData.alice, PreviewData.bob, PreviewData.carol],
+        query: "",
+        onSelect: { _ in }
+    )
+    .padding()
+}
+#endif

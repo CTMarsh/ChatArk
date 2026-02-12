@@ -61,13 +61,31 @@ struct ConversationRow: View {
                             .foregroundStyle(.white)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(.blue)
+                            .background(NauticalTheme.ocean)
                             .clipShape(Capsule())
                     }
                 }
             }
         }
         .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityDescription)
+    }
+
+    private var accessibilityDescription: String {
+        var parts = [displayName]
+        if let lastMessage = detail.lastMessage {
+            parts.append(lastMessage.isDeleted ? "Message deleted" : lastMessage.content)
+        } else {
+            parts.append("No messages yet")
+        }
+        if detail.unreadCount > 0 {
+            parts.append("\(detail.unreadCount) unread")
+        }
+        if let status = otherParticipant?.status, detail.conversation.type == .direct {
+            parts.append(status.rawValue)
+        }
+        return parts.joined(separator: ", ")
     }
 
     private var displayName: String {
@@ -84,3 +102,20 @@ struct ConversationRow: View {
         detail.participants.first { $0.id != currentUserId }
     }
 }
+
+#if DEBUG
+#Preview("DM with unread") {
+    ConversationRow(detail: PreviewData.dmDetail, currentUserId: PreviewData.currentUserId)
+        .padding()
+}
+
+#Preview("Group") {
+    ConversationRow(detail: PreviewData.groupDetail, currentUserId: PreviewData.currentUserId)
+        .padding()
+}
+
+#Preview("No messages") {
+    ConversationRow(detail: PreviewData.emptyDetail, currentUserId: PreviewData.currentUserId)
+        .padding()
+}
+#endif

@@ -22,9 +22,11 @@ struct ChatLiveActivityView: Widget {
         ActivityConfiguration(for: ChatActivityAttributes.self) { context in
             // Lock screen / banner
             HStack(spacing: 12) {
-                Image(systemName: "bubble.left.and.bubble.right.fill")
-                    .font(.title2)
-                    .foregroundStyle(.blue)
+                Image("AppLogo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 36, height: 36)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(context.attributes.conversationName)
@@ -45,7 +47,7 @@ struct ChatLiveActivityView: Widget {
                         .foregroundStyle(.white)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(.blue)
+                        .background(NauticalTheme.ocean)
                         .clipShape(Capsule())
                 }
             }
@@ -56,8 +58,11 @@ struct ChatLiveActivityView: Widget {
             DynamicIsland {
                 // Expanded
                 DynamicIslandExpandedRegion(.leading) {
-                    Image(systemName: "bubble.left.and.bubble.right.fill")
-                        .foregroundStyle(.blue)
+                    Image("AppLogo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 28, height: 28)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     if context.state.unreadCount > 0 {
@@ -77,7 +82,7 @@ struct ChatLiveActivityView: Widget {
                 }
             } compactLeading: {
                 Image(systemName: "bubble.left.fill")
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(NauticalTheme.ocean)
             } compactTrailing: {
                 if context.state.unreadCount > 0 {
                     Text("\(context.state.unreadCount)")
@@ -86,7 +91,7 @@ struct ChatLiveActivityView: Widget {
                 }
             } minimal: {
                 Image(systemName: "bubble.left.fill")
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(NauticalTheme.ocean)
             }
         }
     }

@@ -1,3 +1,4 @@
+#if !os(watchOS)
 import SwiftUI
 import NukeUI
 
@@ -77,3 +78,10 @@ struct ImageViewer: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    ImageViewer(url: URL(string: "https://picsum.photos/800/600")!)
+}
+#endif
+#endif

@@ -31,8 +31,14 @@ enum SharedDataReader {
     }()
 
     static func conversations() -> [WidgetConversationSummary] {
-        guard let data = defaults?.data(forKey: "recent_conversations"),
+        guard let encrypted = defaults?.data(forKey: "recent_conversations"),
+              let data = WidgetDecryption.decrypt(encrypted),
               let items = try? decoder.decode([WidgetConversationSummary].self, from: data) else {
+            // Fallback: try reading unencrypted (migration period)
+            if let rawData = defaults?.data(forKey: "recent_conversations"),
+               let items = try? decoder.decode([WidgetConversationSummary].self, from: rawData) {
+                return items
+            }
             return []
         }
         return items
@@ -43,11 +49,15 @@ enum SharedDataReader {
     }
 
     static func currentUserName() -> String? {
-        defaults?.string(forKey: "current_user_name")
+        if let encrypted = defaults?.data(forKey: "current_user_name") {
+            return WidgetDecryption.decryptString(encrypted)
+        }
+        // Fallback: try reading unencrypted (migration period)
+        return defaults?.string(forKey: "current_user_name")
     }
 
     static func accentColorHex() -> String {
-        defaults?.string(forKey: "accent_color") ?? "#3b82f6"
+        defaults?.string(forKey: "accent_color") ?? "#4A8BC2"
     }
 }
 

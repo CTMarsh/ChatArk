@@ -16,6 +16,7 @@ final class ConversationListViewModel {
     private let chatService: ChatService
     private let presenceService: PresenceService
     private let realtimeService: RealtimeService
+    private var sortDebounceTask: Task<Void, Never>?
 
     init(
         conversationService: ConversationService = ConversationService(),
@@ -38,19 +39,31 @@ final class ConversationListViewModel {
 
         do {
             let rawConversations = try await conversationService.fetchConversations()
-            var details: [ConversationWithDetails] = []
 
-            for conversation in rawConversations {
-                let lastMessage = try? await conversationService.fetchLastMessage(conversationId: conversation.id)
-                let unreadCount = (try? await conversationService.getUnreadCount(conversationId: conversation.id)) ?? 0
-                let participants = (try? await conversationService.fetchParticipantProfiles(conversationId: conversation.id)) ?? []
+            let details: [ConversationWithDetails] = await withTaskGroup(
+                of: ConversationWithDetails?.self,
+                returning: [ConversationWithDetails].self
+            ) { group in
+                for conversation in rawConversations {
+                    group.addTask { [conversationService] in
+                        async let lastMessage = try? conversationService.fetchLastMessage(conversationId: conversation.id)
+                        async let unreadCount = (try? conversationService.getUnreadCount(conversationId: conversation.id)) ?? 0
+                        async let participants = (try? conversationService.fetchParticipantProfiles(conversationId: conversation.id)) ?? []
 
-                details.append(ConversationWithDetails(
-                    conversation: conversation,
-                    lastMessage: lastMessage,
-                    unreadCount: unreadCount,
-                    participants: participants
-                ))
+                        return ConversationWithDetails(
+                            conversation: conversation,
+                            lastMessage: await lastMessage,
+                            unreadCount: await unreadCount,
+                            participants: await participants
+                        )
+                    }
+                }
+
+                var results: [ConversationWithDetails] = []
+                for await result in group {
+                    if let result { results.append(result) }
+                }
+                return results
             }
 
             conversations = details.sorted {
@@ -61,7 +74,7 @@ final class ConversationListViewModel {
             SharedDataWriter.shared.writeConversations(conversations)
             syncWatchData()
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
         }
     }
 
@@ -96,8 +109,7 @@ final class ConversationListViewModel {
                         participants: updated.participants
                     )
                     self.conversations[index] = updated
-                    self.sortConversations()
-                    SharedDataWriter.shared.writeConversations(self.conversations)
+                    self.debouncedSortAndWrite()
                 }
             }
         }
@@ -127,7 +139,7 @@ final class ConversationListViewModel {
                 userId: currentUserId
             )
         } catch {
-            self.error = error.localizedDescription
+            self.error = ErrorSanitizer.sanitize(error)
         }
         conversations.removeAll { $0.id == detail.id }
         SharedDataWriter.shared.writeConversations(conversations)
@@ -159,6 +171,17 @@ final class ConversationListViewModel {
             let d1 = $0.lastMessage?.createdAt ?? $0.conversation.createdAt ?? .distantPast
             let d2 = $1.lastMessage?.createdAt ?? $1.conversation.createdAt ?? .distantPast
             return d1 > d2
+        }
+    }
+
+    private func debouncedSortAndWrite() {
+        sortDebounceTask?.cancel()
+        sortDebounceTask = Task {
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled else { return }
+            sortConversations()
+            SharedDataWriter.shared.writeConversations(conversations)
+            syncWatchData()
         }
     }
 

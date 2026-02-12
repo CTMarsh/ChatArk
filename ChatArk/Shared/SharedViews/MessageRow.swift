@@ -75,3 +75,35 @@ struct MessageRow: View {
         }
     }
 }
+
+#if DEBUG
+#Preview("Own message") {
+    MessageRow(
+        message: PreviewData.ownTextMessage,
+        isFromCurrentUser: true,
+        senderName: "Chris Marsh",
+        senderAvatarUrl: nil,
+        reactions: PreviewData.sampleReactions,
+        onReaction: { _ in },
+        onReply: {},
+        onEdit: {},
+        onDelete: {},
+        onPin: {}
+    )
+}
+
+#Preview("Other's message") {
+    MessageRow(
+        message: PreviewData.otherTextMessage,
+        isFromCurrentUser: false,
+        senderName: "Alice Johnson",
+        senderAvatarUrl: nil,
+        reactions: [],
+        onReaction: { _ in },
+        onReply: {},
+        onEdit: {},
+        onDelete: {},
+        onPin: {}
+    )
+}
+#endif

@@ -11,7 +11,7 @@ struct MFASetupView: View {
                     VStack(spacing: 8) {
                         Image(systemName: "lock.shield.fill")
                             .font(.system(size: 50))
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(NauticalTheme.ocean)
 
                         Text("Set Up Two-Factor Authentication")
                             .font(.title2)
@@ -105,7 +105,7 @@ struct MFASetupView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(.blue)
+                            .background(NauticalTheme.ocean)
                             .foregroundStyle(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
@@ -122,3 +122,10 @@ struct MFASetupView: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    MFASetupView()
+        .environment(AuthViewModel())
+}
+#endif

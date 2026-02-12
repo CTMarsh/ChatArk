@@ -44,6 +44,22 @@ struct MessageBubble: View {
         }
         .frame(maxWidth: .infinity, alignment: isFromCurrentUser ? .trailing : .leading)
         .padding(.horizontal)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(bubbleAccessibilityLabel)
+    }
+
+    private var bubbleAccessibilityLabel: String {
+        var parts: [String] = []
+        if !isFromCurrentUser { parts.append("From \(senderName)") }
+        if message.isDeleted {
+            parts.append("Deleted message")
+        } else {
+            if message.fileUrl != nil { parts.append("Attachment") }
+            if !message.content.isEmpty { parts.append(message.content) }
+        }
+        if message.isEdited == true { parts.append("Edited") }
+        parts.append(DateFormatting.messageTime(message.createdAt))
+        return parts.joined(separator: ", ")
     }
 
     @ViewBuilder
@@ -53,7 +69,7 @@ struct MessageBubble: View {
             if message.replyToId != nil {
                 HStack(spacing: 4) {
                     Rectangle()
-                        .fill(.blue)
+                        .fill(NauticalTheme.ocean)
                         .frame(width: 3)
                     Text("Reply")
                         .font(.caption)
@@ -95,3 +111,23 @@ struct MessageBubble: View {
             .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }
+
+#if DEBUG
+#Preview("Own bubble") {
+    MessageBubble(
+        message: PreviewData.ownTextMessage,
+        isFromCurrentUser: true,
+        senderName: "Chris Marsh",
+        senderAvatarUrl: nil
+    )
+}
+
+#Preview("Other's bubble") {
+    MessageBubble(
+        message: PreviewData.otherTextMessage,
+        isFromCurrentUser: false,
+        senderName: "Alice Johnson",
+        senderAvatarUrl: nil
+    )
+}
+#endif

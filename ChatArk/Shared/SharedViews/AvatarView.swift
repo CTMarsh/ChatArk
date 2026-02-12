@@ -7,21 +7,25 @@ struct AvatarView: View {
     var size: CGFloat = 40
 
     var body: some View {
-        if let url, let imageUrl = URL(string: url) {
-            LazyImage(url: imageUrl) { state in
-                if let image = state.image {
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } else {
-                    fallbackAvatar
+        Group {
+            if let url, let imageUrl = URL(string: url) {
+                LazyImage(url: imageUrl) { state in
+                    if let image = state.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } else {
+                        fallbackAvatar
+                    }
                 }
+                .frame(width: size, height: size)
+                .clipShape(Circle())
+            } else {
+                fallbackAvatar
             }
-            .frame(width: size, height: size)
-            .clipShape(Circle())
-        } else {
-            fallbackAvatar
         }
+        .accessibilityLabel("\(name) avatar")
+        .accessibilityHidden(true)
     }
 
     private var fallbackAvatar: some View {
@@ -44,7 +48,17 @@ struct AvatarView: View {
 
     private var avatarColor: Color {
         let hash = abs(name.hashValue)
-        let colors: [Color] = [.blue, .green, .orange, .purple, .pink, .teal, .indigo, .mint]
-        return colors[hash % colors.count]
+        return NauticalTheme.avatarColors[hash % NauticalTheme.avatarColors.count]
     }
 }
+
+#if DEBUG
+#Preview("Initials") {
+    HStack(spacing: 12) {
+        AvatarView(url: nil, name: "Alice Johnson", size: 48)
+        AvatarView(url: nil, name: "Bob Smith", size: 48)
+        AvatarView(url: nil, name: "Carol Williams", size: 48)
+    }
+    .padding()
+}
+#endif

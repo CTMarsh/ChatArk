@@ -7,7 +7,7 @@ struct WatchStatusView: View {
 
     var body: some View {
         List {
-            ForEach(UserStatus.allCases, id: \.self) { status in
+            ForEach(UserStatus.allCases.filter { $0 != .suspended }, id: \.self) { status in
                 Button {
                     Task {
                         try? await presenceService.updateStatus(status)
@@ -22,7 +22,7 @@ struct WatchStatusView: View {
                         if status == currentStatus {
                             Image(systemName: "checkmark")
                                 .font(.caption)
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(NauticalTheme.ocean)
                         }
                     }
                 }
@@ -31,4 +31,12 @@ struct WatchStatusView: View {
         .navigationTitle("Status")
     }
 }
+
+#if DEBUG
+#Preview {
+    NavigationStack {
+        WatchStatusView()
+    }
+}
+#endif
 #endif

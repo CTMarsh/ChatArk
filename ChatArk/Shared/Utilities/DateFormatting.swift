@@ -21,6 +21,12 @@ enum DateFormatting {
         return formatter
     }()
 
+    private static let weekdayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE"
+        return formatter
+    }()
+
     private static let fullFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
@@ -42,8 +48,6 @@ enum DateFormatting {
         } else if calendar.isDateInYesterday(date) {
             return "Yesterday"
         } else if let daysAgo = calendar.dateComponents([.day], from: date, to: .now).day, daysAgo < 7 {
-            let weekdayFormatter = DateFormatter()
-            weekdayFormatter.dateFormat = "EEEE"
             return weekdayFormatter.string(from: date)
         } else {
             return dateFormatter.string(from: date)

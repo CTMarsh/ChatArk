@@ -12,6 +12,7 @@ class ShareViewController: UIViewController {
 
         let pickerView = SharePickerView(
             conversations: conversations,
+            isStale: ShareDataReader.isDataStale(),
             onCancel: { [weak self] in
                 self?.extensionContext?.completeRequest(returningItems: nil)
             },

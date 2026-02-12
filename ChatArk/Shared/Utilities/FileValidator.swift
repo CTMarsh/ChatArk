@@ -14,6 +14,11 @@ enum FileValidator {
         .spreadsheet, .presentation,
     ]
 
+    /// All types allowed for upload (images + documents)
+    static var allAllowedTypes: Set<UTType> {
+        allowedImageTypes.union(allowedFileTypes)
+    }
+
     struct ValidationResult: Sendable {
         let isValid: Bool
         let error: String?
@@ -25,6 +30,17 @@ enum FileValidator {
                 isValid: false,
                 error: "File exceeds 50MB limit (\(formatFileSize(Int64(data.count))))"
             )
+        }
+
+        let ext = (fileName as NSString).pathExtension.lowercased()
+        if !ext.isEmpty {
+            guard let fileType = UTType(filenameExtension: ext),
+                  allAllowedTypes.contains(where: { fileType.conforms(to: $0) }) else {
+                return ValidationResult(
+                    isValid: false,
+                    error: "File type .\(ext) is not allowed"
+                )
+            }
         }
 
         return ValidationResult(isValid: true, error: nil)

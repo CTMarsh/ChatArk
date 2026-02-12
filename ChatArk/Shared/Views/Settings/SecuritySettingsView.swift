@@ -82,3 +82,11 @@ struct SecuritySettingsView: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    NavigationStack {
+        SecuritySettingsView()
+    }
+}
+#endif

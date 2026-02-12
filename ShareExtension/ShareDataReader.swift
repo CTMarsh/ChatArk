@@ -53,15 +53,33 @@ enum ShareDataReader {
     }()
 
     static func conversations() -> [ShareConversationSummary] {
-        guard let data = defaults?.data(forKey: "recent_conversations"),
+        guard let encrypted = defaults?.data(forKey: "recent_conversations"),
+              let data = ShareDecryption.decrypt(encrypted),
               let items = try? decoder.decode([ShareConversationSummary].self, from: data) else {
+            // Fallback: try reading unencrypted (migration period)
+            if let rawData = defaults?.data(forKey: "recent_conversations"),
+               let items = try? decoder.decode([ShareConversationSummary].self, from: rawData) {
+                return items
+            }
             return []
         }
         return items
     }
 
     static func currentUserName() -> String? {
-        defaults?.string(forKey: "current_user_name")
+        if let encrypted = defaults?.data(forKey: "current_user_name") {
+            return ShareDecryption.decryptString(encrypted)
+        }
+        // Fallback: try reading unencrypted (migration period)
+        return defaults?.string(forKey: "current_user_name")
+    }
+
+    /// Returns true if conversation data is older than 1 hour.
+    static func isDataStale() -> Bool {
+        guard let timestamp = defaults?.double(forKey: "conversations_updated_at"), timestamp > 0 else {
+            return true
+        }
+        return Date().timeIntervalSince1970 - timestamp > 3600
     }
 
     // MARK: - Write pending share

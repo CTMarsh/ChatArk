@@ -7,7 +7,7 @@
 		<string>group.com.chrismarsh.chatark</string>
 	</array>
 	<key>aps-environment</key>
-	<string>development</string>
+	<string>$(APS_ENVIRONMENT)</string>
 	<key>keychain-access-groups</key>
 	<array>
 		<string>$(AppIdentifierPrefix)com.chrismarsh.chatark</string>

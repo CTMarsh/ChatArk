@@ -1,5 +1,8 @@
 import SwiftUI
 import SwiftData
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct RootView: View {
     @Environment(AuthViewModel.self) private var authViewModel
@@ -15,6 +18,9 @@ struct RootView: View {
             case .unauthenticated, .authenticating:
                 LoginView()
 
+            case .needsEmailConfirmation(let email):
+                EmailConfirmationView(email: email)
+
             case .needsMFAEnrollment:
                 MFASetupView()
 
@@ -23,10 +29,23 @@ struct RootView: View {
 
             case .authenticated:
                 #if os(iOS) || os(visionOS)
-                MainTabView()
-                    .task {
-                        await settingsViewModel.loadPreferences()
+                VStack(spacing: 0) {
+                    if !NetworkMonitor.shared.isConnected {
+                        OfflineBanner()
                     }
+                    #if os(iOS)
+                    if UIDevice.current.userInterfaceIdiom == .pad {
+                        SplitChatView()
+                    } else {
+                        MainTabView()
+                    }
+                    #else
+                    MainTabView()
+                    #endif
+                }
+                .task {
+                    await settingsViewModel.loadPreferences()
+                }
                 #else
                 Text("Unsupported platform")
                 #endif
@@ -65,4 +84,12 @@ struct MainTabView: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    RootView()
+        .environment(AuthViewModel())
+        .environment(SettingsViewModel())
+}
+#endif
 #endif

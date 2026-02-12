@@ -5,6 +5,7 @@ enum UserStatus: String, Codable, Sendable, CaseIterable {
     case offline
     case away
     case dnd
+    case suspended
 }
 
 struct Profile: Codable, Identifiable, Hashable, Sendable {

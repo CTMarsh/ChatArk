@@ -1,4 +1,5 @@
 import UserNotifications
+import WidgetKit
 import os.log
 
 private let logger = Logger(subsystem: "com.chrismarsh.chatark.notificationservice", category: "NotificationService")
@@ -9,11 +10,25 @@ class NotificationServiceExtension: UNNotificationServiceExtension {
 
     private static let appGroupId = "group.com.chrismarsh.chatark"
 
+    private static let allowedDownloadHosts = [
+        "bcwfsqldmyyrstxjuruc.supabase.co",
+        "xtnqdyjldgmfhtvtggmm.supabase.co",
+    ]
+
+    private static func isAllowedURL(_ url: URL) -> Bool {
+        guard let host = url.host?.lowercased() else { return false }
+        return allowedDownloadHosts.contains(where: { host.hasSuffix($0) })
+            && url.path.contains("/storage/")
+    }
+
     private static var cacheDirectory: URL? {
         FileManager.default
             .containerURL(forSecurityApplicationGroupIdentifier: appGroupId)?
             .appendingPathComponent("AvatarCache", isDirectory: true)
     }
+
+    private static let maxCacheSizeBytes: Int64 = 50 * 1024 * 1024 // 50MB
+    private static let maxCacheAgeSeconds: TimeInterval = 7 * 24 * 3600 // 7 days
 
     override func didReceive(
         _ request: UNNotificationRequest,
@@ -21,6 +36,7 @@ class NotificationServiceExtension: UNNotificationServiceExtension {
     ) {
         self.contentHandler = contentHandler
         bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
+        evictStaleCache()
 
         guard let content = bestAttemptContent else {
             contentHandler(request.content)
@@ -35,25 +51,27 @@ class NotificationServiceExtension: UNNotificationServiceExtension {
             content.threadIdentifier = conversationId
         }
 
-        // Set category for actionable notifications
-        content.categoryIdentifier = "CHAT_MESSAGE"
+        // Set category for actionable notifications (matches MESSAGE category in AppDelegate)
+        content.categoryIdentifier = "MESSAGE"
 
         Task {
             var attachments: [UNNotificationAttachment] = []
 
-            // Avatar attachment
+            // Avatar attachment (only from allowed Supabase storage domains)
             if let avatarUrlString = userInfo["avatar_url"] as? String,
-               let avatarUrl = URL(string: avatarUrlString) {
+               let avatarUrl = URL(string: avatarUrlString),
+               Self.isAllowedURL(avatarUrl) {
                 if let attachment = await downloadWithCache(url: avatarUrl, identifier: "avatar") {
                     attachments.append(attachment)
                 }
             }
 
-            // Image message attachment
+            // Image message attachment (only from allowed Supabase storage domains)
             if let messageType = userInfo["message_type"] as? String,
                messageType == "image",
                let fileUrlString = userInfo["file_url"] as? String,
-               let fileUrl = URL(string: fileUrlString) {
+               let fileUrl = URL(string: fileUrlString),
+               Self.isAllowedURL(fileUrl) {
                 logger.info("Downloading image attachment")
                 if let attachment = await downloadAttachment(url: fileUrl, identifier: "image") {
                     attachments.append(attachment)
@@ -61,6 +79,10 @@ class NotificationServiceExtension: UNNotificationServiceExtension {
             }
 
             content.attachments = attachments
+
+            // Refresh widget timelines so widgets show latest data
+            WidgetCenter.shared.reloadAllTimelines()
+
             contentHandler(content)
         }
     }
@@ -135,6 +157,44 @@ class NotificationServiceExtension: UNNotificationServiceExtension {
         } catch {
             logger.error("Attachment creation failed: \(error.localizedDescription, privacy: .public)")
             return nil
+        }
+    }
+
+    // MARK: - Cache Eviction
+
+    private func evictStaleCache() {
+        guard let cacheDir = Self.cacheDirectory else { return }
+        let fm = FileManager.default
+        guard let files = try? fm.contentsOfDirectory(at: cacheDir, includingPropertiesForKeys: [.contentModificationDateKey, .fileSizeKey]) else { return }
+
+        let now = Date()
+        var totalSize: Int64 = 0
+        var fileInfos: [(url: URL, date: Date, size: Int64)] = []
+
+        for file in files {
+            guard let attrs = try? file.resourceValues(forKeys: [.contentModificationDateKey, .fileSizeKey]),
+                  let date = attrs.contentModificationDate,
+                  let size = attrs.fileSize else { continue }
+            let fileSize = Int64(size)
+
+            // Delete files older than max age
+            if now.timeIntervalSince(date) > Self.maxCacheAgeSeconds {
+                try? fm.removeItem(at: file)
+                continue
+            }
+
+            totalSize += fileSize
+            fileInfos.append((file, date, fileSize))
+        }
+
+        // If over size limit, delete oldest first
+        if totalSize > Self.maxCacheSizeBytes {
+            let sorted = fileInfos.sorted { $0.date < $1.date }
+            for info in sorted {
+                guard totalSize > Self.maxCacheSizeBytes else { break }
+                try? fm.removeItem(at: info.url)
+                totalSize -= info.size
+            }
         }
     }
 

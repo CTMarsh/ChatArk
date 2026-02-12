@@ -49,3 +49,10 @@ struct LinkPreviewCard: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    LinkPreviewCard(preview: PreviewData.sampleLinkPreview)
+        .padding()
+}
+#endif

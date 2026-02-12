@@ -1,19 +1,32 @@
 import SwiftUI
 
 struct KeyboardShortcutModifier: ViewModifier {
-    @State private var showSearch = false
-    @State private var showNewConversation = false
+    var onNewConversation: () -> Void = {}
+    var onSearch: () -> Void = {}
 
     func body(content: Content) -> some View {
         content
-            .keyboardShortcut("n", modifiers: .command) // New conversation
-            .keyboardShortcut("f", modifiers: .command) // Search
-            .keyboardShortcut("e", modifiers: [.command, .shift]) // Emoji
+            .background {
+                Group {
+                    Button("") { onNewConversation() }
+                        .keyboardShortcut("n", modifiers: .command)
+                    Button("") { onSearch() }
+                        .keyboardShortcut("f", modifiers: .command)
+                }
+                .frame(width: 0, height: 0)
+                .opacity(0)
+            }
     }
 }
 
 extension View {
-    func iPadKeyboardShortcuts() -> some View {
-        modifier(KeyboardShortcutModifier())
+    func iPadKeyboardShortcuts(
+        onNewConversation: @escaping () -> Void = {},
+        onSearch: @escaping () -> Void = {}
+    ) -> some View {
+        modifier(KeyboardShortcutModifier(
+            onNewConversation: onNewConversation,
+            onSearch: onSearch
+        ))
     }
 }

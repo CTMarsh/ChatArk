@@ -1,12 +1,16 @@
 import SwiftUI
+import Supabase
 
 struct GroupInfoView: View {
     let conversationId: UUID
+    @Environment(\.dismiss) private var dismiss
     @State private var conversation: Conversation?
     @State private var participants: [Profile] = []
     @State private var isLoading = true
     @State private var name = ""
     @State private var description = ""
+    @State private var showLeaveConfirmation = false
+    @State private var isLeaving = false
 
     private let conversationService = ConversationService()
 
@@ -69,7 +73,7 @@ struct GroupInfoView: View {
                                     .font(.caption)
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 2)
-                                    .background(Color.blue.opacity(0.1))
+                                    .background(NauticalTheme.ocean.opacity(0.1))
                                     .clipShape(Capsule())
                             }
                         }
@@ -79,16 +83,36 @@ struct GroupInfoView: View {
                 // Actions
                 Section {
                     Button(role: .destructive) {
-                        // Leave group
+                        showLeaveConfirmation = true
                     } label: {
-                        Label("Leave Group", systemImage: "rectangle.portrait.and.arrow.right")
+                        if isLeaving {
+                            ProgressView()
+                        } else {
+                            Label("Leave Group", systemImage: "rectangle.portrait.and.arrow.right")
+                        }
                     }
+                    .disabled(isLeaving)
                 }
             } else if isLoading {
                 ProgressView()
             }
         }
         .navigationTitle("Group Info")
+        .confirmationDialog("Leave Group", isPresented: $showLeaveConfirmation) {
+            Button("Leave", role: .destructive) {
+                Task {
+                    isLeaving = true
+                    defer { isLeaving = false }
+                    guard let userId = SupabaseManager.shared.client.auth.currentUser?.id else { return }
+                    do {
+                        try await conversationService.removeParticipant(conversationId: conversationId, userId: userId)
+                        dismiss()
+                    } catch {}
+                }
+            }
+        } message: {
+            Text("You will no longer receive messages from this group.")
+        }
         .task {
             do {
                 conversation = try await conversationService.fetchConversation(id: conversationId)
@@ -100,3 +124,9 @@ struct GroupInfoView: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    GroupInfoView(conversationId: PreviewData.groupConvId)
+}
+#endif

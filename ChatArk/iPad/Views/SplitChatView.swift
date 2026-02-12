@@ -50,3 +50,10 @@ struct SplitChatView: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    SplitChatView()
+        .environment(AuthViewModel())
+}
+#endif

@@ -1,15 +1,17 @@
 import Foundation
 import UserNotifications
 import Supabase
+#if canImport(UIKit)
+import UIKit
+#endif
 
 @MainActor
-final class NotificationService: NSObject {
+final class NotificationService {
     private let client: SupabaseClient
     static let shared = NotificationService()
 
-    private override init() {
-        self.client = SupabaseManager.shared.client
-        super.init()
+    private init() {
+        self.client = supabaseClient
     }
 
     // MARK: - Permission
@@ -34,20 +36,29 @@ final class NotificationService: NSObject {
 
         #if os(iOS)
         let platform = "ios"
+        let deviceName = UIDevice.current.name
         #elseif os(macOS)
         let platform = "macos"
+        let deviceName = Host.current().localizedName ?? "Mac"
         #elseif os(watchOS)
         let platform = "watchos"
+        let deviceName = "Apple Watch"
         #else
         let platform = "unknown"
+        let deviceName = "Unknown"
         #endif
 
         try await client.from("push_tokens")
-            .upsert([
-                "user_id": AnyJSON.string(userId.uuidString),
-                "token": AnyJSON.string(tokenString),
-                "platform": AnyJSON.string(platform),
-            ])
+            .upsert(
+                [
+                    "user_id": AnyJSON.string(userId.uuidString),
+                    "token": AnyJSON.string(tokenString),
+                    "platform": AnyJSON.string(platform),
+                    "device_name": AnyJSON.string(deviceName),
+                    "updated_at": AnyJSON.string(ISO8601DateFormatter().string(from: Date())),
+                ],
+                onConflict: "token"
+            )
             .execute()
     }
 

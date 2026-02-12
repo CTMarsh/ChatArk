@@ -10,6 +10,11 @@ struct MainWindow: View {
     @State private var selectedConversation: ConversationWithDetails?
     @State private var columnVisibility = NavigationSplitViewVisibility.all
 
+    private func updateDockBadge() {
+        let count = conversationViewModel.totalUnreadCount
+        NSApplication.shared.dockTile.badgeLabel = count > 0 ? "\(count)" : nil
+    }
+
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             // Column 1: Workspaces
@@ -69,7 +74,18 @@ struct MainWindow: View {
             await conversationViewModel.loadConversations()
             await conversationViewModel.subscribe()
             await workspaceViewModel.loadWorkspaces()
+            updateDockBadge()
+        }
+        .onChange(of: conversationViewModel.totalUnreadCount) {
+            updateDockBadge()
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    MainWindow()
+        .environment(AuthViewModel())
+}
+#endif
 #endif

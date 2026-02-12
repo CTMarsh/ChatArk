@@ -35,3 +35,10 @@ struct SearchBar: View {
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
+
+#if DEBUG
+#Preview {
+    SearchBar(text: .constant("Hello"))
+        .padding()
+}
+#endif

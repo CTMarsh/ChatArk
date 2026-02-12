@@ -9,7 +9,7 @@ struct FileAttachmentView: View {
     let messageType: MessageType
 
     var body: some View {
-        if messageType == .image, let url = URL(string: fileUrl) {
+        if messageType == .image, fileUrl.hasPrefix("https://"), let url = URL(string: fileUrl) {
             LazyImage(url: url) { state in
                 if let image = state.image {
                     image
@@ -33,9 +33,9 @@ struct FileAttachmentView: View {
         HStack(spacing: 10) {
             Image(systemName: fileIcon)
                 .font(.title2)
-                .foregroundStyle(.blue)
+                .foregroundStyle(NauticalTheme.ocean)
                 .frame(width: 40, height: 40)
-                .background(Color.blue.opacity(0.1))
+                .background(NauticalTheme.ocean.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
             VStack(alignment: .leading, spacing: 2) {
@@ -55,7 +55,7 @@ struct FileAttachmentView: View {
 
             Image(systemName: "arrow.down.circle")
                 .font(.title3)
-                .foregroundStyle(.blue)
+                .foregroundStyle(NauticalTheme.ocean)
         }
         .padding(10)
         .background(Color.gray.opacity(0.12))
@@ -73,3 +73,16 @@ struct FileAttachmentView: View {
         return "doc"
     }
 }
+
+#if DEBUG
+#Preview {
+    FileAttachmentView(
+        fileUrl: "https://example.com/report.pdf",
+        fileName: "Q4 Report.pdf",
+        fileSize: 1_500_000,
+        fileType: "application/pdf",
+        messageType: .file
+    )
+    .padding()
+}
+#endif
