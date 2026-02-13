@@ -95,6 +95,14 @@ final class WorkspaceService {
             .execute()
     }
 
+    func updateMemberRole(workspaceId: UUID, userId: UUID, role: WorkspaceMemberRole) async throws {
+        try await client.from("workspace_members")
+            .update(["role": AnyJSON.string(role.rawValue)])
+            .eq("workspace_id", value: workspaceId.uuidString)
+            .eq("user_id", value: userId.uuidString)
+            .execute()
+    }
+
     func removeMember(workspaceId: UUID, userId: UUID) async throws {
         try await client.from("workspace_members")
             .delete()
@@ -130,5 +138,18 @@ final class WorkspaceService {
             .update(updates)
             .eq("id", value: id.uuidString)
             .execute()
+    }
+
+    func deleteWidget(id: UUID) async throws {
+        try await client.from("widgets")
+            .delete()
+            .eq("id", value: id.uuidString)
+            .execute()
+    }
+
+    func regenerateWidgetToken(id: UUID) async throws -> String {
+        try await client.rpc("regenerate_widget_token", params: ["p_widget_id": AnyJSON.string(id.uuidString)])
+            .execute()
+            .value
     }
 }

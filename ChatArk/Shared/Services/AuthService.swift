@@ -45,6 +45,18 @@ final class AuthService: Observable {
         try await client.auth.update(user: UserAttributes(password: newPassword))
     }
 
+    func changePassword(currentPassword: String, newPassword: String) async throws {
+        guard let email = client.auth.currentUser?.email else {
+            throw AuthError.sessionExpired
+        }
+
+        // Re-authenticate with current password first
+        _ = try await client.auth.signIn(email: email, password: currentPassword)
+
+        // Now update to new password
+        try await client.auth.update(user: UserAttributes(password: newPassword))
+    }
+
     // MARK: - Session Management
 
     var currentUser: User? {
@@ -114,6 +126,16 @@ final class AuthService: Observable {
 
     func getAssuranceLevel() async throws -> AuthMFAGetAuthenticatorAssuranceLevelResponse {
         try await client.auth.mfa.getAuthenticatorAssuranceLevel()
+    }
+
+    // MARK: - Session Management
+
+    func signOutOtherSessions() async throws {
+        try await client.auth.signOut(scope: .others)
+    }
+
+    func signOutAllSessions() async throws {
+        try await client.auth.signOut(scope: .global)
     }
 
     // MARK: - Profile Management

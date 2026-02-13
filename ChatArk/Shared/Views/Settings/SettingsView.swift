@@ -48,6 +48,14 @@ struct SettingsView: View {
 
             Section {
                 NavigationLink {
+                    WorkspaceManagementView()
+                } label: {
+                    Label("Workspaces", systemImage: "building.2")
+                }
+            }
+
+            Section {
+                NavigationLink {
                     AccessibilitySettingsView()
                 } label: {
                     Label("Accessibility", systemImage: "accessibility")

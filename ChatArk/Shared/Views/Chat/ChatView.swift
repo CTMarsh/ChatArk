@@ -303,6 +303,9 @@ struct ChatView: View {
                 sendMessage()
             }
             .onChange(of: messageText) {
+                if messageText.count > ChatViewModel.maxMessageLength {
+                    messageText = String(messageText.prefix(ChatViewModel.maxMessageLength))
+                }
                 typingDebounce?.cancel()
                 Task { await viewModel.sendTypingIndicator(isTyping: true) }
                 typingDebounce = Task {

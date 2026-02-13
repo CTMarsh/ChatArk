@@ -81,13 +81,18 @@ final class ChatService {
     // MARK: - Edit Message
 
     func editMessage(messageId: UUID, newContent: String) async throws -> Message {
-        try await client.from("messages")
+        guard let userId = client.auth.currentUser?.id else {
+            throw ChatError.notAuthenticated
+        }
+
+        return try await client.from("messages")
             .update([
                 "content": AnyJSON.string(newContent),
                 "is_edited": AnyJSON.bool(true),
                 "updated_at": AnyJSON.string(ISO8601DateFormatter().string(from: Date())),
             ])
             .eq("id", value: messageId.uuidString)
+            .eq("sender_id", value: userId.uuidString)
             .select()
             .single()
             .execute()
@@ -113,28 +118,12 @@ final class ChatService {
     // MARK: - Pin / Unpin
 
     func pinMessage(messageId: UUID) async throws {
-        guard let userId = client.auth.currentUser?.id else {
-            throw ChatError.notAuthenticated
-        }
-
-        try await client.from("messages")
-            .update([
-                "is_pinned": AnyJSON.bool(true),
-                "pinned_at": AnyJSON.string(ISO8601DateFormatter().string(from: Date())),
-                "pinned_by": AnyJSON.string(userId.uuidString),
-            ])
-            .eq("id", value: messageId.uuidString)
+        try await client.rpc("pin_message", params: ["msg_id": AnyJSON.string(messageId.uuidString)])
             .execute()
     }
 
     func unpinMessage(messageId: UUID) async throws {
-        try await client.from("messages")
-            .update([
-                "is_pinned": AnyJSON.bool(false),
-                "pinned_at": AnyJSON.null,
-                "pinned_by": AnyJSON.null,
-            ])
-            .eq("id", value: messageId.uuidString)
+        try await client.rpc("unpin_message", params: ["msg_id": AnyJSON.string(messageId.uuidString)])
             .execute()
     }
 

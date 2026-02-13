@@ -21,6 +21,7 @@ enum WorkspaceMemberRole: String, Codable, Sendable, CaseIterable {
     case owner
     case admin
     case agent
+    case member
 }
 
 struct WorkspaceMember: Codable, Identifiable, Hashable, Sendable {

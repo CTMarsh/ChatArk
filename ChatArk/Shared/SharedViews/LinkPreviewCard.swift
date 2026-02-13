@@ -5,10 +5,14 @@ struct LinkPreviewCard: View {
     let preview: LinkPreview
 
     var body: some View {
-        if let urlString = preview.url, let url = URL(string: urlString) {
+        if let urlString = preview.url,
+           let url = URL(string: urlString),
+           url.scheme == "https" {
             Link(destination: url) {
                 VStack(alignment: .leading, spacing: 0) {
-                    if let imageUrl = preview.imageUrl, let imgUrl = URL(string: imageUrl) {
+                    if let imageUrl = preview.imageUrl,
+                       let imgUrl = URL(string: imageUrl),
+                       imgUrl.scheme == "https" {
                         LazyImage(url: imgUrl) { state in
                             if let image = state.image {
                                 image

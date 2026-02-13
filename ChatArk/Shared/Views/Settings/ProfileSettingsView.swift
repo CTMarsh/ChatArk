@@ -36,6 +36,11 @@ struct ProfileSettingsView: View {
 
             Section("Display Name") {
                 TextField("Display Name", text: $viewModel.displayName)
+                    .onChange(of: viewModel.displayName) {
+                        if viewModel.displayName.count > 100 {
+                            viewModel.displayName = String(viewModel.displayName.prefix(100))
+                        }
+                    }
             }
 
             Section("Username") {
@@ -44,6 +49,11 @@ struct ProfileSettingsView: View {
                     .textInputAutocapitalization(.never)
                     #endif
                     .autocorrectionDisabled()
+                    .onChange(of: viewModel.username) {
+                        if viewModel.username.count > 50 {
+                            viewModel.username = String(viewModel.username.prefix(50))
+                        }
+                    }
             }
 
             Section("Bio") {

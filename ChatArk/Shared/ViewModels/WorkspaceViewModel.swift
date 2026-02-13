@@ -87,4 +87,61 @@ final class WorkspaceViewModel {
             self.error = ErrorSanitizer.sanitize(error)
         }
     }
+
+    func updateMemberRole(userId: UUID, role: WorkspaceMemberRole) async {
+        guard let workspace = selectedWorkspace else { return }
+        do {
+            try await workspaceService.updateMemberRole(workspaceId: workspace.id, userId: userId, role: role)
+            if let index = members.firstIndex(where: { $0.userId == userId }) {
+                members[index].role = role
+            }
+        } catch {
+            self.error = ErrorSanitizer.sanitize(error)
+        }
+    }
+
+    func updateWorkspaceName(_ name: String) async {
+        guard let workspace = selectedWorkspace else { return }
+        do {
+            try await workspaceService.updateWorkspace(id: workspace.id, name: name)
+            if let index = workspaces.firstIndex(where: { $0.id == workspace.id }) {
+                workspaces[index].name = name
+            }
+            selectedWorkspace?.name = name
+        } catch {
+            self.error = ErrorSanitizer.sanitize(error)
+        }
+    }
+
+    func createWidget(name: String) async {
+        guard let workspace = selectedWorkspace else { return }
+        do {
+            let widget = try await workspaceService.createWidget(workspaceId: workspace.id, name: name)
+            widgets.append(widget)
+        } catch {
+            self.error = ErrorSanitizer.sanitize(error)
+        }
+    }
+
+    func deleteWidget(_ widget: WorkspaceWidget) async {
+        do {
+            try await workspaceService.deleteWidget(id: widget.id)
+            widgets.removeAll { $0.id == widget.id }
+        } catch {
+            self.error = ErrorSanitizer.sanitize(error)
+        }
+    }
+
+    func regenerateWidgetToken(_ widget: WorkspaceWidget) async -> String? {
+        do {
+            let newToken = try await workspaceService.regenerateWidgetToken(id: widget.id)
+            if let index = widgets.firstIndex(where: { $0.id == widget.id }) {
+                widgets[index].embedToken = newToken
+            }
+            return newToken
+        } catch {
+            self.error = ErrorSanitizer.sanitize(error)
+            return nil
+        }
+    }
 }
