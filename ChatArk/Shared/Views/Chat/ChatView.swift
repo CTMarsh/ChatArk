@@ -414,7 +414,9 @@ private struct ChatMessagesListView: View {
     }
 
     private func messageRow(for message: Message) -> some View {
-        let isOwn = message.senderId == SupabaseManager.shared.client.auth.currentUser?.id
+        // Widget visitor messages have visitorName set — those are NOT from the current user (agent)
+        let isOwn = message.visitorName == nil
+            && message.senderId == SupabaseManager.shared.client.auth.currentUser?.id
         let reactions = viewModel.reactions[message.id] ?? []
         let profile = viewModel.senderProfiles[message.senderId]
         let senderName = message.visitorName ?? profile?.displayLabel ?? "User"
