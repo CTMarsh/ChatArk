@@ -1,8 +1,9 @@
 import SwiftUI
-import Auth
+import Supabase
 
 struct SecuritySettingsView: View {
     @State private var mfaFactors: [Factor] = []
+    @State private var sessions: [UserSession] = []
     @State private var isLoading = true
     @State private var showPasswordChange = false
     @State private var showMFASetup = false
@@ -22,6 +23,7 @@ struct SecuritySettingsView: View {
             mfaSection
             passwordSection
             sessionsSection
+            signOutSection
         }
         .navigationTitle("Security")
         .sheet(isPresented: $showPasswordChange) {
@@ -64,6 +66,7 @@ struct SecuritySettingsView: View {
         }
         .task {
             await reloadMFA()
+            await reloadSessions()
             isLoading = false
         }
     }
@@ -110,40 +113,6 @@ struct SecuritySettingsView: View {
         }
     }
 
-    // MARK: - Sessions Section
-
-    private var sessionsSection: some View {
-        Section("Active Sessions") {
-            HStack {
-                Image(systemName: "iphone")
-                    .foregroundStyle(NauticalTheme.ocean)
-                VStack(alignment: .leading) {
-                    Text("This Device")
-                        .font(.body)
-                    Text("Current session")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-
-            if let sessionMessage {
-                Text(sessionMessage)
-                    .foregroundStyle(.green)
-                    .font(.caption)
-            }
-
-            Button("Sign Out Other Devices") {
-                showSignOutOthersConfirm = true
-            }
-
-            Button(role: .destructive) {
-                showSignOutAllConfirm = true
-            } label: {
-                Text("Sign Out All Devices")
-            }
-        }
-    }
-
     // MARK: - Password Section
 
     private var passwordSection: some View {
@@ -154,6 +123,99 @@ struct SecuritySettingsView: View {
                 confirmPassword = ""
                 error = nil
                 showPasswordChange = true
+            }
+        }
+    }
+
+    // MARK: - Sessions Section
+
+    private var sessionsSection: some View {
+        Section {
+            if sessions.isEmpty {
+                HStack {
+                    Image(systemName: deviceIcon)
+                        .foregroundStyle(NauticalTheme.ocean)
+                    VStack(alignment: .leading) {
+                        Text("This Device")
+                            .font(.body)
+                        Text("Current session")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            } else {
+                ForEach(sessions) { session in
+                    HStack {
+                        Image(systemName: sessionDeviceIcon(session))
+                            .foregroundStyle(NauticalTheme.ocean)
+                        VStack(alignment: .leading, spacing: 2) {
+                            HStack(spacing: 6) {
+                                Text(sessionDeviceName(session))
+                                    .font(.body)
+                                if isCurrentSession(session) {
+                                    Text("This device")
+                                        .font(.caption2)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(.green.opacity(0.2))
+                                        .foregroundStyle(.green)
+                                        .clipShape(Capsule())
+                                }
+                            }
+                            HStack(spacing: 8) {
+                                if let lastActive = session.lastActiveAt {
+                                    Text(lastActive, style: .relative)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                if let ip = session.ipAddress {
+                                    Text(ip)
+                                        .font(.caption)
+                                        .foregroundStyle(.tertiary)
+                                }
+                            }
+                        }
+                        Spacer()
+                        if !isCurrentSession(session) {
+                            Button(role: .destructive) {
+                                Task { await revokeSession(session) }
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+
+            if let sessionMessage {
+                Text(sessionMessage)
+                    .foregroundStyle(.green)
+                    .font(.caption)
+            }
+        } header: {
+            HStack {
+                Text("Active Sessions")
+                Spacer()
+                if sessions.count > 1 {
+                    Button("Sign Out Others") {
+                        showSignOutOthersConfirm = true
+                    }
+                    .font(.caption)
+                }
+            }
+        }
+    }
+
+    // MARK: - Sign Out Section
+
+    private var signOutSection: some View {
+        Section {
+            Button(role: .destructive) {
+                showSignOutAllConfirm = true
+            } label: {
+                Text("Sign Out All Devices")
             }
         }
     }
@@ -224,10 +286,53 @@ struct SecuritySettingsView: View {
         newPassword == confirmPassword
     }
 
+    // MARK: - Session Helpers
+
+    private var deviceIcon: String {
+        #if os(macOS)
+        "laptopcomputer"
+        #else
+        "iphone"
+        #endif
+    }
+
+    private func sessionDeviceIcon(_ session: UserSession) -> String {
+        let ua = session.userAgent?.lowercased() ?? ""
+        if ua.contains("macintosh") || ua.contains("macos") { return "laptopcomputer" }
+        if ua.contains("ipad") { return "ipad" }
+        if ua.contains("iphone") { return "iphone" }
+        if ua.contains("watch") { return "applewatch" }
+        return "desktopcomputer"
+    }
+
+    private func sessionDeviceName(_ session: UserSession) -> String {
+        if let info = session.deviceInfo, let name = info["device_name"] ?? info["name"] {
+            return name
+        }
+        let ua = session.userAgent?.lowercased() ?? ""
+        if ua.contains("macintosh") || ua.contains("macos") { return "Mac" }
+        if ua.contains("ipad") { return "iPad" }
+        if ua.contains("iphone") { return "iPhone" }
+        if ua.contains("watch") { return "Apple Watch" }
+        return "Unknown Device"
+    }
+
+    private func isCurrentSession(_ session: UserSession) -> Bool {
+        // Compare session token with current auth session token prefix
+        guard let currentToken = try? SupabaseManager.shared.client.auth.currentSession?.accessToken else {
+            return false
+        }
+        return session.sessionToken.hasPrefix(String(currentToken.prefix(16)))
+    }
+
     // MARK: - Actions
 
     private func reloadMFA() async {
         mfaFactors = (try? await authService.getMFAFactors()) ?? []
+    }
+
+    private func reloadSessions() async {
+        sessions = (try? await authService.fetchActiveSessions()) ?? []
     }
 
     private func removeMFAFactor(_ factor: Factor) async {
@@ -239,10 +344,20 @@ struct SecuritySettingsView: View {
         }
     }
 
+    private func revokeSession(_ session: UserSession) async {
+        do {
+            try await authService.revokeSession(id: session.id)
+            sessions.removeAll { $0.id == session.id }
+        } catch {
+            self.error = ErrorSanitizer.sanitize(error)
+        }
+    }
+
     private func signOutOtherSessions() async {
         do {
             try await authService.signOutOtherSessions()
             sessionMessage = "All other sessions have been signed out."
+            await reloadSessions()
         } catch {
             self.error = ErrorSanitizer.sanitize(error)
         }

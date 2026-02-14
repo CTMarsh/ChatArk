@@ -138,6 +138,28 @@ final class AuthService: Observable {
         try await client.auth.signOut(scope: .global)
     }
 
+    // MARK: - Active Sessions
+
+    func fetchActiveSessions() async throws -> [UserSession] {
+        guard let userId = client.auth.currentUser?.id else {
+            throw AuthError.sessionExpired
+        }
+
+        return try await client.from("user_sessions")
+            .select()
+            .eq("user_id", value: userId.uuidString)
+            .order("last_active_at", ascending: false)
+            .execute()
+            .value
+    }
+
+    func revokeSession(id: UUID) async throws {
+        try await client.from("user_sessions")
+            .delete()
+            .eq("id", value: id.uuidString)
+            .execute()
+    }
+
     // MARK: - Profile Management
 
     func updateProfile(displayName: String? = nil, avatarUrl: String? = nil) async throws {

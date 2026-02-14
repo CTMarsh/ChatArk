@@ -4,6 +4,8 @@ import PhotosUI
 struct ProfileSettingsView: View {
     @State private var viewModel = ProfileViewModel()
     @State private var selectedPhoto: PhotosPickerItem?
+    @State private var selectedStatus: UserStatus = .online
+    private let presenceService = PresenceService()
 
     var body: some View {
         Form {
@@ -61,6 +63,26 @@ struct ProfileSettingsView: View {
                     .lineLimit(3...6)
             }
 
+            Section("Status") {
+                Picker("Online Status", selection: $selectedStatus) {
+                    Label("Online", systemImage: "circle.fill")
+                        .foregroundStyle(.green)
+                        .tag(UserStatus.online)
+                    Label("Away", systemImage: "clock.fill")
+                        .foregroundStyle(.yellow)
+                        .tag(UserStatus.away)
+                    Label("Do Not Disturb", systemImage: "minus.circle.fill")
+                        .foregroundStyle(.red)
+                        .tag(UserStatus.dnd)
+                    Label("Invisible", systemImage: "eye.slash.fill")
+                        .foregroundStyle(.secondary)
+                        .tag(UserStatus.offline)
+                }
+                .onChange(of: selectedStatus) {
+                    Task { try? await presenceService.updateStatus(selectedStatus) }
+                }
+            }
+
             if let error = viewModel.error {
                 Section {
                     Text(error)
@@ -80,6 +102,9 @@ struct ProfileSettingsView: View {
         }
         .task {
             await viewModel.loadProfile()
+            if let status = viewModel.profile?.status {
+                selectedStatus = status
+            }
         }
     }
 }

@@ -152,4 +152,22 @@ final class WorkspaceService {
             .execute()
             .value
     }
+
+    // MARK: - Workspace Settings
+
+    func fetchWorkspaceSettings(workspaceId: UUID) async throws -> WorkspaceSettings {
+        try await client.from("workspace_settings")
+            .select()
+            .eq("workspace_id", value: workspaceId.uuidString)
+            .single()
+            .execute()
+            .value
+    }
+
+    func updateWorkspaceSettings(workspaceId: UUID, updates: [String: AnyJSON]) async throws {
+        try await client.from("workspace_settings")
+            .update(updates)
+            .eq("workspace_id", value: workspaceId.uuidString)
+            .execute()
+    }
 }

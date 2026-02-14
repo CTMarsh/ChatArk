@@ -102,6 +102,12 @@ struct WatchSettingsView: View {
                 }
                 .font(.caption)
             }
+
+            Text("v\(Bundle.main.appVersion) (\(Bundle.main.buildNumber))")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+                .frame(maxWidth: .infinity)
+                .listRowBackground(Color.clear)
         }
     }
 }

@@ -93,6 +93,12 @@ struct LoginView: View {
                         }
                         .font(.subheadline)
                     }
+
+                    Spacer().frame(height: 24)
+
+                    Text("v\(Bundle.main.appVersion) (\(Bundle.main.buildNumber))")
+                        .font(.caption2)
+                        .foregroundStyle(.quaternary)
                 }
             }
             .navigationDestination(isPresented: $showSignup) {

@@ -18,6 +18,7 @@ struct Profile: Codable, Identifiable, Hashable, Sendable {
     var createdAt: Date?
     var updatedAt: Date?
     var email: String?
+    var isPlatformAdmin: Bool?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -29,6 +30,7 @@ struct Profile: Codable, Identifiable, Hashable, Sendable {
         case createdAt = "created_at"
         case updatedAt = "updated_at"
         case email
+        case isPlatformAdmin = "is_platform_admin"
     }
 
     var displayLabel: String {

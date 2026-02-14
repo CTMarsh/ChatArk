@@ -106,7 +106,7 @@ struct WorkspaceManagementView: View {
     @ViewBuilder
     private var workspaceDetailSection: some View {
         if let workspace = viewModel.selectedWorkspace {
-            Section("Workspace Settings") {
+            Section("Workspace") {
                 HStack {
                     Text("Name")
                     Spacer()
@@ -117,6 +117,12 @@ struct WorkspaceManagementView: View {
                 Button("Rename Workspace") {
                     editingName = workspace.name
                     showEditName = true
+                }
+
+                NavigationLink {
+                    WorkspaceSettingsView(workspaceId: workspace.id)
+                } label: {
+                    Label("Settings", systemImage: "gearshape")
                 }
 
                 Button(role: .destructive) {
