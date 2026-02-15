@@ -356,6 +356,16 @@ final class ChatViewModel {
         } catch {}
     }
 
+    // MARK: - End Conversation
+
+    func endConversation() async {
+        do {
+            try await chatService.endConversation(conversationId: conversationId)
+        } catch {
+            self.error = ErrorSanitizer.sanitize(error)
+        }
+    }
+
     // MARK: - Typing Indicator
 
     func sendTypingIndicator(isTyping: Bool) async {

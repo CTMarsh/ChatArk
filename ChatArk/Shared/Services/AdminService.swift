@@ -1,6 +1,11 @@
 import Foundation
 import Supabase
 
+struct AdminCreateUserResponse: Codable, Sendable {
+    var id: String
+    var generatedPassword: String
+}
+
 @MainActor
 final class AdminService {
     private let client: SupabaseClient
@@ -41,6 +46,17 @@ final class AdminService {
             .single()
             .execute()
             .value
+    }
+
+    func createUser(email: String, name: String?, sendConfirmationEmail: Bool) async throws -> AdminCreateUserResponse {
+        try await client.functions.invoke(
+            "admin-create-user",
+            options: .init(body: [
+                "email": AnyJSON.string(email),
+                "name": name.map { AnyJSON.string($0) } ?? .null,
+                "sendConfirmationEmail": AnyJSON.bool(sendConfirmationEmail),
+            ])
+        )
     }
 
     func suspendUser(id: UUID, suspended: Bool) async throws {
@@ -108,12 +124,107 @@ final class AdminService {
             .value
     }
 
+    func createWorkspace(name: String, ownerId: UUID) async throws -> Workspace {
+        let workspace: Workspace = try await client.from("workspaces")
+            .insert([
+                "name": AnyJSON.string(name),
+                "owner_id": AnyJSON.string(ownerId.uuidString),
+            ])
+            .select()
+            .single()
+            .execute()
+            .value
+
+        try await client.rpc("admin_log_action", params: [
+            "p_action": AnyJSON.string("workspace_created"),
+            "p_target_type": AnyJSON.string("workspace"),
+            "p_target_id": AnyJSON.string(workspace.id.uuidString),
+        ]).execute()
+
+        return workspace
+    }
+
+    func updateWorkspace(id: UUID, updates: [String: AnyJSON]) async throws {
+        try await client.from("workspaces")
+            .update(updates)
+            .eq("id", value: id.uuidString)
+            .execute()
+
+        try await client.rpc("admin_log_action", params: [
+            "p_action": AnyJSON.string("workspace_updated"),
+            "p_target_type": AnyJSON.string("workspace"),
+            "p_target_id": AnyJSON.string(id.uuidString),
+        ]).execute()
+    }
+
+    func deleteWorkspace(id: UUID) async throws {
+        try await client.from("workspaces")
+            .delete()
+            .eq("id", value: id.uuidString)
+            .execute()
+
+        try await client.rpc("admin_log_action", params: [
+            "p_action": AnyJSON.string("workspace_deleted"),
+            "p_target_type": AnyJSON.string("workspace"),
+            "p_target_id": AnyJSON.string(id.uuidString),
+        ]).execute()
+    }
+
+    func suspendWorkspace(id: UUID, suspended: Bool) async throws {
+        try await client.rpc("admin_set_workspace_suspended", params: [
+            "p_workspace_id": AnyJSON.string(id.uuidString),
+            "p_suspended": AnyJSON.bool(suspended),
+        ]).execute()
+    }
+
     func fetchWorkspaceMembers(workspaceId: UUID) async throws -> [WorkspaceMember] {
         try await client.from("workspace_members")
             .select()
             .eq("workspace_id", value: workspaceId.uuidString)
             .execute()
             .value
+    }
+
+    func addWorkspaceMember(workspaceId: UUID, userId: UUID, role: String) async throws {
+        try await client.from("workspace_members")
+            .insert([
+                "workspace_id": AnyJSON.string(workspaceId.uuidString),
+                "user_id": AnyJSON.string(userId.uuidString),
+                "role": AnyJSON.string(role),
+            ])
+            .execute()
+
+        try await client.rpc("admin_log_action", params: [
+            "p_action": AnyJSON.string("workspace_member_added"),
+            "p_target_type": AnyJSON.string("workspace"),
+            "p_target_id": AnyJSON.string(workspaceId.uuidString),
+        ]).execute()
+    }
+
+    func removeWorkspaceMember(memberId: UUID, workspaceId: UUID) async throws {
+        try await client.from("workspace_members")
+            .delete()
+            .eq("id", value: memberId.uuidString)
+            .execute()
+
+        try await client.rpc("admin_log_action", params: [
+            "p_action": AnyJSON.string("workspace_member_removed"),
+            "p_target_type": AnyJSON.string("workspace"),
+            "p_target_id": AnyJSON.string(workspaceId.uuidString),
+        ]).execute()
+    }
+
+    func updateMemberRole(memberId: UUID, role: String, workspaceId: UUID) async throws {
+        try await client.from("workspace_members")
+            .update(["role": AnyJSON.string(role)])
+            .eq("id", value: memberId.uuidString)
+            .execute()
+
+        try await client.rpc("admin_log_action", params: [
+            "p_action": AnyJSON.string("workspace_member_role_changed"),
+            "p_target_type": AnyJSON.string("workspace"),
+            "p_target_id": AnyJSON.string(workspaceId.uuidString),
+        ]).execute()
     }
 
     func fetchWorkspaceWidgets(workspaceId: UUID) async throws -> [WorkspaceWidget] {
@@ -124,10 +235,42 @@ final class AdminService {
             .value
     }
 
-    func suspendWorkspace(id: UUID, suspended: Bool) async throws {
-        try await client.rpc("admin_set_workspace_suspended", params: [
-            "p_workspace_id": AnyJSON.string(id.uuidString),
-            "p_suspended": AnyJSON.bool(suspended),
+    func createWidget(workspaceId: UUID, name: String) async throws -> WorkspaceWidget {
+        let widget: WorkspaceWidget = try await client.from("widgets")
+            .insert([
+                "workspace_id": AnyJSON.string(workspaceId.uuidString),
+                "name": AnyJSON.string(name),
+            ])
+            .select()
+            .single()
+            .execute()
+            .value
+
+        try await client.rpc("admin_log_action", params: [
+            "p_action": AnyJSON.string("widget_created"),
+            "p_target_type": AnyJSON.string("widget"),
+            "p_target_id": AnyJSON.string(widget.id.uuidString),
+        ]).execute()
+
+        return widget
+    }
+
+    func deleteWidget(id: UUID) async throws {
+        try await client.from("widgets")
+            .delete()
+            .eq("id", value: id.uuidString)
+            .execute()
+
+        try await client.rpc("admin_log_action", params: [
+            "p_action": AnyJSON.string("widget_deleted"),
+            "p_target_type": AnyJSON.string("widget"),
+            "p_target_id": AnyJSON.string(id.uuidString),
+        ]).execute()
+    }
+
+    func regenerateWidgetToken(id: UUID) async throws {
+        try await client.rpc("admin_regenerate_widget_token", params: [
+            "p_widget_id": AnyJSON.string(id.uuidString),
         ]).execute()
     }
 
@@ -135,7 +278,7 @@ final class AdminService {
 
     func fetchAuditLogs(action: String? = nil) async throws -> [AdminAuditLog] {
         var query = client.from("admin_audit_logs")
-            .select("id, admin_id, action, target_type, target_id, created_at")
+            .select("id, admin_id, action, target_type, target_id, metadata, created_at, profiles!admin_audit_logs_admin_id_fkey(display_name, username)")
 
         if let action, !action.isEmpty {
             query = query.eq("action", value: action)

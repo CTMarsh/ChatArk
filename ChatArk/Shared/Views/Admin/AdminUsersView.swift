@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AdminUsersView: View {
     @Bindable var viewModel: AdminViewModel
+    @State private var showCreateUser = false
 
     var body: some View {
         List {
@@ -42,6 +43,18 @@ struct AdminUsersView: View {
             }
         }
         .navigationTitle("Users")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showCreateUser = true
+                } label: {
+                    Label("Create User", systemImage: "person.badge.plus")
+                }
+            }
+        }
+        .sheet(isPresented: $showCreateUser) {
+            CreateUserSheet(viewModel: viewModel)
+        }
         .task {
             await viewModel.loadUsers()
         }
@@ -111,6 +124,127 @@ struct AdminUsersView: View {
         case .suspended: .red.opacity(0.6)
         case .offline, .none: .gray
         }
+    }
+}
+
+// MARK: - Create User Sheet
+
+struct CreateUserSheet: View {
+    @Bindable var viewModel: AdminViewModel
+    @Environment(\.dismiss) private var dismiss
+    @State private var email = ""
+    @State private var name = ""
+    @State private var sendConfirmation = false
+    @State private var isCreating = false
+    @State private var createdCredentials: AdminCreateUserResponse?
+    @State private var createdEmail = ""
+    @State private var copied = false
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                if let creds = createdCredentials {
+                    successView(creds)
+                } else {
+                    formView
+                }
+            }
+            .navigationTitle(createdCredentials != nil ? "User Created" : "Create User")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(createdCredentials != nil ? "Done" : "Cancel") {
+                        dismiss()
+                    }
+                }
+                if createdCredentials == nil {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Create") {
+                            Task { await createUser() }
+                        }
+                        .disabled(email.isEmpty || isCreating)
+                    }
+                }
+            }
+        }
+    }
+
+    private var formView: some View {
+        Group {
+            Section {
+                TextField("Email", text: $email)
+                    #if os(iOS) || os(visionOS)
+                    .textInputAutocapitalization(.never)
+                    .keyboardType(.emailAddress)
+                    #endif
+                    .autocorrectionDisabled()
+                    .textContentType(.emailAddress)
+
+                TextField("Name (optional)", text: $name)
+            }
+
+            Section {
+                Toggle("Send Confirmation Email", isOn: $sendConfirmation)
+            } footer: {
+                Text(sendConfirmation
+                    ? "User must confirm their email before logging in."
+                    : "User can log in immediately — share the generated credentials with them.")
+            }
+
+            if let error = viewModel.error {
+                Section {
+                    Text(error)
+                        .foregroundStyle(.red)
+                        .font(.caption)
+                }
+            }
+        }
+    }
+
+    private func successView(_ creds: AdminCreateUserResponse) -> some View {
+        Group {
+            Section("Credentials") {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Email: \(createdEmail)")
+                        .font(.body.monospaced())
+                    Text("Password: \(creds.generatedPassword)")
+                        .font(.body.monospaced())
+                }
+                .padding(.vertical, 4)
+
+                Button {
+                    #if os(macOS)
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString("Email: \(createdEmail)\nPassword: \(creds.generatedPassword)", forType: .string)
+                    #elseif os(iOS) || os(visionOS)
+                    UIPasteboard.general.string = "Email: \(createdEmail)\nPassword: \(creds.generatedPassword)"
+                    #endif
+                    copied = true
+                    Task {
+                        try? await Task.sleep(for: .seconds(2))
+                        copied = false
+                    }
+                } label: {
+                    Label(copied ? "Copied" : "Copy Credentials", systemImage: copied ? "checkmark" : "doc.on.doc")
+                }
+            }
+
+            Section {
+                Label("This password will not be shown again. Share it securely with the user.", systemImage: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+                    .font(.caption)
+            }
+        }
+    }
+
+    private func createUser() async {
+        isCreating = true
+        defer { isCreating = false }
+        createdEmail = email
+        createdCredentials = await viewModel.createUser(
+            email: email,
+            name: name.isEmpty ? nil : name,
+            sendConfirmationEmail: sendConfirmation
+        )
     }
 }
 

@@ -1,10 +1,12 @@
 import SwiftUI
+import Supabase
 
 struct AdminAuditLogView: View {
     @Bindable var viewModel: AdminViewModel
 
     private let actionFilters = [
         ("", "All Actions"),
+        ("user_created", "User Created"),
         ("user_suspended", "User Suspended"),
         ("user_activated", "User Activated"),
         ("user_deleted", "User Deleted"),
@@ -83,20 +85,51 @@ struct AdminAuditLogView: View {
             }
 
             HStack(spacing: 8) {
+                // Admin who performed the action
+                Text(log.adminDisplayName)
+                    .font(.caption)
+                    .fontWeight(.medium)
+
                 if let targetId = log.targetId {
+                    Text("·")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
                     Text(String(targetId.prefix(8)) + "...")
                         .font(.caption.monospaced())
                         .foregroundStyle(.tertiary)
                 }
 
                 if let createdAt = log.createdAt {
+                    Text("·")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
                     Text(createdAt.formatted(date: .abbreviated, time: .shortened))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
+
+            // Metadata display
+            if let metadata = log.metadata, !metadata.isEmpty {
+                Text(metadataString(metadata))
+                    .font(.caption2.monospaced())
+                    .foregroundStyle(.tertiary)
+                    .lineLimit(2)
+            }
         }
         .padding(.vertical, 2)
+    }
+
+    private func metadataString(_ metadata: [String: AnyJSON]) -> String {
+        let parts = metadata.compactMap { key, value -> String? in
+            switch value {
+            case .string(let s): return "\(key): \(s)"
+            case .bool(let b): return "\(key): \(b)"
+            case .double(let d): return "\(key): \(Int(d))"
+            default: return nil
+            }
+        }
+        return parts.joined(separator: ", ")
     }
 }
 

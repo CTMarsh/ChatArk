@@ -1,4 +1,5 @@
 import Foundation
+import Supabase
 
 struct AdminAuditLog: Codable, Identifiable, Sendable {
     let id: UUID
@@ -6,7 +7,9 @@ struct AdminAuditLog: Codable, Identifiable, Sendable {
     var action: String
     var targetType: String
     var targetId: String?
+    var metadata: [String: AnyJSON]?
     var createdAt: Date?
+    var adminProfile: AuditAdminProfile?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -14,11 +17,14 @@ struct AdminAuditLog: Codable, Identifiable, Sendable {
         case action
         case targetType = "target_type"
         case targetId = "target_id"
+        case metadata
         case createdAt = "created_at"
+        case adminProfile = "profiles"
     }
 
     var actionLabel: String {
         switch action {
+        case "user_created": "User Created"
         case "user_suspended": "User Suspended"
         case "user_activated": "User Activated"
         case "user_deleted": "User Deleted"
@@ -44,5 +50,19 @@ struct AdminAuditLog: Codable, Identifiable, Sendable {
     var isDestructive: Bool {
         ["user_suspended", "user_deleted", "workspace_suspended", "workspace_deleted",
          "workspace_member_removed", "widget_deleted"].contains(action)
+    }
+
+    var adminDisplayName: String {
+        adminProfile?.displayName ?? adminProfile?.username ?? "Unknown"
+    }
+}
+
+struct AuditAdminProfile: Codable, Sendable {
+    var displayName: String?
+    var username: String?
+
+    enum CodingKeys: String, CodingKey {
+        case displayName = "display_name"
+        case username
     }
 }

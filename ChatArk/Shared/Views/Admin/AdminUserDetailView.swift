@@ -1,4 +1,5 @@
 import SwiftUI
+import Supabase
 
 struct AdminUserDetailView: View {
     @Bindable var viewModel: AdminViewModel
@@ -8,6 +9,10 @@ struct AdminUserDetailView: View {
     @State private var showResetMFAConfirm = false
     @State private var showAdminConfirm = false
     @Environment(\.dismiss) private var dismiss
+
+    private var isSelf: Bool {
+        viewModel.currentUserId == user.id
+    }
 
     var body: some View {
         List {
@@ -20,7 +25,9 @@ struct AdminUserDetailView: View {
             if !viewModel.userMemberships.isEmpty {
                 membershipsSection
             }
-            dangerSection
+            if !isSelf {
+                dangerSection
+            }
         }
         .navigationTitle(user.displayLabel)
         .confirmationDialog(
@@ -34,6 +41,10 @@ struct AdminUserDetailView: View {
                     user = viewModel.selectedUser ?? user
                 }
             }
+        } message: {
+            Text(user.status == .suspended
+                ? "Activate this user? They will be able to log in again."
+                : "Suspend this user? They will not be able to log in.")
         }
         .confirmationDialog("Delete User", isPresented: $showDeleteConfirm, titleVisibility: .visible) {
             Button("Delete", role: .destructive) {
@@ -50,7 +61,7 @@ struct AdminUserDetailView: View {
                 Task { await viewModel.resetUserMFA(user) }
             }
         } message: {
-            Text("This will remove all MFA factors for this user. They will need to re-enroll.")
+            Text("This will remove all MFA factors for \(user.displayLabel). They will need to set up MFA again on their next login.")
         }
         .confirmationDialog(
             user.isPlatformAdmin == true ? "Revoke Admin" : "Grant Admin",
@@ -63,6 +74,10 @@ struct AdminUserDetailView: View {
                     user = viewModel.selectedUser ?? user
                 }
             }
+        } message: {
+            Text(user.isPlatformAdmin == true
+                ? "Revoke platform admin privileges from \(user.displayLabel)?"
+                : "Grant platform admin privileges to \(user.displayLabel)?")
         }
         .task {
             await viewModel.selectUser(user)
@@ -133,13 +148,15 @@ struct AdminUserDetailView: View {
                 )
             }
 
-            Button {
-                showAdminConfirm = true
-            } label: {
-                Label(
-                    user.isPlatformAdmin == true ? "Revoke Admin" : "Grant Admin",
-                    systemImage: user.isPlatformAdmin == true ? "shield.slash" : "shield.checkered"
-                )
+            if !isSelf {
+                Button {
+                    showAdminConfirm = true
+                } label: {
+                    Label(
+                        user.isPlatformAdmin == true ? "Revoke Admin" : "Grant Admin",
+                        systemImage: user.isPlatformAdmin == true ? "shield.slash" : "shield.checkered"
+                    )
+                }
             }
 
             Button {
@@ -180,14 +197,18 @@ struct AdminUserDetailView: View {
     private var ownedWorkspacesSection: some View {
         Section("Owned Workspaces") {
             ForEach(viewModel.userWorkspaces) { workspace in
-                HStack {
-                    Image(systemName: "crown.fill")
-                        .foregroundStyle(.yellow)
-                    Text(workspace.name)
-                    Spacer()
-                    Text("Owner")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                NavigationLink {
+                    AdminWorkspaceDetailView(viewModel: viewModel, workspace: workspace)
+                } label: {
+                    HStack {
+                        Image(systemName: "crown.fill")
+                            .foregroundStyle(.yellow)
+                        Text(workspace.name)
+                        Spacer()
+                        Text("Owner")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
         }

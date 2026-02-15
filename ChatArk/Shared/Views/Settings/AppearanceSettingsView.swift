@@ -18,6 +18,20 @@ struct AppearanceSettingsView: View {
                 .pickerStyle(.segmented)
             }
 
+            Section("UI Scale") {
+                Picker("UI Scale", selection: Binding(
+                    get: { viewModel.uiScale },
+                    set: {
+                        viewModel.uiScale = $0
+                        viewModel.updatePreference(key: .uiScale, value: .string($0.rawValue))
+                    }
+                )) {
+                    Text("Compact").tag(UIScale.compact)
+                    Text("Comfortable").tag(UIScale.comfortable)
+                    Text("Spacious").tag(UIScale.spacious)
+                }
+            }
+
             Section("Font Size") {
                 Picker("Font Size", selection: Binding(
                     get: { viewModel.fontSize },

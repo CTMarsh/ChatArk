@@ -4,6 +4,7 @@ import Supabase
 /// Type-safe preference keys — prevents injection via raw string interpolation in PostgREST filters.
 enum PreferenceKey: String, Sendable {
     case theme
+    case uiScale = "ui_scale"
     case fontSize = "font_size"
     case accentColor = "accent_color"
     case messageDensity = "message_density"

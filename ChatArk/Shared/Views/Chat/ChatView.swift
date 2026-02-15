@@ -14,7 +14,15 @@ struct ChatView: View {
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var showImageViewer: URL?
     @State private var typingDebounce: Task<Void, Never>?
+    @State private var conversation: Conversation?
+    @State private var showEndConversationConfirm = false
+    @State private var showBlockConfirm = false
+    @State private var isBlocked = false
+    @State private var otherUserId: UUID?
     @FocusState private var isComposeFocused: Bool
+
+    private let conversationService = ConversationService()
+    private let blockingService = BlockingService()
 
     init(conversationId: UUID, title: String) {
         self.conversationId = conversationId
@@ -123,8 +131,31 @@ struct ChatView: View {
                 Text(chatError.localizedDescription)
             }
         }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                if conversation != nil {
+                    chatActionsMenu
+                }
+            }
+        }
+        .confirmationDialog("End Conversation", isPresented: $showEndConversationConfirm) {
+            Button("End Conversation", role: .destructive) {
+                Task { await viewModel.endConversation() }
+            }
+        } message: {
+            Text("This will close the chat for the visitor. They will need to start a new session to chat again.")
+        }
+        .confirmationDialog("Block User", isPresented: $showBlockConfirm) {
+            Button("Block", role: .destructive) {
+                Task { await blockFromChat() }
+            }
+        } message: {
+            Text("Blocking this user will hide their messages and prevent them from contacting you.")
+        }
         .task {
-            await viewModel.loadMessages()
+            async let loadConv: () = loadConversationInfo()
+            async let loadMsgs: () = viewModel.loadMessages()
+            _ = await (loadConv, loadMsgs)
             await viewModel.subscribe()
         }
         .onDisappear {
@@ -325,6 +356,81 @@ struct ChatView: View {
                 .foregroundStyle(messageText.trimmingCharacters(in: .whitespaces).isEmpty ? .gray : NauticalTheme.ocean)
         }
         .disabled(messageText.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isSending || messageText.count > ChatViewModel.maxMessageLength)
+    }
+
+    // MARK: - Chat Actions Menu
+
+    @ViewBuilder
+    private var chatActionsMenu: some View {
+        Menu {
+            if conversation?.type == .group {
+                NavigationLink {
+                    GroupInfoView(conversationId: conversationId)
+                } label: {
+                    Label("Group Info", systemImage: "info.circle")
+                }
+            }
+
+            if conversation?.type == .widget && conversation?.endedAt == nil {
+                Button(role: .destructive) {
+                    showEndConversationConfirm = true
+                } label: {
+                    Label("End Conversation", systemImage: "xmark.circle")
+                }
+            }
+
+            if conversation?.type == .direct, let _ = otherUserId {
+                Divider()
+                if isBlocked {
+                    Button {
+                        Task { await unblockFromChat() }
+                    } label: {
+                        Label("Unblock User", systemImage: "hand.raised.slash")
+                    }
+                } else {
+                    Button(role: .destructive) {
+                        showBlockConfirm = true
+                    } label: {
+                        Label("Block User", systemImage: "hand.raised")
+                    }
+                }
+            }
+        } label: {
+            Image(systemName: "ellipsis.circle")
+        }
+    }
+
+    // MARK: - Conversation Info
+
+    private func loadConversationInfo() async {
+        do {
+            let conv = try await conversationService.fetchConversation(id: conversationId)
+            conversation = conv
+            if conv.type == .direct {
+                let participants = try await conversationService.fetchParticipants(conversationId: conversationId)
+                let currentUserId = SupabaseManager.shared.client.auth.currentUser?.id
+                otherUserId = participants.first(where: { $0.userId != currentUserId })?.userId
+                if let otherId = otherUserId {
+                    isBlocked = try await blockingService.isBlocked(userId: otherId)
+                }
+            }
+        } catch {}
+    }
+
+    private func blockFromChat() async {
+        guard let otherId = otherUserId else { return }
+        do {
+            try await blockingService.blockUser(blockedUserId: otherId)
+            isBlocked = true
+        } catch {}
+    }
+
+    private func unblockFromChat() async {
+        guard let otherId = otherUserId else { return }
+        do {
+            try await blockingService.unblockUser(blockedUserId: otherId)
+            isBlocked = false
+        } catch {}
     }
 
     // MARK: - Actions

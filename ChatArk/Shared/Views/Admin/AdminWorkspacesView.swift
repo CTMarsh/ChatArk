@@ -1,7 +1,9 @@
 import SwiftUI
+import Supabase
 
 struct AdminWorkspacesView: View {
     @Bindable var viewModel: AdminViewModel
+    @State private var showCreateWorkspace = false
 
     var body: some View {
         List {
@@ -42,6 +44,18 @@ struct AdminWorkspacesView: View {
             }
         }
         .navigationTitle("Workspaces")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showCreateWorkspace = true
+                } label: {
+                    Label("Create Workspace", systemImage: "plus")
+                }
+            }
+        }
+        .sheet(isPresented: $showCreateWorkspace) {
+            CreateWorkspaceSheet(viewModel: viewModel)
+        }
         .task {
             await viewModel.loadWorkspaces()
         }
@@ -65,6 +79,79 @@ struct AdminWorkspacesView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+        }
+    }
+}
+
+// MARK: - Create Workspace Sheet
+
+struct CreateWorkspaceSheet: View {
+    @Bindable var viewModel: AdminViewModel
+    @Environment(\.dismiss) private var dismiss
+    @State private var name = ""
+    @State private var selectedOwnerId: UUID?
+    @State private var allUsers: [Profile] = []
+    @State private var isCreating = false
+
+    private let adminService = AdminService()
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    TextField("Workspace Name", text: $name)
+                }
+
+                Section("Owner") {
+                    if allUsers.isEmpty {
+                        ProgressView()
+                    } else {
+                        Picker("Owner", selection: $selectedOwnerId) {
+                            Text("Select a user").tag(nil as UUID?)
+                            ForEach(allUsers) { user in
+                                Text("\(user.displayLabel) (\(user.email ?? user.username ?? ""))")
+                                    .tag(user.id as UUID?)
+                            }
+                        }
+                    }
+                }
+
+                if let error = viewModel.error {
+                    Section {
+                        Text(error)
+                            .foregroundStyle(.red)
+                            .font(.caption)
+                    }
+                }
+            }
+            .navigationTitle("Create Workspace")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Create") {
+                        Task { await createWorkspace() }
+                    }
+                    .disabled(name.isEmpty || selectedOwnerId == nil || isCreating)
+                }
+            }
+            .task {
+                do {
+                    allUsers = try await adminService.fetchAllUsers()
+                } catch {
+                    viewModel.error = ErrorSanitizer.sanitize(error)
+                }
+            }
+        }
+    }
+
+    private func createWorkspace() async {
+        guard let ownerId = selectedOwnerId else { return }
+        isCreating = true
+        defer { isCreating = false }
+        if await viewModel.createWorkspace(name: name, ownerId: ownerId) != nil {
+            dismiss()
         }
     }
 }

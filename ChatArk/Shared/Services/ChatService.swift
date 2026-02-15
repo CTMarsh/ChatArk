@@ -211,6 +211,15 @@ final class ChatService {
             .value
     }
 
+    // MARK: - End Conversation
+
+    func endConversation(conversationId: UUID) async throws {
+        try await client.from("conversations")
+            .update(["ended_at": AnyJSON.string(ISO8601DateFormatter().string(from: Date()))])
+            .eq("id", value: conversationId.uuidString)
+            .execute()
+    }
+
     // MARK: - Search
 
     func searchMessages(query: String, conversationId: UUID? = nil) async throws -> [Message] {
