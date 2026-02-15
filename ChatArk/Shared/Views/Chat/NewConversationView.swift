@@ -167,7 +167,7 @@ struct NewConversationView: View {
                 }
                 dismiss()
             } catch {
-                self.error = error.localizedDescription
+                self.error = ErrorSanitizer.sanitize(error)
             }
         }
     }

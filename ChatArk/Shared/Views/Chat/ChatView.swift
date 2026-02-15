@@ -80,7 +80,7 @@ struct ChatView: View {
                         fileType: contentType
                     )
                 } catch {
-                    viewModel.chatError = .uploadFailed(error.localizedDescription)
+                    viewModel.chatError = .uploadFailed(ErrorSanitizer.sanitize(error))
                 }
             }
         }
