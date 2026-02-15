@@ -8,7 +8,7 @@ struct AvatarView: View {
 
     var body: some View {
         Group {
-            if let url, let imageUrl = URL(string: url) {
+            if let url, let imageUrl = URL(string: url), imageUrl.scheme == "https" {
                 LazyImage(url: imageUrl) { state in
                     if let image = state.image {
                         image

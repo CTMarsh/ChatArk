@@ -9,7 +9,7 @@ struct FileAttachmentView: View {
     let messageType: MessageType
 
     var body: some View {
-        if messageType == .image, fileUrl.hasPrefix("https://"), let url = URL(string: fileUrl) {
+        if fileUrl.hasPrefix("https://"), messageType == .image, let url = URL(string: fileUrl) {
             LazyImage(url: url) { state in
                 if let image = state.image {
                     image

@@ -18,6 +18,7 @@ enum ErrorSanitizer {
             "schema \"", "pg_", "operator does not exist", "permission denied for",
             "does not exist", "already exists", "not-null",
             "unique_violation", "foreign_key_violation", "pgrst",
+            "table ", "index \"", "function \"", "trigger \"",
         ]
 
         if schemaPatterns.contains(where: { lower.contains($0) }) {
