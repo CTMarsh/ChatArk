@@ -98,16 +98,26 @@ struct MenuBarExtraContent: View {
         .frame(width: 220)
         .task {
             guard authViewModel.isAuthenticated else { return }
-            // Load current status from profile
-            if let userId = authViewModel.currentUser?.id {
-                if let profile = try? await presenceService.fetchProfile(userId: userId) {
-                    currentStatus = profile.status ?? .online
-                }
-            }
-            // Load unread count
-            await conversationViewModel.loadConversations()
-            unreadCount = conversationViewModel.totalUnreadCount
+            await refreshMenuBarData()
         }
+        .onChange(of: authViewModel.isAuthenticated) { _, isAuthenticated in
+            if isAuthenticated {
+                Task { await refreshMenuBarData() }
+            } else {
+                currentStatus = .online
+                unreadCount = 0
+            }
+        }
+    }
+
+    private func refreshMenuBarData() async {
+        if let userId = authViewModel.currentUser?.id {
+            if let profile = try? await presenceService.fetchProfile(userId: userId) {
+                currentStatus = profile.status ?? .online
+            }
+        }
+        await conversationViewModel.loadConversations()
+        unreadCount = conversationViewModel.totalUnreadCount
     }
 }
 

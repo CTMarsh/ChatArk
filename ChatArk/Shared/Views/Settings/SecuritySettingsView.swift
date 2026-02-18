@@ -319,7 +319,7 @@ struct SecuritySettingsView: View {
 
     private func isCurrentSession(_ session: UserSession) -> Bool {
         // Compare session token with current auth session token prefix
-        guard let currentToken = try? SupabaseManager.shared.client.auth.currentSession?.accessToken else {
+        guard let currentToken = SupabaseManager.shared.client.auth.currentSession?.accessToken else {
             return false
         }
         return session.sessionToken.hasPrefix(String(currentToken.prefix(16)))
@@ -355,8 +355,8 @@ struct SecuritySettingsView: View {
 
     private func signOutOtherSessions() async {
         do {
-            try await authService.signOutOtherSessions()
-            sessionMessage = "All other sessions have been signed out."
+            let count = try await authService.revokeOtherSessions()
+            sessionMessage = "Signed out \(count) other session\(count == 1 ? "" : "s")."
             await reloadSessions()
         } catch {
             self.error = ErrorSanitizer.sanitize(error)

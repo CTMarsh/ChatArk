@@ -6,14 +6,17 @@ final class WorkspaceViewModel {
     var workspaces: [Workspace] = []
     var selectedWorkspace: Workspace?
     var members: [WorkspaceMember] = []
+    var memberProfiles: [UUID: Profile] = [:]
     var widgets: [WorkspaceWidget] = []
     var isLoading = false
     var error: String?
 
     private let workspaceService: WorkspaceService
+    private let presenceService: PresenceService
 
-    init(workspaceService: WorkspaceService = WorkspaceService()) {
+    init(workspaceService: WorkspaceService = WorkspaceService(), presenceService: PresenceService = PresenceService()) {
         self.workspaceService = workspaceService
+        self.presenceService = presenceService
     }
 
     func loadWorkspaces() async {
@@ -41,6 +44,10 @@ final class WorkspaceViewModel {
         do {
             members = try await workspaceService.fetchMembers(workspaceId: workspace.id)
             widgets = try await workspaceService.fetchWidgets(workspaceId: workspace.id)
+
+            let userIds = members.map(\.userId)
+            let profiles = try await presenceService.fetchProfiles(userIds: userIds)
+            memberProfiles = Dictionary(uniqueKeysWithValues: profiles.map { ($0.id, $0) })
         } catch {
             self.error = ErrorSanitizer.sanitize(error)
         }

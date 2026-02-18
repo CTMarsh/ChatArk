@@ -111,7 +111,7 @@ struct WidgetDetailView: View {
                 Text("Primary Color")
                 Spacer()
                 Circle()
-                    .fill(Color(hex: widget.primaryColor ?? "#6366f1") ?? .indigo)
+                    .fill(Color(hex: widget.primaryColor ?? "#6366f1"))
                     .frame(width: 24, height: 24)
                 TextField("#6366f1", text: Binding(
                     get: { widget.primaryColor ?? "#6366f1" },

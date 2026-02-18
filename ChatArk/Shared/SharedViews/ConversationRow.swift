@@ -3,6 +3,9 @@ import SwiftUI
 struct ConversationRow: View {
     let detail: ConversationWithDetails
     let currentUserId: UUID?
+    var onMarkAsRead: (() -> Void)?
+    var onMute: (() -> Void)?
+    var onPin: (() -> Void)?
 
     var body: some View {
         HStack(spacing: 12) {
@@ -68,6 +71,31 @@ struct ConversationRow: View {
             }
         }
         .padding(.vertical, 4)
+        #if os(macOS) || os(iOS)
+        .contextMenu {
+            if detail.unreadCount > 0 {
+                Button {
+                    onMarkAsRead?()
+                } label: {
+                    Label("Mark as Read", systemImage: "envelope.open")
+                }
+            }
+
+            Button {
+                onMute?()
+            } label: {
+                Label("Mute", systemImage: "bell.slash")
+            }
+
+            Divider()
+
+            Button {
+                onPin?()
+            } label: {
+                Label("Pin", systemImage: "pin")
+            }
+        }
+        #endif
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityDescription)
     }

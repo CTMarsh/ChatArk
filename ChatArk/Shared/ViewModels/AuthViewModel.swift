@@ -51,6 +51,20 @@ final class AuthViewModel {
     private let authService: AuthService
     private var sessionRefreshTask: Task<Void, Never>?
 
+    private var deviceUserAgent: String {
+        #if os(macOS)
+        return "ChatArk/macOS"
+        #elseif os(iOS)
+        return "ChatArk/iOS \(UIDevice.current.model)"
+        #elseif os(watchOS)
+        return "ChatArk/watchOS"
+        #elseif os(visionOS)
+        return "ChatArk/visionOS"
+        #else
+        return "ChatArk"
+        #endif
+    }
+
     init(authService: AuthService = AuthService()) {
         self.authService = authService
         // Restore lockout state from UserDefaults
@@ -119,6 +133,7 @@ final class AuthViewModel {
                     )
                     writeAuthSessionToAppGroup(session)
                     registerForPushIfNeeded()
+                    try? await authService.trackSession(userAgent: deviceUserAgent)
                 }
             } else {
                 state = .unauthenticated
@@ -186,10 +201,26 @@ final class AuthViewModel {
 
     // MARK: - Sign Up
 
+    func checkSignupsAllowed() async -> Bool {
+        do {
+            return try await authService.checkSignupsAllowed()
+        } catch {
+            // Default to allowed if check fails
+            return true
+        }
+    }
+
     func signUp(email: String, password: String) async {
         error = nil
         isLoading = true
         defer { isLoading = false }
+
+        // Re-check before submitting (setting may have changed)
+        let allowed = await checkSignupsAllowed()
+        if !allowed {
+            self.error = "Signups are currently disabled by the platform administrator."
+            return
+        }
 
         do {
             _ = try await authService.signUp(email: email, password: password)
@@ -261,6 +292,7 @@ final class AuthViewModel {
                     writeAuthSessionToAppGroup(session)
                 }
                 registerForPushIfNeeded()
+                try? await authService.trackSession(userAgent: deviceUserAgent)
             }
             mfaQrCode = nil
             mfaSecret = nil
@@ -295,6 +327,7 @@ final class AuthViewModel {
                     writeAuthSessionToAppGroup(session)
                 }
                 registerForPushIfNeeded()
+                try? await authService.trackSession(userAgent: deviceUserAgent)
             }
         } catch {
             self.error = "Invalid verification code"

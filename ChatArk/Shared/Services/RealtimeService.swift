@@ -64,7 +64,11 @@ final class RealtimeService {
         )
 
         channels[channelKey] = channel
-        try? await channel.subscribeWithError()
+        do {
+            try await channel.subscribeWithError()
+        } catch {
+            print("[RealtimeService] Subscription failed for \(channelKey): \(error)")
+        }
 
         Task { [decoder] in
             for await insertion in insertions {
@@ -91,6 +95,13 @@ final class RealtimeService {
         }
     }
 
+    // MARK: - Subscription Status
+
+    func isSubscribed(conversationId: UUID) -> Bool {
+        let key = "messages:\(conversationId.uuidString)"
+        return channels[key]?.status == .subscribed
+    }
+
     // MARK: - Reaction Subscriptions
 
     func subscribeToReactions(conversationId: UUID) async {
@@ -112,7 +123,11 @@ final class RealtimeService {
         )
 
         channels[channelKey] = channel
-        try? await channel.subscribeWithError()
+        do {
+            try await channel.subscribeWithError()
+        } catch {
+            print("[RealtimeService] Subscription failed for \(channelKey): \(error)")
+        }
 
         Task { [decoder] in
             for await insertion in insertions {
@@ -146,7 +161,11 @@ final class RealtimeService {
         )
 
         channels[channelKey] = channel
-        try? await channel.subscribeWithError()
+        do {
+            try await channel.subscribeWithError()
+        } catch {
+            print("[RealtimeService] Subscription failed for \(channelKey): \(error)")
+        }
 
         Task { [decoder] in
             for await insertion in insertions {
@@ -172,7 +191,11 @@ final class RealtimeService {
         )
 
         channels[channelKey] = channel
-        try? await channel.subscribeWithError()
+        do {
+            try await channel.subscribeWithError()
+        } catch {
+            print("[RealtimeService] Subscription failed for \(channelKey): \(error)")
+        }
 
         Task { [decoder] in
             for await update in updates {
@@ -191,7 +214,11 @@ final class RealtimeService {
 
         let channel = client.realtimeV2.channel(channelKey)
         channels[channelKey] = channel
-        try? await channel.subscribeWithError()
+        do {
+            try await channel.subscribeWithError()
+        } catch {
+            print("[RealtimeService] Subscription failed for \(channelKey): \(error)")
+        }
 
         Task {
             for await message in channel.broadcastStream(event: "typing") {
@@ -232,7 +259,11 @@ final class RealtimeService {
             config.presence.key = presenceKey
         }
         channels[channelKey] = channel
-        try? await channel.subscribeWithError()
+        do {
+            try await channel.subscribeWithError()
+        } catch {
+            print("[RealtimeService] Subscription failed for \(channelKey): \(error)")
+        }
 
         Task {
             for await action in channel.presenceChange() {
@@ -266,10 +297,19 @@ final class RealtimeService {
     func monitorConnection() async {
         while !Task.isCancelled {
             try? await Task.sleep(for: .seconds(10))
-            guard NetworkMonitor.shared.isConnected else { continue }
-            for (_, channel) in channels {
+            guard NetworkMonitor.shared.isConnected else {
+                print("[RealtimeService] Network disconnected, skipping reconnection check")
+                continue
+            }
+            for (key, channel) in channels {
                 if channel.status != .subscribed {
-                    try? await channel.subscribeWithError()
+                    print("[RealtimeService] Reconnecting channel: \(key)")
+                    do {
+                        try await channel.subscribeWithError()
+                        print("[RealtimeService] Reconnected: \(key)")
+                    } catch {
+                        print("[RealtimeService] Reconnection failed for \(key): \(error)")
+                    }
                 }
             }
         }

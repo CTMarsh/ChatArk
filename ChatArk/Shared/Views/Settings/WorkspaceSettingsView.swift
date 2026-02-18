@@ -54,7 +54,7 @@ struct WorkspaceSettingsView: View {
                 Text("Primary Color")
                 Spacer()
                 Circle()
-                    .fill(Color(hex: settings?.defaultPrimaryColor ?? "#6366f1") ?? .indigo)
+                    .fill(Color(hex: settings?.defaultPrimaryColor ?? "#6366f1"))
                     .frame(width: 24, height: 24)
                 TextField("#6366f1", text: Binding(
                     get: { settings?.defaultPrimaryColor ?? "#6366f1" },

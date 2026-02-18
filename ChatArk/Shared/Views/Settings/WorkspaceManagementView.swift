@@ -152,11 +152,15 @@ struct WorkspaceManagementView: View {
     private var membersSection: some View {
         Section("Members (\(viewModel.members.count))") {
             ForEach(viewModel.members) { member in
+                let profile = viewModel.memberProfiles[member.userId]
                 HStack {
-                    Image(systemName: "person.fill")
-                        .foregroundStyle(.secondary)
+                    AvatarView(
+                        url: profile?.avatarUrl,
+                        name: profile?.displayLabel ?? "User",
+                        size: 32
+                    )
                     VStack(alignment: .leading) {
-                        Text(member.userId.uuidString.prefix(8) + "...")
+                        Text(profile?.displayLabel ?? "Loading...")
                             .font(.body)
                         Text(member.role.rawValue.capitalized)
                             .font(.caption)

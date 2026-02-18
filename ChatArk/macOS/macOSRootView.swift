@@ -7,7 +7,7 @@ struct MacRootView: View {
     @Environment(SettingsViewModel.self) private var settingsViewModel
 
     var body: some View {
-        Group {
+        ZStack {
             switch authViewModel.state {
             case .loading:
                 ProgressView("Loading...")

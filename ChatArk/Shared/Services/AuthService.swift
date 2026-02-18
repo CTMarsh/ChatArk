@@ -10,6 +10,13 @@ final class AuthService: Observable {
         self.client = client
     }
 
+    // MARK: - Platform Check
+
+    func checkSignupsAllowed() async throws -> Bool {
+        let result: Bool = try await client.rpc("get_allow_signups").execute().value
+        return result
+    }
+
     // MARK: - Sign Up
 
     func signUp(email: String, password: String) async throws -> User {
@@ -153,11 +160,43 @@ final class AuthService: Observable {
             .value
     }
 
+    func trackSession(userAgent: String? = nil) async throws {
+        guard let userId = client.auth.currentUser?.id else {
+            throw AuthError.sessionExpired
+        }
+
+        let session = try await client.auth.session
+        var params: [String: AnyJSON] = [
+            "p_user_id": .string(userId.uuidString),
+            "p_session_token": .string(session.accessToken),
+        ]
+        if let userAgent {
+            params["p_user_agent"] = .string(userAgent)
+        }
+
+        try await client.rpc("upsert_user_session", params: params).execute()
+    }
+
     func revokeSession(id: UUID) async throws {
-        try await client.from("user_sessions")
-            .delete()
-            .eq("id", value: id.uuidString)
-            .execute()
+        let result: Bool = try await client.rpc("revoke_user_session", params: [
+            "p_session_id": AnyJSON.string(id.uuidString),
+        ]).execute().value
+
+        if !result {
+            throw AuthError.sessionExpired
+        }
+    }
+
+    func revokeOtherSessions() async throws -> Int {
+        let session = try await client.auth.session
+        let count: Int = try await client.rpc("revoke_other_sessions", params: [
+            "p_current_session_token": AnyJSON.string(session.accessToken),
+        ]).execute().value
+
+        // Also sign out other Supabase Auth sessions
+        try await client.auth.signOut(scope: .others)
+
+        return count
     }
 
     // MARK: - Profile Management

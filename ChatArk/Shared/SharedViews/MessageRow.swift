@@ -1,4 +1,9 @@
 import SwiftUI
+#if os(macOS)
+import AppKit
+#elseif os(iOS) || os(visionOS)
+import UIKit
+#endif
 
 struct MessageRow: View {
     let message: Message
@@ -30,6 +35,17 @@ struct MessageRow: View {
             )
             .contextMenu {
                 if !message.isDeleted {
+                    Button {
+                        #if os(macOS)
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(message.content, forType: .string)
+                        #else
+                        UIPasteboard.general.string = message.content
+                        #endif
+                    } label: {
+                        Label("Copy", systemImage: "doc.on.doc")
+                    }
+
                     Button {
                         onReply()
                     } label: {

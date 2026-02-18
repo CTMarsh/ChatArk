@@ -13,6 +13,11 @@ struct ChatArkMain: App {
     @State private var settingsViewModel = SettingsViewModel()
     @State private var deepLinkConversationId: UUID?
 
+    #if os(macOS)
+    @FocusedValue(\.newConversationCommand) private var newConversationCommand
+    @FocusedValue(\.searchCommand) private var searchCommand
+    #endif
+
     var body: some Scene {
         WindowGroup {
             appContent
@@ -33,14 +38,29 @@ struct ChatArkMain: App {
         .commands {
             CommandGroup(after: .newItem) {
                 Button("New Conversation") {
-                    // Trigger new conversation
+                    newConversationCommand?()
                 }
                 .keyboardShortcut("n", modifiers: .command)
+                .disabled(newConversationCommand == nil)
 
                 Button("Search") {
-                    // Trigger search
+                    searchCommand?()
                 }
                 .keyboardShortcut("f", modifiers: .command)
+                .disabled(searchCommand == nil)
+            }
+        }
+        #endif
+
+        #if os(iOS)
+        WindowGroup(for: UUID.self) { $conversationId in
+            if let id = conversationId {
+                ConversationWindowGroup(conversationId: id, title: "Chat")
+                    .environment(authViewModel)
+                    .environment(settingsViewModel)
+                    .preferredColorScheme(settingsViewModel.colorScheme)
+                    .tint(settingsViewModel._tintColor)
+                    .modelContainer(CacheManager.shared.container)
             }
         }
         #endif
