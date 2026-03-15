@@ -11,8 +11,7 @@ class NotificationServiceExtension: UNNotificationServiceExtension {
     private static let appGroupId = "group.com.chrismarsh.chatark"
 
     private static let allowedDownloadHosts = [
-        "bcwfsqldmyyrstxjuruc.supabase.co",
-        "xtnqdyjldgmfhtvtggmm.supabase.co",
+        "supabase.noahsark.me",
     ]
 
     private static func isAllowedURL(_ url: URL) -> Bool {

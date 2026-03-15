@@ -8,6 +8,7 @@ import UIKit
 @MainActor
 final class NotificationService {
     private let client: SupabaseClient
+    private var lastRegisteredToken: Data?
     static let shared = NotificationService()
 
     private init() {
@@ -29,8 +30,12 @@ final class NotificationService {
 
     // MARK: - Device Token Registration
 
+    private static let notifyBaseURL = "https://notify.noahsark.me"
+    private static let notifyAPIKey = "ntfy_dfe1bc2e37d769f64a51b86f2553d44767aafee434bb935b12e4ebc10f8b2226"
+    private static let notifyProjectSlug = "chatark"
+
     func registerDeviceToken(_ token: Data) async throws {
-        guard let userId = client.auth.currentUser?.id else { return }
+        guard client.auth.currentUser != nil else { return }
 
         let tokenString = token.map { String(format: "%02.2hhx", $0) }.joined()
 
@@ -48,27 +53,50 @@ final class NotificationService {
         let deviceName = "Unknown"
         #endif
 
-        try await client.from("push_tokens")
-            .upsert(
-                [
-                    "user_id": AnyJSON.string(userId.uuidString),
-                    "token": AnyJSON.string(tokenString),
-                    "platform": AnyJSON.string(platform),
-                    "device_name": AnyJSON.string(deviceName),
-                    "updated_at": AnyJSON.string(ISO8601DateFormatter().string(from: Date())),
-                ],
-                onConflict: "token"
-            )
-            .execute()
+        #if DEBUG
+        let environment = "sandbox"
+        #else
+        let environment = "production"
+        #endif
+
+        // Register with Notify service for push notifications
+        var request = URLRequest(url: URL(string: "\(Self.notifyBaseURL)/api/devices/register")!)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(Self.notifyAPIKey, forHTTPHeaderField: "X-API-Key")
+        request.httpBody = try JSONEncoder().encode([
+            "device_token": tokenString,
+            "project_slug": Self.notifyProjectSlug,
+            "platform": platform,
+            "label": deviceName,
+            "environment": environment,
+        ])
+
+        let (_, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            print("[NotificationService] Failed to register device with Notify service")
+            return
+        }
+
+        lastRegisteredToken = token
     }
 
     func unregisterDeviceToken() async throws {
-        guard let userId = client.auth.currentUser?.id else { return }
+        guard let token = lastRegisteredToken else { return }
 
-        try await client.from("push_tokens")
-            .delete()
-            .eq("user_id", value: userId.uuidString)
-            .execute()
+        let tokenString = token.map { String(format: "%02.2hhx", $0) }.joined()
+
+        var request = URLRequest(url: URL(string: "\(Self.notifyBaseURL)/api/devices/unregister")!)
+        request.httpMethod = "DELETE"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode([
+            "device_token": tokenString,
+            "project_slug": Self.notifyProjectSlug,
+        ])
+
+        _ = try? await URLSession.shared.data(for: request)
+        lastRegisteredToken = nil
     }
 
     // MARK: - In-App Notifications
