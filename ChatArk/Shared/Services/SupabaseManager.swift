@@ -31,13 +31,13 @@ struct SupabaseConfig: Sendable {
     let anonKey: String
 
     static let development = SupabaseConfig(
-        url: URL(string: "https://bcwfsqldmyyrstxjuruc.supabase.co")!,
-        anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjd2ZzcWxkbXl5cnN0eGp1cnVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzE5MzcsImV4cCI6MjA4NTgwNzkzN30.lGXIUJwhXATlgR1t_uzOfu37h7-ibdc0Ybdpt3KxQ6A"
+        url: URL(string: "https://supabase.noahsark.me")!,
+        anonKey: "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJyb2xlIjogImFub24iLCAiaXNzIjogInN1cGFiYXNlIiwgImlhdCI6IDE3NzM0OTQzNDUsICJleHAiOiAyMDg4ODU0MzQ1fQ.RZNrSXdkB2sBGxMKDIPqMlHoqLAoxypac_t2G6D4Tv8"
     )
 
     static let production = SupabaseConfig(
-        url: URL(string: "https://xtnqdyjldgmfhtvtggmm.supabase.co")!,
-        anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0bnFkeWpsZGdtZmh0dnRnZ21tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAwMTk3MDQsImV4cCI6MjA4NTU5NTcwNH0.Zp_SnwwmPMqp_1VDEJgw1frXgj3A5LJk-c5g6xUaevQ"
+        url: URL(string: "https://supabase.noahsark.me")!,
+        anonKey: "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJyb2xlIjogImFub24iLCAiaXNzIjogInN1cGFiYXNlIiwgImlhdCI6IDE3NzM0OTQzNDUsICJleHAiOiAyMDg4ODU0MzQ1fQ.RZNrSXdkB2sBGxMKDIPqMlHoqLAoxypac_t2G6D4Tv8"
     )
 
     static var current: SupabaseConfig {

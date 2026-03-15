@@ -35,8 +35,8 @@ final class StorageService {
         let ext = (fileName as NSString).pathExtension
         let path = "\(userId.uuidString)/\(conversationId.uuidString)/\(timestamp).\(ext)"
 
-        // Virus scan first
-        try await scanFile(data: data, fileName: fileName)
+        // Virus scanning disabled — no Deno runtime in self-hosted Supabase
+        // Matches web app behavior (isScanningEnabled() = false)
 
         try await client.storage.from("message-attachments")
             .upload(
