@@ -1,0 +1,206 @@
+# ChatArk iOS CI/CD Pipeline
+# Builds, tests, and deploys to TestFlight via fastlane
+
+# ── Workflow: prevent duplicate pipelines ──────────────────
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
+stages:
+  - version
+  - build:ios
+  - deploy
+  - release
+
+# ── iOS change detection ─────────────────────────────────
+.ios-changes: &ios-changes
+  changes:
+    - ChatArk/**/*
+    - Shared/**/*
+    - ShareExtension/**/*
+    - NotificationServiceExtension/**/*
+    - ChatWidgets/**/*
+    - ChatArkWatch/**/*
+    - ChatWatchComplication/**/*
+    - project.yml
+    - fastlane/**/*
+    - Gemfile*
+    - Package.swift
+
+# ── Version (reads MARKETING_VERSION from project.yml) ───
+ios:version:
+  stage: version
+  image: alpine:3.19
+  needs: []
+  script:
+    - |
+      IOS_VERSION=$(awk '/MARKETING_VERSION:/{gsub(/.*"|".*/,""); print; exit}' project.yml)
+      echo "iOS MARKETING_VERSION: $IOS_VERSION"
+      echo "IOS_APP_VERSION=$IOS_VERSION" > ios_version.env
+  artifacts:
+    reports:
+      dotenv: ios_version.env
+    expire_in: 1 hour
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      <<: *ios-changes
+    - if: $CI_MERGE_REQUEST_IID
+      <<: *ios-changes
+
+# ── macOS runner shared config ────────────────────────────
+.ios-base: &ios-base
+  tags:
+    - macos
+    - ios
+  variables:
+    LANG: en_US.UTF-8
+    LC_ALL: en_US.UTF-8
+  before_script:
+    - eval "$(/opt/homebrew/bin/brew shellenv)"
+    - export PATH="/opt/homebrew/opt/ruby/bin:$HOME/bin:$PATH"
+    - |
+      # Create and unlock CI keychain to avoid login keychain prompts
+      security create-keychain -p "" fastlane_ci.keychain 2>/dev/null || true
+      security unlock-keychain -p "" fastlane_ci.keychain
+      security set-keychain-settings -t 3600 fastlane_ci.keychain
+      security list-keychains -d user -s fastlane_ci.keychain login.keychain-db
+
+# ── Stage: build:ios ──────────────────────────────────────
+build:ios:verify:
+  stage: build:ios
+  <<: *ios-base
+  interruptible: true
+  script:
+    - xcodegen generate
+    - xcodebuild build
+      -project ChatArk.xcodeproj
+      -scheme ChatArk
+      -configuration Debug
+      -destination 'generic/platform=iOS'
+      CODE_SIGNING_ALLOWED=NO
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      <<: *ios-changes
+
+build:ios:release:
+  stage: build:ios
+  <<: *ios-base
+  interruptible: true
+  needs:
+    - job: ios:version
+      artifacts: true
+  script:
+    - bundle config set --local path 'vendor/bundle'
+    - bundle install
+    - xcodegen generate
+    - echo "Building ChatArk with version $IOS_APP_VERSION"
+    - bundle exec fastlane build version:"$IOS_APP_VERSION"
+  artifacts:
+    paths:
+      - build/*.ipa
+    expire_in: 1 week
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      <<: *ios-changes
+
+# ── Stage: deploy (TestFlight) ────────────────────────────
+deploy:testflight:
+  stage: deploy
+  <<: *ios-base
+  needs:
+    - job: ios:version
+      artifacts: true
+    - job: build:ios:release
+      artifacts: true
+  resource_group: testflight-chatark
+  script:
+    - bundle config set --local path 'vendor/bundle'
+    - bundle install
+    - echo "Deploying ChatArk $IOS_APP_VERSION to TestFlight"
+    - bundle exec fastlane beta
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      <<: *ios-changes
+  environment:
+    name: testflight
+
+# ── Notifications ─────────────────────────────────────────
+notify:ios:success:
+  stage: deploy
+  image: curlimages/curl:8.12.1
+  needs:
+    - job: build:ios:verify
+      optional: true
+    - job: deploy:testflight
+      optional: true
+  script:
+    - |
+      if [ "$CI_MERGE_REQUEST_IID" ]; then
+        MSG="MR compile check passed for $CI_COMMIT_SHORT_SHA"
+      else
+        MSG="$CI_COMMIT_SHORT_SHA uploaded to TestFlight"
+      fi
+      curl -sf -X POST "https://notify.noahsark.me/api/webhook/${NOTIFY_PROJECT_SLUG}" \
+        -H "Content-Type: application/json" \
+        -H "X-API-Key: $NOTIFY_API_KEY" \
+        -d "{\"title\": \"✅ ChatArk iOS\", \"body\": \"$MSG\", \"priority\": \"low\"}" \
+      || echo "Notify service unreachable — skipping notification"
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      <<: *ios-changes
+    - if: $CI_COMMIT_BRANCH == "main"
+      <<: *ios-changes
+  when: on_success
+  allow_failure: true
+
+notify:ios:failure:
+  stage: deploy
+  image: curlimages/curl:8.12.1
+  needs:
+    - job: build:ios:verify
+      optional: true
+    - job: deploy:testflight
+      optional: true
+  script:
+    - |
+      if [ "$CI_MERGE_REQUEST_IID" ]; then
+        MSG="MR compile check failed for $CI_COMMIT_SHORT_SHA"
+      else
+        MSG="Pipeline $CI_PIPELINE_ID failed for $CI_COMMIT_SHORT_SHA"
+      fi
+      curl -sf -X POST "https://notify.noahsark.me/api/webhook/${NOTIFY_PROJECT_SLUG}" \
+        -H "Content-Type: application/json" \
+        -H "X-API-Key: $NOTIFY_API_KEY" \
+        -d "{\"title\": \"❌ ChatArk iOS\", \"body\": \"$MSG\", \"priority\": \"high\"}" \
+      || echo "Notify service unreachable — skipping notification"
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      <<: *ios-changes
+    - if: $CI_COMMIT_BRANCH == "main"
+      <<: *ios-changes
+  when: on_failure
+  allow_failure: true
+
+# ── ISC Release (MANDATORY) ──────────────────────────────
+create-isc-release:
+  stage: release
+  image: curlimages/curl:8.12.1
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: on_success
+  script:
+    - |
+      ISC_BRANCH=$(echo "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" | grep -oP '^isc/.+' || true)
+      if [ -z "$ISC_BRANCH" ]; then exit 0; fi
+      TAG_NAME=$(echo "$ISC_BRANCH" | sed 's/\//-/g')
+      curl --silent --request POST \
+        --header "PRIVATE-TOKEN: $GITLAB_PAT" \
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/releases" \
+        --data-urlencode "name=Release: $CI_MERGE_REQUEST_TITLE" \
+        --data-urlencode "tag_name=$TAG_NAME" \
+        --data-urlencode "ref=main" \
+        --data-urlencode "description=Released from ISC branch $ISC_BRANCH"
+  environment: production
