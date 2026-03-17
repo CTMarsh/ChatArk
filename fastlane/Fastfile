@@ -1,0 +1,105 @@
+default_platform(:ios)
+
+APP_IDENTIFIERS = [
+  "com.chrismarsh.chatark",
+  "com.chrismarsh.chatark.share",
+  "com.chrismarsh.chatark.notification-service",
+  "com.chrismarsh.chatark.ChatWidgets",
+  "com.chrismarsh.chatark.watchos"
+]
+
+platform :ios do
+  before_all do
+    setup_ci if is_ci
+  end
+
+  private_lane :setup_signing do
+    if is_ci && ENV["APP_STORE_CONNECT_API_KEY_KEY"]
+      key_content = File.read(ENV["APP_STORE_CONNECT_API_KEY_KEY"]).strip
+      app_store_connect_api_key(
+        key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
+        issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
+        key_content: key_content,
+        in_house: false
+      )
+    end
+
+    match(
+      type: "appstore",
+      app_identifier: APP_IDENTIFIERS,
+      readonly: true
+    )
+
+    # Explicitly assign provisioning profiles to all targets
+    [
+      { target: "ChatArk", bundle_id: "com.chrismarsh.chatark", identity: "iPhone Distribution" },
+      { target: "ShareExtension", bundle_id: "com.chrismarsh.chatark.share", identity: "iPhone Distribution" },
+      { target: "NotificationServiceExtension", bundle_id: "com.chrismarsh.chatark.notification-service", identity: "iPhone Distribution" },
+      { target: "ChatWidgets", bundle_id: "com.chrismarsh.chatark.ChatWidgets", identity: "iPhone Distribution" },
+      { target: "ChatArkWatch", bundle_id: "com.chrismarsh.chatark.watchos", identity: "iPhone Distribution" }
+    ].each do |t|
+      update_code_signing_settings(
+        use_automatic_signing: false,
+        path: "ChatArk.xcodeproj",
+        targets: [t[:target]],
+        team_id: "WTPX4TSW4N",
+        bundle_identifier: t[:bundle_id],
+        profile_name: "match AppStore #{t[:bundle_id]}",
+        code_sign_identity: t[:identity]
+      )
+    end
+  end
+
+  lane :build do |options|
+    sh("cd .. && xcodegen generate")
+    setup_signing
+
+    version = options[:version] || ENV["IOS_APP_VERSION"] || ENV["APP_VERSION"]
+    xcargs = version ? "MARKETING_VERSION=#{version}" : ""
+
+    build_app(
+      project: "ChatArk.xcodeproj",
+      scheme: "ChatArk",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "./build",
+      xcargs: xcargs
+    )
+  end
+
+  lane :beta do
+    sh("cd .. && xcodegen generate")
+    setup_signing
+
+    # Auto-increment build number before building
+    current = latest_testflight_build_number(
+      app_identifier: "com.chrismarsh.chatark"
+    )
+    next_build = current + 1
+
+    version = ENV["IOS_APP_VERSION"] || ENV["APP_VERSION"]
+    xcargs = "CURRENT_PROJECT_VERSION=#{next_build}"
+    xcargs += " MARKETING_VERSION=#{version}" if version
+
+    build_app(
+      project: "ChatArk.xcodeproj",
+      scheme: "ChatArk",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "./build",
+      xcargs: xcargs
+    )
+
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  lane :release do
+    build
+    deliver(
+      submit_for_review: false,
+      force: true
+    )
+  end
+end
