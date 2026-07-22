@@ -48,7 +48,7 @@ struct AvatarView: View {
 
     private var avatarColor: Color {
         let hash = abs(name.hashValue)
-        return NauticalTheme.avatarColors[hash % NauticalTheme.avatarColors.count]
+        return ConstellationTheme.avatarColors[hash % ConstellationTheme.avatarColors.count]
     }
 }
 

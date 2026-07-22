@@ -12,13 +12,13 @@ struct PinnedMessageBanner: View {
                 HStack(spacing: 8) {
                     Image(systemName: "pin.fill")
                         .font(.caption)
-                        .foregroundStyle(NauticalTheme.golden)
+                        .foregroundStyle(ConstellationTheme.amber)
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Pinned Message")
                             .font(.caption)
                             .fontWeight(.semibold)
-                            .foregroundStyle(NauticalTheme.golden)
+                            .foregroundStyle(ConstellationTheme.amber)
 
                         Text(latest.content)
                             .font(.caption)
@@ -34,7 +34,7 @@ struct PinnedMessageBanner: View {
                             .fontWeight(.bold)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(NauticalTheme.golden.opacity(0.2))
+                            .background(ConstellationTheme.amber.opacity(0.2))
                             .clipShape(Capsule())
                     }
 

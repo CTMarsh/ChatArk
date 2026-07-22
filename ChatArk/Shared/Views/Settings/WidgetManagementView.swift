@@ -90,7 +90,7 @@ struct WidgetManagementView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: "widget.small")
-                    .foregroundStyle(NauticalTheme.ocean)
+                    .foregroundStyle(ConstellationTheme.primary)
                 Text(widget.name)
                     .fontWeight(.medium)
                 Spacer()

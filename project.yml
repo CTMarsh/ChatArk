@@ -139,7 +139,8 @@ targets:
     sources:
       - ChatArkWatch
       - ChatArk/Shared/Models
-      - ChatArk/Shared/Utilities/NauticalTheme.swift
+      - ChatArk/Shared/Utilities/ConstellationTheme.swift
+      - ChatArk/Shared/Utilities/ColorHex.swift
     settings:
       base:
         PRODUCT_NAME: ChatArk Watch

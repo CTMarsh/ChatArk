@@ -22,7 +22,7 @@ struct WatchStatusView: View {
                         if status == currentStatus {
                             Image(systemName: "checkmark")
                                 .font(.caption)
-                                .foregroundStyle(NauticalTheme.ocean)
+                                .foregroundStyle(ConstellationTheme.primary)
                         }
                     }
                 }

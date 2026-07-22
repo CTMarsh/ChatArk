@@ -64,7 +64,7 @@ struct ConversationRow: View {
                             .foregroundStyle(.white)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(NauticalTheme.ocean)
+                            .background(ConstellationTheme.primary)
                             .clipShape(Capsule())
                     }
                 }
