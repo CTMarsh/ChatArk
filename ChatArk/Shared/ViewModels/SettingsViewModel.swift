@@ -13,10 +13,10 @@ final class SettingsViewModel {
     var theme: Theme = .system
     var uiScale: UIScale = .comfortable
     var fontSize: FontSize = .medium
-    var accentColor: String = NauticalTheme.defaultAccentHex {
+    var accentColor: String = ConstellationTheme.defaultAccentHex {
         didSet { _tintColor = Color(hex: accentColor) }
     }
-    private(set) var _tintColor: Color = NauticalTheme.ocean
+    private(set) var _tintColor: Color = ConstellationTheme.primary
     var messageDensity: MessageDensity = .default
     var enterKeyBehavior: EnterKeyBehavior = .send
     var linkPreviewsEnabled = true
@@ -62,7 +62,7 @@ final class SettingsViewModel {
         theme = prefs.theme ?? .system
         uiScale = prefs.uiScale ?? .comfortable
         fontSize = prefs.fontSize ?? .medium
-        accentColor = prefs.accentColor ?? NauticalTheme.defaultAccentHex
+        accentColor = prefs.accentColor ?? ConstellationTheme.defaultAccentHex
         messageDensity = prefs.messageDensity ?? .default
         enterKeyBehavior = prefs.enterKeyBehavior ?? .send
         linkPreviewsEnabled = prefs.linkPreviewsEnabled ?? true

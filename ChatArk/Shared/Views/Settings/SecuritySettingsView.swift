@@ -134,7 +134,7 @@ struct SecuritySettingsView: View {
             if sessions.isEmpty {
                 HStack {
                     Image(systemName: deviceIcon)
-                        .foregroundStyle(NauticalTheme.ocean)
+                        .foregroundStyle(ConstellationTheme.primary)
                     VStack(alignment: .leading) {
                         Text("This Device")
                             .font(.body)
@@ -147,7 +147,7 @@ struct SecuritySettingsView: View {
                 ForEach(sessions) { session in
                     HStack {
                         Image(systemName: sessionDeviceIcon(session))
-                            .foregroundStyle(NauticalTheme.ocean)
+                            .foregroundStyle(ConstellationTheme.primary)
                         VStack(alignment: .leading, spacing: 2) {
                             HStack(spacing: 6) {
                                 Text(sessionDeviceName(session))

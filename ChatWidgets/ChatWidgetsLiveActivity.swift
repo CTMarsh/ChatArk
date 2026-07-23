@@ -105,7 +105,7 @@ struct ChatWidgetsLiveActivity: Widget {
             .fontWeight(.semibold)
             .foregroundStyle(.white)
             .frame(width: 32, height: 32)
-            .background(Color(widgetHex: "4A8BC2"))
+            .background(Color(widgetHex: "2F8FFF"))
             .clipShape(Circle())
     }
 
@@ -116,7 +116,7 @@ struct ChatWidgetsLiveActivity: Widget {
             .foregroundStyle(.white)
             .padding(.horizontal, 8)
             .padding(.vertical, 2)
-            .background(Color(widgetHex: "4A8BC2"))
+            .background(Color(widgetHex: "2F8FFF"))
             .clipShape(Capsule())
     }
 }

@@ -1,12 +1,55 @@
-import UserNotifications
+@preconcurrency import UserNotifications
 import WidgetKit
 import os.log
 
 private let logger = Logger(subsystem: "com.chrismarsh.chatark.notificationservice", category: "NotificationService")
 
-class NotificationServiceExtension: UNNotificationServiceExtension {
+/// One-shot delivery box guarding the two pieces of mutable state that the system
+/// callbacks share. `didReceive`'s download `Task`, the timeout callback, and the
+/// arming call can all overlap, so every access goes through `lock` — that real
+/// synchronization (and the once-only fire in `deliver`) is what makes
+/// `@unchecked Sendable` sound. It also lets the non-`Sendable` UserNotifications
+/// values ride across the extension's isolation without being sent as bare values.
+private final class DeliveryBox: @unchecked Sendable {
+    private let lock = NSLock()
     private var contentHandler: ((UNNotificationContent) -> Void)?
     private var bestAttemptContent: UNMutableNotificationContent?
+
+    func arm(content: UNMutableNotificationContent, handler: @escaping (UNNotificationContent) -> Void) {
+        lock.lock()
+        defer { lock.unlock() }
+        bestAttemptContent = content
+        contentHandler = handler
+    }
+
+    /// Fires the content handler exactly once — whichever of the download completion
+    /// or the timeout wins disarms the other. Optionally applies downloaded attachments.
+    @discardableResult
+    func deliver(applying attachments: [UNNotificationAttachment]? = nil) -> Bool {
+        lock.lock()
+        guard let handler = contentHandler, let content = bestAttemptContent else {
+            lock.unlock()
+            return false
+        }
+        if let attachments { content.attachments = attachments }
+        contentHandler = nil
+        bestAttemptContent = nil
+        lock.unlock()
+
+        handler(content)
+        return true
+    }
+}
+
+/// The class is `@MainActor` so the download `Task` inherits a concrete isolation
+/// (the region-based isolation checker can reason about a main-actor task but not a
+/// bare nonisolated `sending` one). The two system overrides stay `nonisolated`
+/// (matching the superclass, which the system calls on a background queue) and touch
+/// only the `Sendable` `DeliveryBox` — so no non-`Sendable` value ever crosses the
+/// isolation boundary as a bare argument.
+@MainActor
+final class NotificationServiceExtension: UNNotificationServiceExtension {
+    private nonisolated let delivery = DeliveryBox()
 
     private static let appGroupId = "group.com.chrismarsh.chatark"
 
@@ -29,15 +72,11 @@ class NotificationServiceExtension: UNNotificationServiceExtension {
     private static let maxCacheSizeBytes: Int64 = 50 * 1024 * 1024 // 50MB
     private static let maxCacheAgeSeconds: TimeInterval = 7 * 24 * 3600 // 7 days
 
-    override func didReceive(
+    nonisolated override func didReceive(
         _ request: UNNotificationRequest,
         withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void
     ) {
-        self.contentHandler = contentHandler
-        bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
-        evictStaleCache()
-
-        guard let content = bestAttemptContent else {
+        guard let content = request.content.mutableCopy() as? UNMutableNotificationContent else {
             contentHandler(request.content)
             return
         }
@@ -53,54 +92,77 @@ class NotificationServiceExtension: UNNotificationServiceExtension {
         // Set category for actionable notifications (matches MESSAGE category in AppDelegate)
         content.categoryIdentifier = "MESSAGE"
 
-        Task {
-            var attachments: [UNNotificationAttachment] = []
+        // Extract the Sendable download inputs before handing content + handler to the
+        // (Sendable) box; the main-actor task then captures only self + these strings.
+        let avatarURLString = userInfo["avatar_url"] as? String
+        let messageType = userInfo["message_type"] as? String
+        let fileURLString = userInfo["file_url"] as? String
 
-            // Avatar attachment (only from allowed Supabase storage domains)
-            if let avatarUrlString = userInfo["avatar_url"] as? String,
-               let avatarUrl = URL(string: avatarUrlString),
-               Self.isAllowedURL(avatarUrl) {
-                if let attachment = await downloadWithCache(url: avatarUrl, identifier: "avatar") {
-                    attachments.append(attachment)
-                }
-            }
+        delivery.arm(content: content, handler: contentHandler)
 
-            // Image message attachment (only from allowed Supabase storage domains)
-            if let messageType = userInfo["message_type"] as? String,
-               messageType == "image",
-               let fileUrlString = userInfo["file_url"] as? String,
-               let fileUrl = URL(string: fileUrlString),
-               Self.isAllowedURL(fileUrl) {
-                logger.info("Downloading image attachment")
-                if let attachment = await downloadAttachment(url: fileUrl, identifier: "image") {
-                    attachments.append(attachment)
-                }
-            }
-
-            content.attachments = attachments
-
-            // Refresh widget timelines so widgets show latest data
-            WidgetCenter.shared.reloadAllTimelines()
-
-            contentHandler(content)
+        // Bind the Sendable box to a local so the Task captures it (not self.delivery,
+        // which would send task-isolated self into the main-actor closure).
+        let box = delivery
+        Task { @MainActor in
+            await Self.runDownloads(
+                delivery: box,
+                avatarURLString: avatarURLString,
+                messageType: messageType,
+                fileURLString: fileURLString
+            )
         }
     }
 
-    override func serviceExtensionTimeWillExpire() {
+    nonisolated override func serviceExtensionTimeWillExpire() {
         logger.warning("Service extension time expiring, delivering best attempt")
-        if let contentHandler, let content = bestAttemptContent {
-            contentHandler(content)
+        delivery.deliver()
+    }
+
+    @MainActor
+    private static func runDownloads(
+        delivery: DeliveryBox,
+        avatarURLString: String?,
+        messageType: String?,
+        fileURLString: String?
+    ) async {
+        Self.evictStaleCache()
+
+        var attachments: [UNNotificationAttachment] = []
+
+        // Avatar attachment (only from allowed Supabase storage domains)
+        if let avatarURLString,
+           let avatarURL = URL(string: avatarURLString),
+           Self.isAllowedURL(avatarURL) {
+            if let attachment = await Self.downloadWithCache(url: avatarURL, identifier: "avatar") {
+                attachments.append(attachment)
+            }
         }
+
+        // Image message attachment (only from allowed Supabase storage domains)
+        if messageType == "image",
+           let fileURLString,
+           let fileURL = URL(string: fileURLString),
+           Self.isAllowedURL(fileURL) {
+            logger.info("Downloading image attachment")
+            if let attachment = await Self.downloadAttachment(url: fileURL, identifier: "image") {
+                attachments.append(attachment)
+            }
+        }
+
+        // Refresh widget timelines so widgets show latest data
+        WidgetCenter.shared.reloadAllTimelines()
+
+        delivery.deliver(applying: attachments)
     }
 
     // MARK: - Download with Cache
 
-    private func downloadWithCache(url: URL, identifier: String) async -> UNNotificationAttachment? {
+    private static func downloadWithCache(url: URL, identifier: String) async -> UNNotificationAttachment? {
         let fm = FileManager.default
         let cacheKey = url.absoluteString.data(using: .utf8)?.base64EncodedString() ?? UUID().uuidString
 
         // Ensure cache directory exists
-        guard let cacheDir = Self.cacheDirectory else {
+        guard let cacheDir = cacheDirectory else {
             logger.error("Cannot access app group container for cache")
             return await downloadAttachment(url: url, identifier: identifier)
         }
@@ -161,8 +223,8 @@ class NotificationServiceExtension: UNNotificationServiceExtension {
 
     // MARK: - Cache Eviction
 
-    private func evictStaleCache() {
-        guard let cacheDir = Self.cacheDirectory else { return }
+    private static func evictStaleCache() {
+        guard let cacheDir = cacheDirectory else { return }
         let fm = FileManager.default
         guard let files = try? fm.contentsOfDirectory(at: cacheDir, includingPropertiesForKeys: [.contentModificationDateKey, .fileSizeKey]) else { return }
 
@@ -177,7 +239,7 @@ class NotificationServiceExtension: UNNotificationServiceExtension {
             let fileSize = Int64(size)
 
             // Delete files older than max age
-            if now.timeIntervalSince(date) > Self.maxCacheAgeSeconds {
+            if now.timeIntervalSince(date) > maxCacheAgeSeconds {
                 try? fm.removeItem(at: file)
                 continue
             }
@@ -187,10 +249,10 @@ class NotificationServiceExtension: UNNotificationServiceExtension {
         }
 
         // If over size limit, delete oldest first
-        if totalSize > Self.maxCacheSizeBytes {
+        if totalSize > maxCacheSizeBytes {
             let sorted = fileInfos.sorted { $0.date < $1.date }
             for info in sorted {
-                guard totalSize > Self.maxCacheSizeBytes else { break }
+                guard totalSize > maxCacheSizeBytes else { break }
                 try? fm.removeItem(at: info.url)
                 totalSize -= info.size
             }
@@ -199,7 +261,7 @@ class NotificationServiceExtension: UNNotificationServiceExtension {
 
     // MARK: - Direct Download (no cache)
 
-    private func downloadAttachment(url: URL, identifier: String) async -> UNNotificationAttachment? {
+    private static func downloadAttachment(url: URL, identifier: String) async -> UNNotificationAttachment? {
         guard let (data, response) = try? await URLSession.shared.data(from: url) else {
             logger.error("Download failed for \(url.absoluteString, privacy: .public)")
             return nil

@@ -4,8 +4,8 @@ import WidgetKit
 // MARK: - Conversation Entity
 
 struct ConversationEntity: AppEntity {
-    static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Conversation")
-    static var defaultQuery = ConversationEntityQuery()
+    static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Conversation")
+    static let defaultQuery = ConversationEntityQuery()
 
     var id: String
     var name: String
@@ -35,8 +35,8 @@ struct ConversationEntityQuery: EntityQuery {
 // MARK: - Select Conversation Intent
 
 struct SelectConversationIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "Select Conversation"
-    static var description: IntentDescription = "Choose a conversation to display"
+    static let title: LocalizedStringResource = "Select Conversation"
+    static let description: IntentDescription = "Choose a conversation to display"
 
     @Parameter(title: "Conversation")
     var conversation: ConversationEntity?
@@ -45,9 +45,9 @@ struct SelectConversationIntent: WidgetConfigurationIntent {
 // MARK: - Open ChatArk Intent
 
 struct OpenChatArkIntent: AppIntent {
-    static var title: LocalizedStringResource = "Open ChatArk"
-    static var description: IntentDescription = "Opens the ChatArk app"
-    static var openAppWhenRun = true
+    static let title: LocalizedStringResource = "Open ChatArk"
+    static let description: IntentDescription = "Opens the ChatArk app"
+    static let openAppWhenRun = true
 
     func perform() async throws -> some IntentResult {
         .result()

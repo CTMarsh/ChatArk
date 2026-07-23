@@ -96,7 +96,7 @@ struct WatchConversationRow: View {
                             .foregroundStyle(.white)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1)
-                            .background(NauticalTheme.ocean)
+                            .background(ConstellationTheme.primary)
                             .clipShape(Capsule())
                     }
                 }

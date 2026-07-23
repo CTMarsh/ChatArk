@@ -77,7 +77,7 @@ struct WatchChatView: View {
                     .font(.system(size: 11))
                     .foregroundStyle(.white)
                     .frame(width: 28, height: 28)
-                    .background(NauticalTheme.ocean)
+                    .background(ConstellationTheme.primary)
                     .clipShape(Circle())
             }
             .buttonStyle(.plain)
@@ -138,7 +138,7 @@ struct WatchMessageRow: View {
                 if showSenderName {
                     Text(senderName)
                         .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(NauticalTheme.ocean)
+                        .foregroundStyle(ConstellationTheme.primary)
                 }
 
                 if message.isDeleted {
@@ -171,7 +171,7 @@ struct WatchMessageRow: View {
                 }
             }
             .padding(6)
-            .background(isOwn ? NauticalTheme.ocean.opacity(0.3) : Color.gray.opacity(0.2))
+            .background(isOwn ? ConstellationTheme.primary.opacity(0.3) : Color.gray.opacity(0.2))
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             if !isOwn { Spacer(minLength: 20) }

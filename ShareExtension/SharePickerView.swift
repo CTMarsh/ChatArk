@@ -1,6 +1,6 @@
 import SwiftUI
 
-private let shareOceanBlue = Color(red: 0.29, green: 0.545, blue: 0.761) // #4A8BC2
+private let shareSignalBlue = Color(red: 0.184, green: 0.561, blue: 1.0) // #2F8FFF
 
 struct SharePickerView: View {
     let conversations: [ShareConversationSummary]
@@ -99,7 +99,7 @@ struct SharePickerView: View {
 
                     if selectedConversation?.id == conversation.id {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(shareOceanBlue)
+                            .foregroundStyle(shareSignalBlue)
                     }
                 }
                 .contentShape(Rectangle())
@@ -129,7 +129,7 @@ struct SharePickerView: View {
             .fontWeight(.medium)
             .foregroundStyle(.white)
             .frame(width: 36, height: 36)
-            .background(shareOceanBlue.opacity(0.8))
+            .background(shareSignalBlue.opacity(0.8))
             .clipShape(Circle())
     }
 }

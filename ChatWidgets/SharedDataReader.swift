@@ -57,7 +57,7 @@ enum SharedDataReader {
     }
 
     static func accentColorHex() -> String {
-        defaults?.string(forKey: "accent_color") ?? "#4A8BC2"
+        defaults?.string(forKey: "accent_color") ?? "#2F8FFF"
     }
 }
 

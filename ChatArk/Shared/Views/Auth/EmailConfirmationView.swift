@@ -10,7 +10,7 @@ struct EmailConfirmationView: View {
 
             Image(systemName: "envelope.badge")
                 .font(.system(size: 60))
-                .foregroundStyle(NauticalTheme.ocean)
+                .foregroundStyle(ConstellationTheme.primary)
 
             Text("Check Your Email")
                 .font(.title)
@@ -33,7 +33,7 @@ struct EmailConfirmationView: View {
                 Text("Back to Sign In")
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(NauticalTheme.ocean)
+                    .background(ConstellationTheme.primary)
                     .foregroundStyle(.white)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }

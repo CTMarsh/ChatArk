@@ -258,8 +258,8 @@ struct GroupInfoView: View {
                     .font(.caption)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 2)
-                    .background(isCreator ? NauticalTheme.golden.opacity(0.15) : NauticalTheme.ocean.opacity(0.1))
-                    .foregroundStyle(isCreator ? NauticalTheme.golden : NauticalTheme.ocean)
+                    .background(isCreator ? ConstellationTheme.amber.opacity(0.15) : ConstellationTheme.primary.opacity(0.1))
+                    .foregroundStyle(isCreator ? ConstellationTheme.amber : ConstellationTheme.primary)
                     .clipShape(Capsule())
             }
         }

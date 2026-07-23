@@ -33,9 +33,9 @@ struct FileAttachmentView: View {
         HStack(spacing: 10) {
             Image(systemName: fileIcon)
                 .font(.title2)
-                .foregroundStyle(NauticalTheme.ocean)
+                .foregroundStyle(ConstellationTheme.primary)
                 .frame(width: 40, height: 40)
-                .background(NauticalTheme.ocean.opacity(0.1))
+                .background(ConstellationTheme.primary.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
             VStack(alignment: .leading, spacing: 2) {
@@ -55,7 +55,7 @@ struct FileAttachmentView: View {
 
             Image(systemName: "arrow.down.circle")
                 .font(.title3)
-                .foregroundStyle(NauticalTheme.ocean)
+                .foregroundStyle(ConstellationTheme.primary)
         }
         .padding(10)
         .background(Color.gray.opacity(0.12))

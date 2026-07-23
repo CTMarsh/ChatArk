@@ -47,7 +47,7 @@ struct ChatLiveActivityView: Widget {
                         .foregroundStyle(.white)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(NauticalTheme.ocean)
+                        .background(ConstellationTheme.primary)
                         .clipShape(Capsule())
                 }
             }
@@ -82,7 +82,7 @@ struct ChatLiveActivityView: Widget {
                 }
             } compactLeading: {
                 Image(systemName: "bubble.left.fill")
-                    .foregroundStyle(NauticalTheme.ocean)
+                    .foregroundStyle(ConstellationTheme.primary)
             } compactTrailing: {
                 if context.state.unreadCount > 0 {
                     Text("\(context.state.unreadCount)")
@@ -91,7 +91,7 @@ struct ChatLiveActivityView: Widget {
                 }
             } minimal: {
                 Image(systemName: "bubble.left.fill")
-                    .foregroundStyle(NauticalTheme.ocean)
+                    .foregroundStyle(ConstellationTheme.primary)
             }
         }
     }

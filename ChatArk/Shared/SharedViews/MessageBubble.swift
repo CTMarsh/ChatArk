@@ -69,7 +69,7 @@ struct MessageBubble: View {
             if message.replyToId != nil {
                 HStack(spacing: 4) {
                     Rectangle()
-                        .fill(NauticalTheme.ocean)
+                        .fill(ConstellationTheme.primary)
                         .frame(width: 3)
                     Text("Reply")
                         .font(.caption)

@@ -80,13 +80,13 @@ struct WorkspaceManagementView: View {
                     } label: {
                         HStack {
                             Image(systemName: "building.2")
-                                .foregroundStyle(NauticalTheme.ocean)
+                                .foregroundStyle(ConstellationTheme.primary)
                             Text(workspace.name)
                                 .foregroundStyle(.primary)
                             Spacer()
                             if viewModel.selectedWorkspace?.id == workspace.id {
                                 Image(systemName: "checkmark")
-                                    .foregroundStyle(NauticalTheme.ocean)
+                                    .foregroundStyle(ConstellationTheme.primary)
                             }
                         }
                     }
@@ -181,7 +181,7 @@ struct WorkspaceManagementView: View {
                             }
                         } label: {
                             Image(systemName: "ellipsis.circle")
-                                .foregroundStyle(NauticalTheme.ocean)
+                                .foregroundStyle(ConstellationTheme.primary)
                         }
                     }
                     #endif
