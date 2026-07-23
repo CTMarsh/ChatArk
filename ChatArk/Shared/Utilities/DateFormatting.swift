@@ -1,33 +1,37 @@
 import Foundation
 
 enum DateFormatting {
-    private static let relativeFormatter: RelativeDateTimeFormatter = {
+    // Foundation date formatters are immutable after their configuration closure
+    // runs and are documented thread-safe for concurrent formatting (reading), so
+    // `nonisolated(unsafe)` is safe here — it silences Swift 6's non-Sendable
+    // static-property diagnostic without adding per-call allocation.
+    nonisolated(unsafe) private static let relativeFormatter: RelativeDateTimeFormatter = {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
         return formatter
     }()
 
-    private static let timeFormatter: DateFormatter = {
+    nonisolated(unsafe) private static let timeFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .none
         formatter.timeStyle = .short
         return formatter
     }()
 
-    private static let dateFormatter: DateFormatter = {
+    nonisolated(unsafe) private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
         return formatter
     }()
 
-    private static let weekdayFormatter: DateFormatter = {
+    nonisolated(unsafe) private static let weekdayFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE"
         return formatter
     }()
 
-    private static let fullFormatter: DateFormatter = {
+    nonisolated(unsafe) private static let fullFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
