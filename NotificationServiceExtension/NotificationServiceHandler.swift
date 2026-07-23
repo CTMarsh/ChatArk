@@ -1,56 +1,19 @@
-import UserNotifications
+@preconcurrency import UserNotifications
 import WidgetKit
 import os.log
 
 private let logger = Logger(subsystem: "com.chrismarsh.chatark.notificationservice", category: "NotificationService")
 
-/// Serializes one-shot delivery of a notification between the async download
-/// `Task` (started in `didReceive`) and `serviceExtensionTimeWillExpire()`.
-///
-/// The system runs the extension on a background serial queue, but it can invoke
-/// `serviceExtensionTimeWillExpire()` while the download `Task` (on the
-/// cooperative pool) is still in flight — so the two delivery paths genuinely
-/// race for `contentHandler` and `bestAttemptContent`. `UNMutableNotificationContent`,
-/// `UNNotificationAttachment`, and the content-handler closure are all non-`Sendable`
-/// (the UserNotifications framework is not yet concurrency-audited), so this box
-/// holds them behind an `NSLock` and guarantees the handler fires exactly once.
-///
-/// `@unchecked Sendable` is sound here because the box exposes no mutable state
-/// except through `lock`-guarded methods; nothing escapes the lock.
-private final class DeliveryBox: @unchecked Sendable {
-    private let lock = NSLock()
+/// The whole extension runs on the main actor, giving the download `Task` and
+/// `serviceExtensionTimeWillExpire()` a single isolation domain. That serializes
+/// access to `contentHandler`/`bestAttemptContent` (so the handler fires exactly
+/// once) and keeps the non-`Sendable` UserNotifications types from ever crossing
+/// an isolation boundary — no locks, no `@unchecked Sendable`, nothing for the
+/// region-based isolation checker to reason about.
+@MainActor
+final class NotificationServiceExtension: UNNotificationServiceExtension {
     private var contentHandler: ((UNNotificationContent) -> Void)?
     private var bestAttemptContent: UNMutableNotificationContent?
-
-    func arm(content: UNMutableNotificationContent, handler: @escaping (UNNotificationContent) -> Void) {
-        lock.lock()
-        defer { lock.unlock() }
-        bestAttemptContent = content
-        contentHandler = handler
-    }
-
-    /// Delivers the best-attempt content exactly once, optionally applying freshly
-    /// downloaded attachments first. Whichever caller wins (download completion or
-    /// timeout) disarms the box; every later call is a no-op.
-    @discardableResult
-    func deliver(applying attachments: [UNNotificationAttachment]? = nil) -> Bool {
-        lock.lock()
-        guard let handler = contentHandler, let content = bestAttemptContent else {
-            lock.unlock()
-            return false
-        }
-        if let attachments { content.attachments = attachments }
-        contentHandler = nil
-        bestAttemptContent = nil
-        lock.unlock()
-
-        handler(content)
-        return true
-    }
-}
-
-final class NotificationServiceExtension: UNNotificationServiceExtension {
-    private let delivery = DeliveryBox()
 
     private static let appGroupId = "group.com.chrismarsh.chatark"
 
@@ -77,12 +40,15 @@ final class NotificationServiceExtension: UNNotificationServiceExtension {
         _ request: UNNotificationRequest,
         withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void
     ) {
+        self.contentHandler = contentHandler
         Self.evictStaleCache()
 
         guard let content = request.content.mutableCopy() as? UNMutableNotificationContent else {
-            contentHandler(request.content)
+            deliver(request.content)
             return
         }
+
+        bestAttemptContent = content
 
         let userInfo = content.userInfo
         logger.info("Processing notification: \(content.title, privacy: .public)")
@@ -95,72 +61,54 @@ final class NotificationServiceExtension: UNNotificationServiceExtension {
         // Set category for actionable notifications (matches MESSAGE category in AppDelegate)
         content.categoryIdentifier = "MESSAGE"
 
-        // Extract the Sendable inputs the download task needs, so the task closure
-        // captures only Sendable values (the box + these strings) — never `self`
-        // or the non-Sendable content/handler.
-        let avatarUrlString = userInfo["avatar_url"] as? String
-        let messageType = userInfo["message_type"] as? String
-        let fileUrlString = userInfo["file_url"] as? String
-
-        // Hand ownership of the content + handler to the delivery box before the
-        // async work begins; both delivery paths now go through it.
-        delivery.arm(content: content, handler: contentHandler)
-
-        // The task captures only Sendable values (the box + the extracted strings) —
-        // never `self` or the non-Sendable content/handler. All download logic lives
-        // in a nonisolated static function so the task closure stays trivial and the
-        // region-based isolation checker has nothing cross-isolation to reason about.
-        let box = delivery
+        // Inherits the main-actor context, so `content`/`self` stay on one actor.
         Task {
-            await Self.buildAndDeliver(
-                avatarURLString: avatarUrlString,
-                messageType: messageType,
-                fileURLString: fileUrlString,
-                delivery: box
-            )
-        }
-    }
+            var attachments: [UNNotificationAttachment] = []
 
-    /// Downloads any avatar/image attachments and hands the finished set to the
-    /// delivery box. Nonisolated with all-`Sendable` inputs, so nothing crosses an
-    /// isolation boundary; the non-`Sendable` attachments never leave this call.
-    private static func buildAndDeliver(
-        avatarURLString: String?,
-        messageType: String?,
-        fileURLString: String?,
-        delivery: DeliveryBox
-    ) async {
-        var attachments: [UNNotificationAttachment] = []
-
-        // Avatar attachment (only from allowed Supabase storage domains)
-        if let avatarURLString,
-           let avatarURL = URL(string: avatarURLString),
-           isAllowedURL(avatarURL) {
-            if let attachment = await downloadWithCache(url: avatarURL, identifier: "avatar") {
-                attachments.append(attachment)
+            // Avatar attachment (only from allowed Supabase storage domains)
+            if let avatarUrlString = userInfo["avatar_url"] as? String,
+               let avatarUrl = URL(string: avatarUrlString),
+               Self.isAllowedURL(avatarUrl) {
+                if let attachment = await Self.downloadWithCache(url: avatarUrl, identifier: "avatar") {
+                    attachments.append(attachment)
+                }
             }
-        }
 
-        // Image message attachment (only from allowed Supabase storage domains)
-        if messageType == "image",
-           let fileURLString,
-           let fileURL = URL(string: fileURLString),
-           isAllowedURL(fileURL) {
-            logger.info("Downloading image attachment")
-            if let attachment = await downloadAttachment(url: fileURL, identifier: "image") {
-                attachments.append(attachment)
+            // Image message attachment (only from allowed Supabase storage domains)
+            if let messageType = userInfo["message_type"] as? String,
+               messageType == "image",
+               let fileUrlString = userInfo["file_url"] as? String,
+               let fileUrl = URL(string: fileUrlString),
+               Self.isAllowedURL(fileUrl) {
+                logger.info("Downloading image attachment")
+                if let attachment = await Self.downloadAttachment(url: fileUrl, identifier: "image") {
+                    attachments.append(attachment)
+                }
             }
+
+            content.attachments = attachments
+
+            // Refresh widget timelines so widgets show latest data
+            WidgetCenter.shared.reloadAllTimelines()
+
+            deliver(content)
         }
-
-        // Refresh widget timelines so widgets show latest data
-        WidgetCenter.shared.reloadAllTimelines()
-
-        delivery.deliver(applying: attachments)
     }
 
     override func serviceExtensionTimeWillExpire() {
         logger.warning("Service extension time expiring, delivering best attempt")
-        delivery.deliver()
+        if let bestAttemptContent {
+            deliver(bestAttemptContent)
+        }
+    }
+
+    /// Fires the content handler exactly once — whichever of the download
+    /// completion or the timeout wins disarms the other.
+    private func deliver(_ content: UNNotificationContent) {
+        guard let handler = contentHandler else { return }
+        contentHandler = nil
+        bestAttemptContent = nil
+        handler(content)
     }
 
     // MARK: - Download with Cache
