@@ -47,16 +47,20 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         print("Failed to register for remote notifications: \(error.localizedDescription)")
     }
 
-    // Show notification banner even when app is in foreground
-    func userNotificationCenter(
+    // Show notification banner even when app is in foreground.
+    // `nonisolated` to match the nonisolated UNUserNotificationCenterDelegate
+    // requirement (its non-Sendable UNUserNotificationCenter param cannot cross
+    // into the delegate's inferred @MainActor isolation under Swift 6).
+    nonisolated func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions {
         [.banner, .sound, .badge]
     }
 
-    // Handle notification tap or inline reply
-    func userNotificationCenter(
+    // Handle notification tap or inline reply. `nonisolated` for the same reason;
+    // main-actor work (deep-link open) hops via MainActor.run.
+    nonisolated func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse
     ) async {
@@ -83,7 +87,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 
         // Default: open conversation via deep link
         if let url = URL(string: "chatark://conversation/\(conversationId)") {
-            await UIApplication.shared.open(url)
+            await MainActor.run {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
         }
     }
 }
