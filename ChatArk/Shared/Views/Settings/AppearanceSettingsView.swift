@@ -46,7 +46,7 @@ struct AppearanceSettingsView: View {
 
             Section("Accent Color") {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 60))], spacing: 12) {
-                    ForEach(NauticalTheme.accentPresets, id: \.hex) { preset in
+                    ForEach(ConstellationTheme.accentPresets, id: \.hex) { preset in
                         VStack(spacing: 4) {
                             Circle()
                                 .fill(Color(hex: preset.hex))

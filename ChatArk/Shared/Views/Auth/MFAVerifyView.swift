@@ -13,7 +13,7 @@ struct MFAVerifyView: View {
                 VStack(spacing: 8) {
                     Image(systemName: "lock.fill")
                         .font(.system(size: 50))
-                        .foregroundStyle(NauticalTheme.ocean)
+                        .foregroundStyle(ConstellationTheme.primary)
 
                     Text("Two-Factor Authentication")
                         .font(.title2)
@@ -55,7 +55,7 @@ struct MFAVerifyView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(NauticalTheme.ocean)
+                        .background(ConstellationTheme.primary)
                         .foregroundStyle(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }

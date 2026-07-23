@@ -11,7 +11,10 @@ final class RateLimiter {
     /// - Parameters:
     ///   - maxTokens: Maximum burst size
     ///   - refillInterval: Seconds between token refills (1 token per interval)
-    init(maxTokens: Int, refillInterval: TimeInterval) {
+    /// `nonisolated` so services with a `nonisolated init` (e.g. SearchService)
+    /// can construct a RateLimiter as a default stored-property value under Swift 6.
+    /// Only assigns stored properties; the mutating refill/consume stay @MainActor.
+    nonisolated init(maxTokens: Int, refillInterval: TimeInterval) {
         self.maxTokens = maxTokens
         self.refillInterval = refillInterval
         self.tokens = maxTokens

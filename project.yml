@@ -139,7 +139,13 @@ targets:
     sources:
       - ChatArkWatch
       - ChatArk/Shared/Models
-      - ChatArk/Shared/Utilities/NauticalTheme.swift
+      - ChatArk/Shared/ViewModels
+      - ChatArk/Shared/Services
+      - ChatArk/Shared/Utilities
+      - ChatArk/Shared/PreviewData.swift
+      - ChatArk/Shared/SharedViews/AvatarView.swift
+      - ChatArk/Shared/SharedViews/StatusIndicator.swift
+      - ChatArk/Shared/SharedViews/TypingIndicator.swift
     settings:
       base:
         PRODUCT_NAME: ChatArk Watch
@@ -158,3 +164,5 @@ targets:
     dependencies:
       - package: Supabase
       - package: KeychainAccess
+      - package: Nuke
+        product: NukeUI

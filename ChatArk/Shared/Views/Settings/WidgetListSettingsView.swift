@@ -33,7 +33,7 @@ struct WidgetListSettingsView: View {
                                 } label: {
                                     HStack {
                                         Image(systemName: "widget.small")
-                                            .foregroundStyle(NauticalTheme.ocean)
+                                            .foregroundStyle(ConstellationTheme.primary)
                                         VStack(alignment: .leading) {
                                             Text(widget.name)
                                                 .font(.body)

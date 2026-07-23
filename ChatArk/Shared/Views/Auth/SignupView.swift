@@ -65,7 +65,7 @@ struct SignupView: View {
             VStack(spacing: 8) {
                 Image(systemName: "person.badge.plus")
                     .font(.system(size: 50))
-                    .foregroundStyle(NauticalTheme.ocean)
+                    .foregroundStyle(ConstellationTheme.primary)
 
                 Text("Create Account")
                     .font(.title)
@@ -118,7 +118,7 @@ struct SignupView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(NauticalTheme.ocean)
+                    .background(ConstellationTheme.primary)
                     .foregroundStyle(.white)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }

@@ -205,7 +205,7 @@ struct ChatView: View {
         if let reply = viewModel.replyingTo {
             HStack {
                 Rectangle()
-                    .fill(NauticalTheme.ocean)
+                    .fill(ConstellationTheme.primary)
                     .frame(width: 3)
                 VStack(alignment: .leading) {
                     Text("Reply")
@@ -232,7 +232,7 @@ struct ChatView: View {
         if viewModel.editingMessage != nil {
             HStack {
                 Image(systemName: "pencil")
-                    .foregroundStyle(NauticalTheme.ocean)
+                    .foregroundStyle(ConstellationTheme.primary)
                 Text("Editing message")
                     .font(.caption)
                 Spacer()
@@ -273,7 +273,7 @@ struct ChatView: View {
             Image(systemName: "plus.circle.fill")
                 .font(.title)
                 .frame(width: 36, height: 36)
-                .foregroundStyle(NauticalTheme.ocean)
+                .foregroundStyle(ConstellationTheme.primary)
         }
     }
 
@@ -282,7 +282,7 @@ struct ChatView: View {
             Image(systemName: "photo")
                 .font(.title2)
                 .frame(width: 36, height: 36)
-                .foregroundStyle(NauticalTheme.ocean)
+                .foregroundStyle(ConstellationTheme.primary)
         }
         .onChange(of: selectedPhoto) { _, newValue in
             guard let item = newValue else { return }
@@ -317,7 +317,7 @@ struct ChatView: View {
             Image(systemName: "face.smiling")
                 .font(.title2)
                 .frame(width: 36, height: 36)
-                .foregroundStyle(NauticalTheme.ocean)
+                .foregroundStyle(ConstellationTheme.primary)
         }
     }
 
@@ -353,7 +353,7 @@ struct ChatView: View {
             Image(systemName: "arrow.up.circle.fill")
                 .font(.title)
                 .frame(width: 36, height: 36)
-                .foregroundStyle(messageText.trimmingCharacters(in: .whitespaces).isEmpty ? .gray : NauticalTheme.ocean)
+                .foregroundStyle(messageText.trimmingCharacters(in: .whitespaces).isEmpty ? .gray : ConstellationTheme.primary)
         }
         .disabled(messageText.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isSending || messageText.count > ChatViewModel.maxMessageLength)
     }
