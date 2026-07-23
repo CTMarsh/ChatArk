@@ -124,11 +124,15 @@ final class WatchConnectivityManager: NSObject, WCSessionDelegate, Sendable {
     func session(_ session: WCSession, didFinish userInfoTransfer: WCSessionUserInfoTransfer, error: Error?) {
         if let error {
             logger.error("UserInfo transfer failed: \(error.localizedDescription, privacy: .public)")
-            // Retry the transfer
-            let userInfo = userInfoTransfer.userInfo
+            // Retry the transfer. WCSession is a thread-safe singleton, so reference
+            // WCSession.default inside the @Sendable closure rather than capturing the
+            // non-Sendable `session` param (Swift 6 flags that as a data race). The
+            // plist userInfo dict is safe to hand back to the session, so mark the
+            // local nonisolated(unsafe) to carry it across the boundary.
+            nonisolated(unsafe) let userInfo = userInfoTransfer.userInfo
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                if session.activationState == .activated {
-                    session.transferUserInfo(userInfo)
+                if WCSession.default.activationState == .activated {
+                    WCSession.default.transferUserInfo(userInfo)
                     logger.info("Retried userInfo transfer")
                 }
             }
