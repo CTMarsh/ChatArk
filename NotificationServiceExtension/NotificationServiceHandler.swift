@@ -106,36 +106,56 @@ final class NotificationServiceExtension: UNNotificationServiceExtension {
         // async work begins; both delivery paths now go through it.
         delivery.arm(content: content, handler: contentHandler)
 
-        // Capture only the (Sendable) box — never `self` or the non-Sendable
-        // content/handler — so the task closure satisfies the `sending` requirement.
-        Task { [delivery] in
-            var attachments: [UNNotificationAttachment] = []
-
-            // Avatar attachment (only from allowed Supabase storage domains)
-            if let avatarUrlString,
-               let avatarUrl = URL(string: avatarUrlString),
-               Self.isAllowedURL(avatarUrl) {
-                if let attachment = await Self.downloadWithCache(url: avatarUrl, identifier: "avatar") {
-                    attachments.append(attachment)
-                }
-            }
-
-            // Image message attachment (only from allowed Supabase storage domains)
-            if messageType == "image",
-               let fileUrlString,
-               let fileUrl = URL(string: fileUrlString),
-               Self.isAllowedURL(fileUrl) {
-                logger.info("Downloading image attachment")
-                if let attachment = await Self.downloadAttachment(url: fileUrl, identifier: "image") {
-                    attachments.append(attachment)
-                }
-            }
-
-            // Refresh widget timelines so widgets show latest data
-            WidgetCenter.shared.reloadAllTimelines()
-
-            delivery.deliver(applying: attachments)
+        // The task captures only Sendable values (the box + the extracted strings) —
+        // never `self` or the non-Sendable content/handler. All download logic lives
+        // in a nonisolated static function so the task closure stays trivial and the
+        // region-based isolation checker has nothing cross-isolation to reason about.
+        let box = delivery
+        Task {
+            await Self.buildAndDeliver(
+                avatarURLString: avatarUrlString,
+                messageType: messageType,
+                fileURLString: fileUrlString,
+                delivery: box
+            )
         }
+    }
+
+    /// Downloads any avatar/image attachments and hands the finished set to the
+    /// delivery box. Nonisolated with all-`Sendable` inputs, so nothing crosses an
+    /// isolation boundary; the non-`Sendable` attachments never leave this call.
+    private static func buildAndDeliver(
+        avatarURLString: String?,
+        messageType: String?,
+        fileURLString: String?,
+        delivery: DeliveryBox
+    ) async {
+        var attachments: [UNNotificationAttachment] = []
+
+        // Avatar attachment (only from allowed Supabase storage domains)
+        if let avatarURLString,
+           let avatarURL = URL(string: avatarURLString),
+           isAllowedURL(avatarURL) {
+            if let attachment = await downloadWithCache(url: avatarURL, identifier: "avatar") {
+                attachments.append(attachment)
+            }
+        }
+
+        // Image message attachment (only from allowed Supabase storage domains)
+        if messageType == "image",
+           let fileURLString,
+           let fileURL = URL(string: fileURLString),
+           isAllowedURL(fileURL) {
+            logger.info("Downloading image attachment")
+            if let attachment = await downloadAttachment(url: fileURL, identifier: "image") {
+                attachments.append(attachment)
+            }
+        }
+
+        // Refresh widget timelines so widgets show latest data
+        WidgetCenter.shared.reloadAllTimelines()
+
+        delivery.deliver(applying: attachments)
     }
 
     override func serviceExtensionTimeWillExpire() {
