@@ -159,3 +159,5 @@ targets:
     dependencies:
       - package: Supabase
       - package: KeychainAccess
+      - package: Nuke
+        product: NukeUI
