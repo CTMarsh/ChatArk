@@ -101,7 +101,8 @@ final class NotificationServiceExtension: UNNotificationServiceExtension {
         delivery.arm(content: content, handler: contentHandler)
 
         Task { @MainActor in
-            await self.runDownloads(
+            await Self.runDownloads(
+                delivery: delivery,
                 avatarURLString: avatarURLString,
                 messageType: messageType,
                 fileURLString: fileURLString
@@ -115,7 +116,8 @@ final class NotificationServiceExtension: UNNotificationServiceExtension {
     }
 
     @MainActor
-    private func runDownloads(
+    private static func runDownloads(
+        delivery: DeliveryBox,
         avatarURLString: String?,
         messageType: String?,
         fileURLString: String?
