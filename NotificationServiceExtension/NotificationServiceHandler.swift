@@ -100,9 +100,12 @@ final class NotificationServiceExtension: UNNotificationServiceExtension {
 
         delivery.arm(content: content, handler: contentHandler)
 
+        // Bind the Sendable box to a local so the Task captures it (not self.delivery,
+        // which would send task-isolated self into the main-actor closure).
+        let box = delivery
         Task { @MainActor in
             await Self.runDownloads(
-                delivery: delivery,
+                delivery: box,
                 avatarURLString: avatarURLString,
                 messageType: messageType,
                 fileURLString: fileURLString
