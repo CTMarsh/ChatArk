@@ -36,9 +36,30 @@ final class NotificationServiceExtension: UNNotificationServiceExtension {
     private static let maxCacheSizeBytes: Int64 = 50 * 1024 * 1024 // 50MB
     private static let maxCacheAgeSeconds: TimeInterval = 7 * 24 * 3600 // 7 days
 
-    override func didReceive(
+    // The system calls these overrides on a background serial queue, so they stay
+    // `nonisolated` (matching the superclass) and immediately hop onto the main
+    // actor, where all mutable state lives. `self` is a `@MainActor` class (hence
+    // Sendable) and `request`/`contentHandler` are disconnected parameters, so the
+    // hop carries no shared non-Sendable state across the boundary.
+    nonisolated override func didReceive(
         _ request: UNNotificationRequest,
         withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void
+    ) {
+        Task { @MainActor in
+            self.process(request: request, contentHandler: contentHandler)
+        }
+    }
+
+    nonisolated override func serviceExtensionTimeWillExpire() {
+        Task { @MainActor in
+            self.timeWillExpire()
+        }
+    }
+
+    @MainActor
+    private func process(
+        request: UNNotificationRequest,
+        contentHandler: @escaping (UNNotificationContent) -> Void
     ) {
         self.contentHandler = contentHandler
         Self.evictStaleCache()
@@ -95,7 +116,8 @@ final class NotificationServiceExtension: UNNotificationServiceExtension {
         }
     }
 
-    override func serviceExtensionTimeWillExpire() {
+    @MainActor
+    private func timeWillExpire() {
         logger.warning("Service extension time expiring, delivering best attempt")
         if let bestAttemptContent {
             deliver(bestAttemptContent)
