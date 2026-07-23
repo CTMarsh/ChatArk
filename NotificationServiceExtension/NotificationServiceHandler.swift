@@ -4,9 +4,53 @@ import os.log
 
 private let logger = Logger(subsystem: "com.chrismarsh.chatark.notificationservice", category: "NotificationService")
 
-class NotificationServiceExtension: UNNotificationServiceExtension {
+/// Serializes one-shot delivery of a notification between the async download
+/// `Task` (started in `didReceive`) and `serviceExtensionTimeWillExpire()`.
+///
+/// The system runs the extension on a background serial queue, but it can invoke
+/// `serviceExtensionTimeWillExpire()` while the download `Task` (on the
+/// cooperative pool) is still in flight — so the two delivery paths genuinely
+/// race for `contentHandler` and `bestAttemptContent`. `UNMutableNotificationContent`,
+/// `UNNotificationAttachment`, and the content-handler closure are all non-`Sendable`
+/// (the UserNotifications framework is not yet concurrency-audited), so this box
+/// holds them behind an `NSLock` and guarantees the handler fires exactly once.
+///
+/// `@unchecked Sendable` is sound here because the box exposes no mutable state
+/// except through `lock`-guarded methods; nothing escapes the lock.
+private final class DeliveryBox: @unchecked Sendable {
+    private let lock = NSLock()
     private var contentHandler: ((UNNotificationContent) -> Void)?
     private var bestAttemptContent: UNMutableNotificationContent?
+
+    func arm(content: UNMutableNotificationContent, handler: @escaping (UNNotificationContent) -> Void) {
+        lock.lock()
+        defer { lock.unlock() }
+        bestAttemptContent = content
+        contentHandler = handler
+    }
+
+    /// Delivers the best-attempt content exactly once, optionally applying freshly
+    /// downloaded attachments first. Whichever caller wins (download completion or
+    /// timeout) disarms the box; every later call is a no-op.
+    @discardableResult
+    func deliver(applying attachments: [UNNotificationAttachment]? = nil) -> Bool {
+        lock.lock()
+        guard let handler = contentHandler, let content = bestAttemptContent else {
+            lock.unlock()
+            return false
+        }
+        if let attachments { content.attachments = attachments }
+        contentHandler = nil
+        bestAttemptContent = nil
+        lock.unlock()
+
+        handler(content)
+        return true
+    }
+}
+
+final class NotificationServiceExtension: UNNotificationServiceExtension {
+    private let delivery = DeliveryBox()
 
     private static let appGroupId = "group.com.chrismarsh.chatark"
 
@@ -33,11 +77,9 @@ class NotificationServiceExtension: UNNotificationServiceExtension {
         _ request: UNNotificationRequest,
         withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void
     ) {
-        self.contentHandler = contentHandler
-        bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
-        evictStaleCache()
+        Self.evictStaleCache()
 
-        guard let content = bestAttemptContent else {
+        guard let content = request.content.mutableCopy() as? UNMutableNotificationContent else {
             contentHandler(request.content)
             return
         }
@@ -53,54 +95,62 @@ class NotificationServiceExtension: UNNotificationServiceExtension {
         // Set category for actionable notifications (matches MESSAGE category in AppDelegate)
         content.categoryIdentifier = "MESSAGE"
 
-        Task {
+        // Extract the Sendable inputs the download task needs, so the task closure
+        // captures only Sendable values (the box + these strings) — never `self`
+        // or the non-Sendable content/handler.
+        let avatarUrlString = userInfo["avatar_url"] as? String
+        let messageType = userInfo["message_type"] as? String
+        let fileUrlString = userInfo["file_url"] as? String
+
+        // Hand ownership of the content + handler to the delivery box before the
+        // async work begins; both delivery paths now go through it.
+        delivery.arm(content: content, handler: contentHandler)
+
+        // Capture only the (Sendable) box — never `self` or the non-Sendable
+        // content/handler — so the task closure satisfies the `sending` requirement.
+        Task { [delivery] in
             var attachments: [UNNotificationAttachment] = []
 
             // Avatar attachment (only from allowed Supabase storage domains)
-            if let avatarUrlString = userInfo["avatar_url"] as? String,
+            if let avatarUrlString,
                let avatarUrl = URL(string: avatarUrlString),
                Self.isAllowedURL(avatarUrl) {
-                if let attachment = await downloadWithCache(url: avatarUrl, identifier: "avatar") {
+                if let attachment = await Self.downloadWithCache(url: avatarUrl, identifier: "avatar") {
                     attachments.append(attachment)
                 }
             }
 
             // Image message attachment (only from allowed Supabase storage domains)
-            if let messageType = userInfo["message_type"] as? String,
-               messageType == "image",
-               let fileUrlString = userInfo["file_url"] as? String,
+            if messageType == "image",
+               let fileUrlString,
                let fileUrl = URL(string: fileUrlString),
                Self.isAllowedURL(fileUrl) {
                 logger.info("Downloading image attachment")
-                if let attachment = await downloadAttachment(url: fileUrl, identifier: "image") {
+                if let attachment = await Self.downloadAttachment(url: fileUrl, identifier: "image") {
                     attachments.append(attachment)
                 }
             }
 
-            content.attachments = attachments
-
             // Refresh widget timelines so widgets show latest data
             WidgetCenter.shared.reloadAllTimelines()
 
-            contentHandler(content)
+            delivery.deliver(applying: attachments)
         }
     }
 
     override func serviceExtensionTimeWillExpire() {
         logger.warning("Service extension time expiring, delivering best attempt")
-        if let contentHandler, let content = bestAttemptContent {
-            contentHandler(content)
-        }
+        delivery.deliver()
     }
 
     // MARK: - Download with Cache
 
-    private func downloadWithCache(url: URL, identifier: String) async -> UNNotificationAttachment? {
+    private static func downloadWithCache(url: URL, identifier: String) async -> UNNotificationAttachment? {
         let fm = FileManager.default
         let cacheKey = url.absoluteString.data(using: .utf8)?.base64EncodedString() ?? UUID().uuidString
 
         // Ensure cache directory exists
-        guard let cacheDir = Self.cacheDirectory else {
+        guard let cacheDir = cacheDirectory else {
             logger.error("Cannot access app group container for cache")
             return await downloadAttachment(url: url, identifier: identifier)
         }
@@ -161,8 +211,8 @@ class NotificationServiceExtension: UNNotificationServiceExtension {
 
     // MARK: - Cache Eviction
 
-    private func evictStaleCache() {
-        guard let cacheDir = Self.cacheDirectory else { return }
+    private static func evictStaleCache() {
+        guard let cacheDir = cacheDirectory else { return }
         let fm = FileManager.default
         guard let files = try? fm.contentsOfDirectory(at: cacheDir, includingPropertiesForKeys: [.contentModificationDateKey, .fileSizeKey]) else { return }
 
@@ -177,7 +227,7 @@ class NotificationServiceExtension: UNNotificationServiceExtension {
             let fileSize = Int64(size)
 
             // Delete files older than max age
-            if now.timeIntervalSince(date) > Self.maxCacheAgeSeconds {
+            if now.timeIntervalSince(date) > maxCacheAgeSeconds {
                 try? fm.removeItem(at: file)
                 continue
             }
@@ -187,10 +237,10 @@ class NotificationServiceExtension: UNNotificationServiceExtension {
         }
 
         // If over size limit, delete oldest first
-        if totalSize > Self.maxCacheSizeBytes {
+        if totalSize > maxCacheSizeBytes {
             let sorted = fileInfos.sorted { $0.date < $1.date }
             for info in sorted {
-                guard totalSize > Self.maxCacheSizeBytes else { break }
+                guard totalSize > maxCacheSizeBytes else { break }
                 try? fm.removeItem(at: info.url)
                 totalSize -= info.size
             }
@@ -199,7 +249,7 @@ class NotificationServiceExtension: UNNotificationServiceExtension {
 
     // MARK: - Direct Download (no cache)
 
-    private func downloadAttachment(url: URL, identifier: String) async -> UNNotificationAttachment? {
+    private static func downloadAttachment(url: URL, identifier: String) async -> UNNotificationAttachment? {
         guard let (data, response) = try? await URLSession.shared.data(from: url) else {
             logger.error("Download failed for \(url.absoluteString, privacy: .public)")
             return nil
