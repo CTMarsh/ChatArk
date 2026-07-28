@@ -1,4 +1,4 @@
-git_url("https://gitlab.noahsark.me/ctmarsh/certificates.git")
+git_url("https://gitlab.noahsark.me/homelab/certificates.git")
 storage_mode("git")
 type("appstore")
 app_identifier([
