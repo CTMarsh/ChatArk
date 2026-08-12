@@ -8,6 +8,16 @@ enum ShareDecryption {
     private static let keyName = "appgroup-symmetric-key"
 
     private static func readKey() -> SymmetricKey? {
+        // The main app (AppGroupEncryption) writes this key with no explicit
+        // kSecAttrAccessGroup, so it lands in the app's default keychain group —
+        // the first (and only) entry of its keychain-access-groups entitlement,
+        // $(AppIdentifierPrefix)com.chrismarsh.chatark. This extension shares that
+        // same group via its own keychain-access-groups entitlement, so an
+        // access-group-unscoped query searches all entitled groups and resolves
+        // to the shared item. The query is intentionally left unscoped to mirror
+        // the unscoped writer; do NOT hardcode a kSecAttrAccessGroup here
+        // ($(AppIdentifierPrefix) cannot be expanded at runtime, and a literal
+        // team-prefixed group would drift from the writer).
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,
