@@ -201,12 +201,22 @@ final class AuthViewModel {
 
     // MARK: - Sign Up
 
-    func checkSignupsAllowed() async -> Bool {
+    /// Result of querying whether new-account registration is permitted.
+    /// `unverified` is a distinct fail-CLOSED outcome: the check could not be
+    /// completed, so signups must be treated as NOT allowed rather than opened.
+    enum SignupAvailability {
+        case allowed
+        case disabled   // administrator has turned signups off
+        case unverified // check failed — deny on doubt (fail closed)
+    }
+
+    func signupAvailability() async -> SignupAvailability {
         do {
-            return try await authService.checkSignupsAllowed()
+            return try await authService.checkSignupsAllowed() ? .allowed : .disabled
         } catch {
-            // Default to allowed if check fails
-            return true
+            // Administrative gate: deny on doubt. A transient RPC failure must
+            // never open registration that an admin may have disabled.
+            return .unverified
         }
     }
 
@@ -215,10 +225,16 @@ final class AuthViewModel {
         isLoading = true
         defer { isLoading = false }
 
-        // Re-check before submitting (setting may have changed)
-        let allowed = await checkSignupsAllowed()
-        if !allowed {
+        // Re-check before submitting (setting may have changed). Fail CLOSED:
+        // only an explicit "allowed" proceeds; disabled or unverified blocks.
+        switch await signupAvailability() {
+        case .allowed:
+            break
+        case .disabled:
             self.error = "Signups are currently disabled by the platform administrator."
+            return
+        case .unverified:
+            self.error = "Couldn't verify signup availability. Please try again."
             return
         }
 

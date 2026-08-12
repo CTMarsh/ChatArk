@@ -6,6 +6,7 @@ struct SignupView: View {
     @State private var password = ""
     @State private var confirmPassword = ""
     @State private var signupsDisabled = false
+    @State private var signupsUnverified = false
     @State private var checkingSignups = true
 
     private var passwordsMatch: Bool {
@@ -25,6 +26,8 @@ struct SignupView: View {
                         .padding(.top, 60)
                 } else if signupsDisabled {
                     signupsDisabledContent
+                } else if signupsUnverified {
+                    signupsUnverifiedContent
                 } else {
                     signupFormContent
                 }
@@ -35,10 +38,49 @@ struct SignupView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .task {
-            let allowed = await authViewModel.checkSignupsAllowed()
-            signupsDisabled = !allowed
-            checkingSignups = false
+            await loadSignupAvailability()
         }
+    }
+
+    private func loadSignupAvailability() async {
+        checkingSignups = true
+        // Fail CLOSED: the signup form is shown only on an explicit `.allowed`.
+        switch await authViewModel.signupAvailability() {
+        case .allowed:
+            signupsDisabled = false
+            signupsUnverified = false
+        case .disabled:
+            signupsDisabled = true
+            signupsUnverified = false
+        case .unverified:
+            signupsDisabled = false
+            signupsUnverified = true
+        }
+        checkingSignups = false
+    }
+
+    private var signupsUnverifiedContent: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 50))
+                .foregroundStyle(.secondary)
+
+            Text("Couldn't Verify Availability")
+                .font(.title)
+                .fontWeight(.bold)
+
+            Text("We couldn't confirm whether new account registration is currently available. Please check your connection and try again.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+
+            Button("Try Again") {
+                Task { await loadSignupAvailability() }
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .padding(.top, 40)
     }
 
     private var signupsDisabledContent: some View {
