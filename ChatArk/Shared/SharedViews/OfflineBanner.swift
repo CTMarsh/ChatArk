@@ -2,16 +2,16 @@ import SwiftUI
 
 struct OfflineBanner: View {
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: ConstellationSpacing.s1) {
             Image(systemName: "wifi.slash")
-                .font(.caption)
+                .arkType(.cap)
             Text("No internet connection")
-                .font(.caption)
+                .arkType(.cap)
                 .fontWeight(.medium)
         }
         .foregroundStyle(.white)
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 6)
+        .padding(.vertical, ConstellationSpacing.s1)
         .background(.red.opacity(0.85))
     }
 }

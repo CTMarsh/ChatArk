@@ -192,12 +192,12 @@ struct ChatView: View {
         return HStack {
             Spacer()
             Text("\(remaining)")
-                .font(.caption2)
+                .arkType(.cap)
                 .monospacedDigit()
                 .foregroundStyle(remaining < 0 ? .red : remaining < 200 ? .orange : .secondary)
         }
-        .padding(.horizontal, 14)
-        .padding(.top, 4)
+        .padding(.horizontal, ConstellationSpacing.gapInline)
+        .padding(.top, ConstellationSpacing.s1)
     }
 
     @ViewBuilder
@@ -209,10 +209,10 @@ struct ChatView: View {
                     .frame(width: 3)
                 VStack(alignment: .leading) {
                     Text("Reply")
-                        .font(.caption)
+                        .arkType(.cap)
                         .fontWeight(.semibold)
                     Text(reply.content)
-                        .font(.caption)
+                        .arkType(.cap)
                         .lineLimit(1)
                 }
                 Spacer()
@@ -222,7 +222,7 @@ struct ChatView: View {
                 }
             }
             .padding(.horizontal)
-            .padding(.vertical, 6)
+            .padding(.vertical, ConstellationSpacing.s1)
             .background(Color.gray.opacity(0.12))
         }
     }
@@ -234,7 +234,7 @@ struct ChatView: View {
                 Image(systemName: "pencil")
                     .foregroundStyle(ConstellationTheme.primary)
                 Text("Editing message")
-                    .font(.caption)
+                    .arkType(.cap)
                 Spacer()
                 Button {
                     viewModel.editingMessage = nil
@@ -245,21 +245,21 @@ struct ChatView: View {
                 }
             }
             .padding(.horizontal)
-            .padding(.vertical, 6)
+            .padding(.vertical, ConstellationSpacing.s1)
             .background(Color.gray.opacity(0.12))
         }
     }
 
     private var composeRow: some View {
-        HStack(alignment: .bottom, spacing: 10) {
+        HStack(alignment: .bottom, spacing: ConstellationSpacing.gapInline) {
             attachmentMenu
             photoPicker
             emojiButton
             textField
             sendButton
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
+        .padding(.horizontal, ConstellationSpacing.gapInline)
+        .padding(.vertical, ConstellationSpacing.gapInline)
     }
 
     private var attachmentMenu: some View {
@@ -271,7 +271,7 @@ struct ChatView: View {
             }
         } label: {
             Image(systemName: "plus.circle.fill")
-                .font(.title)
+                .arkType(.stat)
                 .frame(width: 36, height: 36)
                 .foregroundStyle(ConstellationTheme.primary)
         }
@@ -280,7 +280,7 @@ struct ChatView: View {
     private var photoPicker: some View {
         PhotosPicker(selection: $selectedPhoto, matching: .images) {
             Image(systemName: "photo")
-                .font(.title2)
+                .arkType(.lead)
                 .frame(width: 36, height: 36)
                 .foregroundStyle(ConstellationTheme.primary)
         }
@@ -315,7 +315,7 @@ struct ChatView: View {
             showEmojiPicker = true
         } label: {
             Image(systemName: "face.smiling")
-                .font(.title2)
+                .arkType(.lead)
                 .frame(width: 36, height: 36)
                 .foregroundStyle(ConstellationTheme.primary)
         }
@@ -325,7 +325,7 @@ struct ChatView: View {
         TextField("Message...", text: $messageText, axis: .vertical)
             .textFieldStyle(.plain)
             .lineLimit(1...8)
-            .padding(.horizontal, 12)
+            .padding(.horizontal, ConstellationSpacing.gapInline)
             .frame(minHeight: 36)
             .background(Color.gray.opacity(0.12))
             .clipShape(RoundedRectangle(cornerRadius: 18))
@@ -351,7 +351,7 @@ struct ChatView: View {
             sendMessage()
         } label: {
             Image(systemName: "arrow.up.circle.fill")
-                .font(.title)
+                .arkType(.stat)
                 .frame(width: 36, height: 36)
                 .foregroundStyle(messageText.trimmingCharacters(in: .whitespaces).isEmpty ? .gray : ConstellationTheme.primary)
         }
@@ -480,7 +480,7 @@ private struct ChatMessagesListView: View {
             } else {
                 ScrollViewReader { proxy in
                     ScrollView {
-                        LazyVStack(spacing: 8) {
+                        LazyVStack(spacing: ConstellationSpacing.s1) {
                             if viewModel.hasMore {
                                 ProgressView()
                                     .frame(maxWidth: .infinity)
@@ -501,7 +501,7 @@ private struct ChatMessagesListView: View {
                                     ))
                             }
                         }
-                        .padding(.vertical, 8)
+                        .padding(.vertical, ConstellationSpacing.s1)
                     }
                     .onChange(of: viewModel.messages.count) {
                         if let lastId = viewModel.messages.first?.id {

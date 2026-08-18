@@ -18,11 +18,11 @@ struct SignupView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) {
+            VStack(spacing: ConstellationSpacing.gapPanel) {
                 if checkingSignups {
                     ProgressView("Checking availability...")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .padding(.top, 60)
+                        .padding(.top, ConstellationSpacing.s7)
                 } else if signupsDisabled {
                     signupsDisabledContent
                 } else {
@@ -42,38 +42,38 @@ struct SignupView: View {
     }
 
     private var signupsDisabledContent: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: ConstellationSpacing.gapStack) {
             Image(systemName: "shield.slash")
-                .font(.system(size: 50))
+                .font(.system(size: ConstellationType.hero.size))
                 .foregroundStyle(.secondary)
 
             Text("Signups Disabled")
-                .font(.title)
+                .arkType(.stat)
                 .fontWeight(.bold)
 
             Text("New account registration is currently unavailable. Please contact your administrator for access.")
-                .font(.subheadline)
+                .arkType(.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
+                .padding(.horizontal, ConstellationSpacing.gapPanel)
         }
-        .padding(.top, 40)
+        .padding(.top, ConstellationSpacing.gapSection)
     }
 
     private var signupFormContent: some View {
         Group {
-            VStack(spacing: 8) {
+            VStack(spacing: ConstellationSpacing.s1) {
                 Image(systemName: "person.badge.plus")
-                    .font(.system(size: 50))
+                    .font(.system(size: ConstellationType.hero.size))
                     .foregroundStyle(ConstellationTheme.primary)
 
                 Text("Create Account")
-                    .font(.title)
+                    .arkType(.stat)
                     .fontWeight(.bold)
             }
-            .padding(.top, 20)
+            .padding(.top, ConstellationSpacing.gapStack)
 
-            VStack(spacing: 16) {
+            VStack(spacing: ConstellationSpacing.gapStack) {
                 TextField("Email", text: $email)
                     .textFieldStyle(.roundedBorder)
                     .textContentType(.emailAddress)
@@ -93,13 +93,13 @@ struct SignupView: View {
 
                 if !confirmPassword.isEmpty && !passwordsMatch {
                     Text("Passwords don't match")
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.red)
                 }
 
                 if let error = authViewModel.error {
                     Text(error)
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.red)
                 }
 
@@ -124,7 +124,7 @@ struct SignupView: View {
                 }
                 .disabled(!passwordsMatch || !isValidPassword || email.isEmpty || authViewModel.isLoading)
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, ConstellationSpacing.gapPanel)
         }
     }
 }

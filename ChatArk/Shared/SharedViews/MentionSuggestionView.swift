@@ -23,25 +23,25 @@ struct MentionSuggestionView: View {
                     Button {
                         onSelect(profile)
                     } label: {
-                        HStack(spacing: 10) {
+                        HStack(spacing: ConstellationSpacing.gapInline) {
                             AvatarView(url: profile.avatarUrl, name: profile.displayLabel, size: 28)
 
-                            VStack(alignment: .leading, spacing: 1) {
+                            VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
                                 Text(profile.displayLabel)
-                                    .font(.subheadline)
+                                    .arkType(.body)
                                     .fontWeight(.medium)
 
                                 if let username = profile.username {
                                     Text("@\(username)")
-                                        .font(.caption)
+                                        .arkType(.cap)
                                         .foregroundStyle(.secondary)
                                 }
                             }
 
                             Spacer()
                         }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
+                        .padding(.horizontal, ConstellationSpacing.gapInline)
+                        .padding(.vertical, ConstellationSpacing.s1)
                     }
                     .buttonStyle(.plain)
 

@@ -7,36 +7,36 @@ struct MFAVerifyView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 32) {
+            VStack(spacing: ConstellationSpacing.gapSection) {
                 Spacer()
 
-                VStack(spacing: 8) {
+                VStack(spacing: ConstellationSpacing.s1) {
                     Image(systemName: "lock.fill")
-                        .font(.system(size: 50))
+                        .font(.system(size: ConstellationType.hero.size))
                         .foregroundStyle(ConstellationTheme.primary)
 
                     Text("Two-Factor Authentication")
-                        .font(.title2)
+                        .arkType(.lead)
                         .fontWeight(.bold)
 
                     Text("Enter the code from your authenticator app")
-                        .font(.subheadline)
+                        .arkType(.body)
                         .foregroundStyle(.secondary)
                 }
 
-                VStack(spacing: 16) {
+                VStack(spacing: ConstellationSpacing.gapStack) {
                     TextField("000000", text: $code)
                         .textFieldStyle(.roundedBorder)
                         #if os(iOS) || os(visionOS)
                         .keyboardType(.numberPad)
                         #endif
                         .multilineTextAlignment(.center)
-                        .font(.title.monospaced())
+                        .arkType(.stat, monospaced: true)
                         .frame(maxWidth: 200)
 
                     if let error = authViewModel.error {
                         Text(error)
-                            .font(.caption)
+                            .arkType(.cap)
                             .foregroundStyle(.red)
                     }
 
@@ -60,12 +60,12 @@ struct MFAVerifyView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                     .disabled(code.count != 6 || authViewModel.isLoading)
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, ConstellationSpacing.gapPanel)
 
                     Button("Sign Out") {
                         Task { await authViewModel.signOut() }
                     }
-                    .font(.subheadline)
+                    .arkType(.body)
                     .foregroundStyle(.secondary)
                 }
 

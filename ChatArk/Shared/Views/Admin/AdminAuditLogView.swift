@@ -57,7 +57,7 @@ struct AdminAuditLogView: View {
                 Section {
                     Text(error)
                         .foregroundStyle(.red)
-                        .font(.caption)
+                        .arkType(.cap)
                 }
             }
         }
@@ -68,43 +68,43 @@ struct AdminAuditLogView: View {
     }
 
     private func logRow(_ log: AdminAuditLog) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 6) {
+        VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
+            HStack(spacing: ConstellationSpacing.s1) {
                 Text(log.actionLabel)
-                    .font(.callout)
+                    .arkType(.body)
                     .fontWeight(.medium)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
+                    .padding(.horizontal, ConstellationSpacing.s1)
+                    .padding(.vertical, ConstellationSpacing.s1)
                     .background(log.isDestructive ? .red.opacity(0.15) : .blue.opacity(0.1))
                     .foregroundStyle(log.isDestructive ? .red : .primary)
                     .clipShape(Capsule())
 
                 Text("on \(log.targetType)")
-                    .font(.caption)
+                    .arkType(.cap)
                     .foregroundStyle(.secondary)
             }
 
-            HStack(spacing: 8) {
+            HStack(spacing: ConstellationSpacing.s1) {
                 // Admin who performed the action
                 Text(log.adminDisplayName)
-                    .font(.caption)
+                    .arkType(.cap)
                     .fontWeight(.medium)
 
                 if let targetId = log.targetId {
                     Text("·")
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.tertiary)
                     Text(String(targetId.prefix(8)) + "...")
-                        .font(.caption.monospaced())
+                        .arkType(.cap, monospaced: true)
                         .foregroundStyle(.tertiary)
                 }
 
                 if let createdAt = log.createdAt {
                     Text("·")
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.tertiary)
                     Text(createdAt.formatted(date: .abbreviated, time: .shortened))
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -112,12 +112,12 @@ struct AdminAuditLogView: View {
             // Metadata display
             if let metadata = log.metadata, !metadata.isEmpty {
                 Text(metadataString(metadata))
-                    .font(.caption2.monospaced())
+                    .arkType(.cap, monospaced: true)
                     .foregroundStyle(.tertiary)
                     .lineLimit(2)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, ConstellationSpacing.s1)
     }
 
     private func metadataString(_ metadata: [String: AnyJSON]) -> String {

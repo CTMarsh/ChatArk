@@ -36,26 +36,26 @@ struct NewConversationView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack {
                             ForEach(selectedUsers) { user in
-                                HStack(spacing: 4) {
+                                HStack(spacing: ConstellationSpacing.s1) {
                                     AvatarView(url: user.avatarUrl, name: user.displayLabel, size: 24)
                                     Text(user.displayLabel)
-                                        .font(.caption)
+                                        .arkType(.cap)
                                     Button {
                                         selectedUsers.removeAll { $0.id == user.id }
                                     } label: {
                                         Image(systemName: "xmark.circle.fill")
-                                            .font(.caption)
+                                            .arkType(.cap)
                                     }
                                 }
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
+                                .padding(.horizontal, ConstellationSpacing.s1)
+                                .padding(.vertical, ConstellationSpacing.s1)
                                 .background(Color.gray.opacity(0.15))
                                 .clipShape(Capsule())
                             }
                         }
                         .padding(.horizontal)
                     }
-                    .padding(.vertical, 8)
+                    .padding(.vertical, ConstellationSpacing.s1)
                 }
 
                 SearchBar(text: $searchQuery, placeholder: "Search users...")
@@ -72,15 +72,15 @@ struct NewConversationView: View {
                         Button {
                             selectUser(profile)
                         } label: {
-                            HStack(spacing: 12) {
+                            HStack(spacing: ConstellationSpacing.gapInline) {
                                 AvatarView(url: profile.avatarUrl, name: profile.displayLabel, size: 40)
 
                                 VStack(alignment: .leading) {
                                     Text(profile.displayLabel)
-                                        .font(.body)
+                                        .arkType(.body)
                                     if let username = profile.username {
                                         Text("@\(username)")
-                                            .font(.caption)
+                                            .arkType(.cap)
                                             .foregroundStyle(.secondary)
                                     }
                                 }
@@ -99,7 +99,7 @@ struct NewConversationView: View {
 
                 if let error {
                     Text(error)
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.red)
                         .padding()
                 }

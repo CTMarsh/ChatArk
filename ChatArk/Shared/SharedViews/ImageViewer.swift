@@ -64,7 +64,7 @@ struct ImageViewer: View {
                         dismiss()
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .font(.title2)
+                            .arkType(.lead)
                             .symbolRenderingMode(.hierarchical)
                             .foregroundStyle(.white)
                     }

@@ -22,7 +22,7 @@ struct UserSearchView: View {
                     Button {
                         onSelectUser(profile)
                     } label: {
-                        HStack(spacing: 12) {
+                        HStack(spacing: ConstellationSpacing.gapInline) {
                             ZStack(alignment: .bottomTrailing) {
                                 AvatarView(url: profile.avatarUrl, name: profile.displayLabel, size: 44)
                                 if let status = profile.status {
@@ -30,14 +30,14 @@ struct UserSearchView: View {
                                 }
                             }
 
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
                                 Text(profile.displayLabel)
-                                    .font(.body)
+                                    .arkType(.body)
                                     .fontWeight(.medium)
 
                                 if let username = profile.username {
                                     Text("@\(username)")
-                                        .font(.caption)
+                                        .arkType(.cap)
                                         .foregroundStyle(.secondary)
                                 }
                             }

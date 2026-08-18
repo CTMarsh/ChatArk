@@ -96,7 +96,7 @@ struct WorkspaceManagementView: View {
             if let error = viewModel.error {
                 Text(error)
                     .foregroundStyle(.red)
-                    .font(.caption)
+                    .arkType(.cap)
             }
         }
     }
@@ -161,9 +161,9 @@ struct WorkspaceManagementView: View {
                     )
                     VStack(alignment: .leading) {
                         Text(profile?.displayLabel ?? "Loading...")
-                            .font(.body)
+                            .arkType(.body)
                         Text(member.role.rawValue.capitalized)
-                            .font(.caption)
+                            .arkType(.cap)
                             .foregroundStyle(.secondary)
                     }
                     Spacer()

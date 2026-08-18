@@ -95,39 +95,39 @@ struct AdminUserDetailView: View {
                     size: 56
                 )
 
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 6) {
+                VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
+                    HStack(spacing: ConstellationSpacing.s1) {
                         Text(user.displayLabel)
-                            .font(.title3)
+                            .arkType(.lead)
                             .fontWeight(.bold)
                         if user.isPlatformAdmin == true {
                             Text("Admin")
-                                .font(.caption2)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
+                                .arkType(.cap)
+                                .padding(.horizontal, ConstellationSpacing.s1)
+                                .padding(.vertical, ConstellationSpacing.s1)
                                 .background(.red.opacity(0.2))
                                 .foregroundStyle(.red)
                                 .clipShape(Capsule())
                         }
                         if user.status == .suspended {
                             Text("Suspended")
-                                .font(.caption2)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
+                                .arkType(.cap)
+                                .padding(.horizontal, ConstellationSpacing.s1)
+                                .padding(.vertical, ConstellationSpacing.s1)
                                 .background(.red.opacity(0.1))
                                 .foregroundStyle(.red)
                                 .clipShape(Capsule())
                         }
                     }
                     if let username = user.username {
-                        HStack(spacing: 4) {
+                        HStack(spacing: ConstellationSpacing.s1) {
                             Text("@\(username)")
                             if let email = user.email {
                                 Text("·")
                                 Text(email)
                             }
                         }
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.secondary)
                     }
                 }
@@ -206,7 +206,7 @@ struct AdminUserDetailView: View {
                         Text(workspace.name)
                         Spacer()
                         Text("Owner")
-                            .font(.caption)
+                            .arkType(.cap)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -225,9 +225,9 @@ struct AdminUserDetailView: View {
                     Text(member.workspaceId.uuidString.prefix(8) + "...")
                     Spacer()
                     Text(member.role.rawValue.capitalized)
-                        .font(.caption)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 2)
+                        .arkType(.cap)
+                        .padding(.horizontal, ConstellationSpacing.s1)
+                        .padding(.vertical, ConstellationSpacing.s1)
                         .background(roleColor(member.role).opacity(0.1))
                         .foregroundStyle(roleColor(member.role))
                         .clipShape(Capsule())

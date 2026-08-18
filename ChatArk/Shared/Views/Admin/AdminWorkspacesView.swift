@@ -39,7 +39,7 @@ struct AdminWorkspacesView: View {
                 Section {
                     Text(error)
                         .foregroundStyle(.red)
-                        .font(.caption)
+                        .arkType(.cap)
                 }
             }
         }
@@ -69,13 +69,13 @@ struct AdminWorkspacesView: View {
                 .background(.red.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 6))
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
                 Text(workspace.name)
-                    .font(.body)
+                    .arkType(.body)
                     .fontWeight(.medium)
                 if let createdAt = workspace.createdAt {
                     Text("Created \(createdAt.formatted(date: .abbreviated, time: .omitted))")
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -120,7 +120,7 @@ struct CreateWorkspaceSheet: View {
                     Section {
                         Text(error)
                             .foregroundStyle(.red)
-                            .font(.caption)
+                            .arkType(.cap)
                     }
                 }
             }

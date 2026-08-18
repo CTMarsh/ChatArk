@@ -81,13 +81,13 @@ struct WidgetManagementView: View {
             if let error = viewModel.error {
                 Text(error)
                     .foregroundStyle(.red)
-                    .font(.caption)
+                    .arkType(.cap)
             }
         }
     }
 
     private func widgetRow(_ widget: WorkspaceWidget) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
             HStack {
                 Image(systemName: "widget.small")
                     .foregroundStyle(ConstellationTheme.primary)
@@ -96,11 +96,11 @@ struct WidgetManagementView: View {
                 Spacer()
                 if widget.isActive == true {
                     Text("Active")
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.green)
                 } else {
                     Text("Inactive")
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -108,7 +108,7 @@ struct WidgetManagementView: View {
             if let token = widget.embedToken {
                 HStack {
                     Text(String(token.prefix(16)) + "...")
-                        .font(.caption.monospaced())
+                        .arkType(.cap, monospaced: true)
                         .foregroundStyle(.secondary)
                     Spacer()
                     Button {
@@ -127,18 +127,18 @@ struct WidgetManagementView: View {
                         }
                     } label: {
                         Text(copiedTokenId == widget.id ? "Copied" : "Copy")
-                            .font(.caption)
+                            .arkType(.cap)
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.small)
                 }
             }
 
-            HStack(spacing: 16) {
+            HStack(spacing: ConstellationSpacing.gapStack) {
                 Button("Regenerate Token") {
                     showRegenerateConfirm = widget
                 }
-                .font(.caption)
+                .arkType(.cap)
 
                 Spacer()
 
@@ -146,11 +146,11 @@ struct WidgetManagementView: View {
                     showDeleteConfirm = widget
                 } label: {
                     Text("Delete")
-                        .font(.caption)
+                        .arkType(.cap)
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, ConstellationSpacing.s1)
     }
 }
 

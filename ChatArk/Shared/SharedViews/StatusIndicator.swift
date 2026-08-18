@@ -28,12 +28,12 @@ struct StatusIndicator: View {
 
 #if DEBUG
 #Preview("All statuses") {
-    HStack(spacing: 16) {
+    HStack(spacing: ConstellationSpacing.gapStack) {
         ForEach(UserStatus.allCases, id: \.self) { status in
             VStack {
                 StatusIndicator(status: status, size: 16)
                 Text(status.rawValue)
-                    .font(.caption2)
+                    .arkType(.cap)
             }
         }
     }
