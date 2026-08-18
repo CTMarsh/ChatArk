@@ -45,16 +45,16 @@ struct AppearanceSettingsView: View {
             }
 
             Section("Accent Color") {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 60))], spacing: 12) {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 60))], spacing: ConstellationSpacing.gapInline) {
                     ForEach(ConstellationTheme.accentPresets, id: \.hex) { preset in
-                        VStack(spacing: 4) {
+                        VStack(spacing: ConstellationSpacing.s1) {
                             Circle()
                                 .fill(Color(hex: preset.hex))
                                 .frame(width: 36, height: 36)
                                 .overlay {
                                     if viewModel.accentColor == preset.hex {
                                         Image(systemName: "checkmark")
-                                            .font(.caption)
+                                            .arkType(.cap)
                                             .fontWeight(.bold)
                                             .foregroundStyle(.white)
                                     }
@@ -63,7 +63,7 @@ struct AppearanceSettingsView: View {
                                     viewModel.updateAccentColor(preset.hex)
                                 }
                             Text(preset.name)
-                                .font(.caption2)
+                                .arkType(.cap)
                                 .foregroundStyle(.secondary)
                         }
                     }

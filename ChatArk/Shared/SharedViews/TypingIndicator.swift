@@ -23,7 +23,7 @@ struct TypingIndicator: View {
                 .clipShape(RoundedRectangle(cornerRadius: 16))
 
                 Text(typingText)
-                    .font(.caption)
+                    .arkType(.cap)
                     .foregroundStyle(.secondary)
             }
             .padding(.horizontal)

@@ -42,7 +42,7 @@ struct PrivacySettingsView: View {
                                     await loadBlockedUsers()
                                 }
                             }
-                            .font(.caption)
+                            .arkType(.cap)
                             .foregroundStyle(.red)
                         }
                     }

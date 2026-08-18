@@ -95,10 +95,10 @@ struct SettingsView: View {
                     Spacer()
                     VStack {
                         Text("ChatArk")
-                            .font(.caption)
+                            .arkType(.cap)
                             .fontWeight(.semibold)
                         Text("v\(Bundle.main.appVersion) (\(Bundle.main.buildNumber))")
-                            .font(.caption2)
+                            .arkType(.cap)
                             .foregroundStyle(.tertiary)
                     }
                     Spacer()

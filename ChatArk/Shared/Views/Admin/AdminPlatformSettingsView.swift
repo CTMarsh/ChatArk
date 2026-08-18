@@ -46,10 +46,10 @@ struct AdminPlatformSettingsView: View {
         HStack {
             VStack(alignment: .leading) {
                 Text(setting.displayName)
-                    .font(.body)
+                    .arkType(.body)
                 if let desc = setting.description {
                     Text(desc)
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -77,10 +77,10 @@ struct AdminPlatformSettingsView: View {
         )) {
             VStack(alignment: .leading) {
                 Text(setting.displayName)
-                    .font(.body)
+                    .arkType(.body)
                 if let desc = setting.description {
                     Text(desc)
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.secondary)
                 }
             }

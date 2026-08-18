@@ -36,14 +36,14 @@ struct WidgetListSettingsView: View {
                                             .foregroundStyle(ConstellationTheme.primary)
                                         VStack(alignment: .leading) {
                                             Text(widget.name)
-                                                .font(.body)
-                                            HStack(spacing: 6) {
+                                                .arkType(.body)
+                                            HStack(spacing: ConstellationSpacing.s1) {
                                                 Text(widget.isActive == true ? "Active" : "Inactive")
-                                                    .font(.caption)
+                                                    .arkType(.cap)
                                                     .foregroundStyle(widget.isActive == true ? .green : .secondary)
                                                 if let position = widget.position {
                                                     Text(position)
-                                                        .font(.caption)
+                                                        .arkType(.cap)
                                                         .foregroundStyle(.tertiary)
                                                 }
                                             }
@@ -60,7 +60,7 @@ struct WidgetListSettingsView: View {
                 Section {
                     Text(error)
                         .foregroundStyle(.red)
-                        .font(.caption)
+                        .arkType(.cap)
                 }
             }
         }

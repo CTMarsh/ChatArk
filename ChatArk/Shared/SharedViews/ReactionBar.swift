@@ -12,10 +12,10 @@ struct ReactionBar: View {
                 } label: {
                     HStack(spacing: 2) {
                         Text(group.emoji)
-                            .font(.callout)
+                            .arkType(.body)
                         if group.count > 1 {
                             Text("\(group.count)")
-                                .font(.caption2)
+                                .arkType(.cap)
                                 .foregroundStyle(group.currentUserReacted ? .white : .secondary)
                         }
                     }

@@ -9,19 +9,19 @@ struct PinnedMessageBanner: View {
             Button {
                 onTap(latest)
             } label: {
-                HStack(spacing: 8) {
+                HStack(spacing: ConstellationSpacing.s1) {
                     Image(systemName: "pin.fill")
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(ConstellationTheme.amber)
 
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
                         Text("Pinned Message")
-                            .font(.caption)
+                            .arkType(.cap)
                             .fontWeight(.semibold)
                             .foregroundStyle(ConstellationTheme.amber)
 
                         Text(latest.content)
-                            .font(.caption)
+                            .arkType(.cap)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
                     }
@@ -30,20 +30,20 @@ struct PinnedMessageBanner: View {
 
                     if messages.count > 1 {
                         Text("\(messages.count)")
-                            .font(.caption2)
+                            .arkType(.cap)
                             .fontWeight(.bold)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
+                            .padding(.horizontal, ConstellationSpacing.s1)
+                            .padding(.vertical, ConstellationSpacing.s1)
                             .background(ConstellationTheme.amber.opacity(0.2))
                             .clipShape(Capsule())
                     }
 
                     Image(systemName: "chevron.right")
-                        .font(.caption2)
+                        .arkType(.cap)
                         .foregroundStyle(.tertiary)
                 }
                 .padding(.horizontal)
-                .padding(.vertical, 8)
+                .padding(.vertical, ConstellationSpacing.s1)
                 .background(.ultraThinMaterial)
             }
             .buttonStyle(.plain)

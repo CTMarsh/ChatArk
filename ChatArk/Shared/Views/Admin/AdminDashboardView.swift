@@ -24,7 +24,7 @@ struct AdminDashboardView: View {
                 LazyVGrid(columns: [
                     GridItem(.flexible()),
                     GridItem(.flexible()),
-                ], spacing: 12) {
+                ], spacing: ConstellationSpacing.gapInline) {
                     statCard("Total Users", value: metrics.totalUsers, icon: "person.2")
                     statCard("Active Today", value: metrics.activeToday, icon: "waveform.path.ecg")
                     statCard("Workspaces", value: metrics.totalWorkspaces, icon: "building.2")
@@ -34,33 +34,33 @@ struct AdminDashboardView: View {
                     statCard("Messages", value: metrics.totalMessages, icon: "envelope")
                     statCard("Today", value: metrics.messagesToday, icon: "paperplane")
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, ConstellationSpacing.s1)
             }
 
             if let error = viewModel.error {
                 Text(error)
                     .foregroundStyle(.red)
-                    .font(.caption)
+                    .arkType(.cap)
             }
         }
     }
 
     private func statCard(_ title: String, value: Int, icon: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
             HStack {
                 Image(systemName: icon)
-                    .font(.caption)
+                    .arkType(.cap)
                     .foregroundStyle(.red.opacity(0.8))
                 Spacer()
             }
             Text("\(value)")
-                .font(.title2)
+                .arkType(.lead)
                 .fontWeight(.bold)
             Text(title)
-                .font(.caption)
+                .arkType(.cap)
                 .foregroundStyle(.secondary)
         }
-        .padding(10)
+        .padding(ConstellationSpacing.gapInline)
         .background(.red.opacity(0.05))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }

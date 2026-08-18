@@ -28,7 +28,7 @@ struct WorkspaceSettingsView: View {
                 Section {
                     Text(error)
                         .foregroundStyle(.red)
-                        .font(.caption)
+                        .arkType(.cap)
                 }
             }
         }
@@ -61,15 +61,15 @@ struct WorkspaceSettingsView: View {
                     set: { settings?.defaultPrimaryColor = $0 }
                 ))
                 .frame(width: 90)
-                .font(.caption.monospaced())
+                .arkType(.cap, monospaced: true)
                 #if os(iOS) || os(visionOS)
                 .textInputAutocapitalization(.never)
                 #endif
             }
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
                 Text("Welcome Message")
-                    .font(.caption)
+                    .arkType(.cap)
                     .foregroundStyle(.secondary)
                 TextField("Hi! How can we help you today?", text: Binding(
                     get: { settings?.defaultWelcomeMessage ?? "" },
@@ -78,9 +78,9 @@ struct WorkspaceSettingsView: View {
                 .lineLimit(2...4)
             }
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
                 Text("Offline Message")
-                    .font(.caption)
+                    .arkType(.cap)
                     .foregroundStyle(.secondary)
                 TextField("We're currently offline...", text: Binding(
                     get: { settings?.defaultOfflineMessage ?? "" },
@@ -142,13 +142,13 @@ struct WorkspaceSettingsView: View {
                 Spacer()
                 TextField("09:00", text: dayBinding.start)
                     .frame(width: 60)
-                    .font(.caption.monospaced())
+                    .arkType(.cap, monospaced: true)
                 Text("to")
-                    .font(.caption)
+                    .arkType(.cap)
                     .foregroundStyle(.secondary)
                 TextField("17:00", text: dayBinding.end)
                     .frame(width: 60)
-                    .font(.caption.monospaced())
+                    .arkType(.cap, monospaced: true)
             }
         }
     }
@@ -163,9 +163,9 @@ struct WorkspaceSettingsView: View {
             ))
 
             if settings?.autoReplyEnabled == true {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
                     Text("Auto-Reply Message")
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.secondary)
                     TextField("Thanks for reaching out!...", text: Binding(
                         get: { settings?.autoReplyMessage ?? "" },

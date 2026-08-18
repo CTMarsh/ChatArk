@@ -10,9 +10,9 @@ struct LoginView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 32) {
+                VStack(spacing: ConstellationSpacing.gapSection) {
                     // Logo
-                    VStack(spacing: 8) {
+                    VStack(spacing: ConstellationSpacing.s1) {
                         Image("AppLogo")
                             .resizable()
                             .scaledToFit()
@@ -20,17 +20,17 @@ struct LoginView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 28))
 
                         Text("ChatArk")
-                            .font(.largeTitle)
+                            .arkType(.stat)
                             .fontWeight(.bold)
 
                         Text("Sign in to continue")
-                            .font(.subheadline)
+                            .arkType(.body)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.top, 40)
+                    .padding(.top, ConstellationSpacing.gapSection)
 
                     // Form
-                    VStack(spacing: 16) {
+                    VStack(spacing: ConstellationSpacing.gapStack) {
                         TextField("Email", text: $email)
                             .textFieldStyle(.roundedBorder)
                             .textContentType(.emailAddress)
@@ -46,7 +46,7 @@ struct LoginView: View {
 
                         if let error = authViewModel.error {
                             Text(error)
-                                .font(.caption)
+                                .arkType(.cap)
                                 .foregroundStyle(.red)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
@@ -75,12 +75,12 @@ struct LoginView: View {
                         Button("Forgot Password?") {
                             showForgotPassword = true
                         }
-                        .font(.subheadline)
+                        .arkType(.body)
                     }
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, ConstellationSpacing.gapPanel)
 
                     Divider()
-                        .padding(.horizontal, 40)
+                        .padding(.horizontal, ConstellationSpacing.gapSection)
 
                     Button {
                         showSignup = true
@@ -91,13 +91,13 @@ struct LoginView: View {
                             Text("Sign Up")
                                 .fontWeight(.semibold)
                         }
-                        .font(.subheadline)
+                        .arkType(.body)
                     }
 
                     Spacer().frame(height: 24)
 
                     Text("v\(Bundle.main.appVersion) (\(Bundle.main.buildNumber))")
-                        .font(.caption2)
+                        .arkType(.cap)
                         .foregroundStyle(.quaternary)
                 }
             }

@@ -102,7 +102,7 @@ struct GroupInfoView: View {
                     } else {
                         HStack {
                             Text(conversation.name ?? "Group Chat")
-                                .font(.title2)
+                                .arkType(.lead)
                                 .fontWeight(.bold)
                             if isCurrentUserAdmin {
                                 Button {
@@ -110,7 +110,7 @@ struct GroupInfoView: View {
                                     isEditingName = true
                                 } label: {
                                     Image(systemName: "pencil")
-                                        .font(.caption)
+                                        .arkType(.cap)
                                 }
                                 .buttonStyle(.borderless)
                             }
@@ -135,11 +135,11 @@ struct GroupInfoView: View {
                         HStack {
                             if let desc = conversation.description, !desc.isEmpty {
                                 Text(desc)
-                                    .font(.subheadline)
+                                    .arkType(.body)
                                     .foregroundStyle(.secondary)
                             } else if isCurrentUserAdmin {
                                 Text("Add a description")
-                                    .font(.subheadline)
+                                    .arkType(.body)
                                     .foregroundStyle(.tertiary)
                             }
                             if isCurrentUserAdmin {
@@ -148,7 +148,7 @@ struct GroupInfoView: View {
                                     isEditingDescription = true
                                 } label: {
                                     Image(systemName: "pencil")
-                                        .font(.caption)
+                                        .arkType(.cap)
                                 }
                                 .buttonStyle(.borderless)
                             }
@@ -156,18 +156,18 @@ struct GroupInfoView: View {
                     }
 
                     Text("\(participants.count) members")
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.secondary)
                 }
             }
-            .padding(.vertical, 4)
+            .padding(.vertical, ConstellationSpacing.s1)
         }
 
         if let error {
             Section {
                 Text(error)
                     .foregroundStyle(.red)
-                    .font(.caption)
+                    .arkType(.cap)
             }
         }
     }
@@ -189,7 +189,7 @@ struct GroupInfoView: View {
                         showAddMember = true
                     } label: {
                         Label("Add", systemImage: "plus")
-                            .font(.caption)
+                            .arkType(.cap)
                     }
                 }
             }
@@ -202,7 +202,7 @@ struct GroupInfoView: View {
         let role = participant.role ?? "member"
         let isSelf = participant.userId == currentUserId
 
-        return HStack(spacing: 12) {
+        return HStack(spacing: ConstellationSpacing.gapInline) {
             ZStack(alignment: .bottomTrailing) {
                 AvatarView(url: profile?.avatarUrl, name: profile?.displayLabel ?? "User", size: 36)
                 if let status = profile?.status {
@@ -211,18 +211,18 @@ struct GroupInfoView: View {
             }
 
             VStack(alignment: .leading) {
-                HStack(spacing: 4) {
+                HStack(spacing: ConstellationSpacing.s1) {
                     Text(profile?.displayLabel ?? "User")
-                        .font(.body)
+                        .arkType(.body)
                     if isSelf {
                         Text("(you)")
-                            .font(.caption)
+                            .arkType(.cap)
                             .foregroundStyle(.secondary)
                     }
                 }
                 if let username = profile?.username {
                     Text("@\(username)")
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -255,9 +255,9 @@ struct GroupInfoView: View {
                 .buttonStyle(.borderless)
             } else {
                 Text(isCreator ? "Creator" : role.capitalized)
-                    .font(.caption)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 2)
+                    .arkType(.cap)
+                    .padding(.horizontal, ConstellationSpacing.s1)
+                    .padding(.vertical, ConstellationSpacing.s1)
                     .background(isCreator ? ConstellationTheme.amber.opacity(0.15) : ConstellationTheme.primary.opacity(0.1))
                     .foregroundStyle(isCreator ? ConstellationTheme.amber : ConstellationTheme.primary)
                     .clipShape(Capsule())

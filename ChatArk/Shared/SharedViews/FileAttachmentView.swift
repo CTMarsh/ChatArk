@@ -30,23 +30,23 @@ struct FileAttachmentView: View {
     }
 
     private var fileFallback: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: ConstellationSpacing.gapInline) {
             Image(systemName: fileIcon)
-                .font(.title2)
+                .arkType(.lead)
                 .foregroundStyle(ConstellationTheme.primary)
                 .frame(width: 40, height: 40)
                 .background(ConstellationTheme.primary.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
                 Text(fileName ?? "File")
-                    .font(.subheadline)
+                    .arkType(.body)
                     .fontWeight(.medium)
                     .lineLimit(1)
 
                 if let fileSize {
                     Text(FileValidator.formatFileSize(fileSize))
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -54,10 +54,10 @@ struct FileAttachmentView: View {
             Spacer()
 
             Image(systemName: "arrow.down.circle")
-                .font(.title3)
+                .arkType(.lead)
                 .foregroundStyle(ConstellationTheme.primary)
         }
-        .padding(10)
+        .padding(ConstellationSpacing.gapInline)
         .background(Color.gray.opacity(0.12))
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .frame(maxWidth: 280)

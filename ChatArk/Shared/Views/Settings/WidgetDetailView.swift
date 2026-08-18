@@ -26,7 +26,7 @@ struct WidgetDetailView: View {
                 Section {
                     Text(error)
                         .foregroundStyle(.red)
-                        .font(.caption)
+                        .arkType(.cap)
                 }
             }
         }
@@ -62,7 +62,7 @@ struct WidgetDetailView: View {
             if let token = widget.embedToken {
                 HStack {
                     Text(String(token.prefix(20)) + "...")
-                        .font(.caption.monospaced())
+                        .arkType(.cap, monospaced: true)
                         .foregroundStyle(.secondary)
                     Spacer()
                     Button {
@@ -79,7 +79,7 @@ struct WidgetDetailView: View {
                         }
                     } label: {
                         Text(copiedToken ? "Copied" : "Copy")
-                            .font(.caption)
+                            .arkType(.cap)
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.small)
@@ -118,7 +118,7 @@ struct WidgetDetailView: View {
                     set: { widget.primaryColor = $0 }
                 ))
                 .frame(width: 90)
-                .font(.caption.monospaced())
+                .arkType(.cap, monospaced: true)
                 #if os(iOS) || os(visionOS)
                 .textInputAutocapitalization(.never)
                 #endif
@@ -135,9 +135,9 @@ struct WidgetDetailView: View {
 
     private var messagesSection: some View {
         Section("Messages") {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
                 Text("Welcome Message")
-                    .font(.caption)
+                    .arkType(.cap)
                     .foregroundStyle(.secondary)
                 TextField("Hi! How can we help you today?", text: Binding(
                     get: { widget.welcomeMessage ?? "" },
@@ -146,9 +146,9 @@ struct WidgetDetailView: View {
                 .lineLimit(2...4)
             }
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
                 Text("Offline Message")
-                    .font(.caption)
+                    .arkType(.cap)
                     .foregroundStyle(.secondary)
                 TextField("We're currently offline...", text: Binding(
                     get: { widget.offlineMessage ?? "" },
@@ -179,9 +179,9 @@ struct WidgetDetailView: View {
 
     private var securitySection: some View {
         Section {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
                 Text("Allowed Origins")
-                    .font(.caption)
+                    .arkType(.cap)
                     .foregroundStyle(.secondary)
                 TextField("e.g., https://example.com (one per line)", text: Binding(
                     get: { widget.allowedOrigins?.joined(separator: "\n") ?? "" },
@@ -192,7 +192,7 @@ struct WidgetDetailView: View {
                     }
                 ), axis: .vertical)
                 .lineLimit(2...4)
-                .font(.caption.monospaced())
+                .arkType(.cap, monospaced: true)
             }
         } header: {
             Text("Security")

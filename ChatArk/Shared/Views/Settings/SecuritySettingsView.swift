@@ -88,9 +88,9 @@ struct SecuritySettingsView: View {
                             .foregroundStyle(.green)
                         VStack(alignment: .leading) {
                             Text(factor.friendlyName ?? "Authenticator App")
-                                .font(.body)
+                                .arkType(.body)
                             Text("Active")
-                                .font(.caption)
+                                .arkType(.cap)
                                 .foregroundStyle(.green)
                         }
                         Spacer()
@@ -137,9 +137,9 @@ struct SecuritySettingsView: View {
                         .foregroundStyle(ConstellationTheme.primary)
                     VStack(alignment: .leading) {
                         Text("This Device")
-                            .font(.body)
+                            .arkType(.body)
                         Text("Current session")
-                            .font(.caption)
+                            .arkType(.cap)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -148,29 +148,29 @@ struct SecuritySettingsView: View {
                     HStack {
                         Image(systemName: sessionDeviceIcon(session))
                             .foregroundStyle(ConstellationTheme.primary)
-                        VStack(alignment: .leading, spacing: 2) {
-                            HStack(spacing: 6) {
+                        VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
+                            HStack(spacing: ConstellationSpacing.s1) {
                                 Text(sessionDeviceName(session))
-                                    .font(.body)
+                                    .arkType(.body)
                                 if isCurrentSession(session) {
                                     Text("This device")
-                                        .font(.caption2)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
+                                        .arkType(.cap)
+                                        .padding(.horizontal, ConstellationSpacing.s1)
+                                        .padding(.vertical, ConstellationSpacing.s1)
                                         .background(.green.opacity(0.2))
                                         .foregroundStyle(.green)
                                         .clipShape(Capsule())
                                 }
                             }
-                            HStack(spacing: 8) {
+                            HStack(spacing: ConstellationSpacing.s1) {
                                 if let lastActive = session.lastActiveAt {
                                     Text(lastActive, style: .relative)
-                                        .font(.caption)
+                                        .arkType(.cap)
                                         .foregroundStyle(.secondary)
                                 }
                                 if let ip = session.ipAddress {
                                     Text(ip)
-                                        .font(.caption)
+                                        .arkType(.cap)
                                         .foregroundStyle(.tertiary)
                                 }
                             }
@@ -192,7 +192,7 @@ struct SecuritySettingsView: View {
             if let sessionMessage {
                 Text(sessionMessage)
                     .foregroundStyle(.green)
-                    .font(.caption)
+                    .arkType(.cap)
             }
         } header: {
             HStack {
@@ -202,7 +202,7 @@ struct SecuritySettingsView: View {
                     Button("Sign Out Others") {
                         showSignOutOthersConfirm = true
                     }
-                    .font(.caption)
+                    .arkType(.cap)
                 }
             }
         }
@@ -241,19 +241,19 @@ struct SecuritySettingsView: View {
                 if newPassword.count > 0 && newPassword.count < 8 {
                     Text("Password must be at least 8 characters")
                         .foregroundStyle(.orange)
-                        .font(.caption)
+                        .arkType(.cap)
                 }
 
                 if !confirmPassword.isEmpty && newPassword != confirmPassword {
                     Text("Passwords do not match")
                         .foregroundStyle(.red)
-                        .font(.caption)
+                        .arkType(.cap)
                 }
 
                 if let error {
                     Text(error)
                         .foregroundStyle(.red)
-                        .font(.caption)
+                        .arkType(.cap)
                 }
 
                 Button("Update Password") {

@@ -24,10 +24,10 @@ struct LinkPreviewCard: View {
                         .clipped()
                     }
 
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
                         if let title = preview.title {
                             Text(title)
-                                .font(.subheadline)
+                                .arkType(.body)
                                 .fontWeight(.semibold)
                                 .lineLimit(2)
                                 .foregroundStyle(.primary)
@@ -35,16 +35,16 @@ struct LinkPreviewCard: View {
 
                         if let description = preview.description {
                             Text(description)
-                                .font(.caption)
+                                .arkType(.cap)
                                 .foregroundStyle(.secondary)
                                 .lineLimit(2)
                         }
 
                         Text(url.host ?? urlString)
-                            .font(.caption2)
+                            .arkType(.cap)
                             .foregroundStyle(.tertiary)
                     }
-                    .padding(10)
+                    .padding(ConstellationSpacing.gapInline)
                 }
                 .background(Color.gray.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
