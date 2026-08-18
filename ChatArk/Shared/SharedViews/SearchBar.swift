@@ -6,7 +6,7 @@ struct SearchBar: View {
     var onSubmit: (() -> Void)?
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: ConstellationSpacing.s1) {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
 
@@ -30,7 +30,7 @@ struct SearchBar: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(10)
+        .padding(ConstellationSpacing.gapInline)
         .background(Color.gray.opacity(0.12))
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }

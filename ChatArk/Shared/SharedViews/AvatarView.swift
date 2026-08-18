@@ -54,7 +54,7 @@ struct AvatarView: View {
 
 #if DEBUG
 #Preview("Initials") {
-    HStack(spacing: 12) {
+    HStack(spacing: ConstellationSpacing.gapInline) {
         AvatarView(url: nil, name: "Alice Johnson", size: 48)
         AvatarView(url: nil, name: "Bob Smith", size: 48)
         AvatarView(url: nil, name: "Carol Williams", size: 48)

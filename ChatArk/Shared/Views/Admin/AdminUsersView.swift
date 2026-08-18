@@ -38,7 +38,7 @@ struct AdminUsersView: View {
                 Section {
                     Text(error)
                         .foregroundStyle(.red)
-                        .font(.caption)
+                        .arkType(.cap)
                 }
             }
         }
@@ -76,39 +76,39 @@ struct AdminUsersView: View {
                     )
             }
 
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
+                HStack(spacing: ConstellationSpacing.s1) {
                     Text(user.displayLabel)
-                        .font(.body)
+                        .arkType(.body)
                         .fontWeight(.medium)
                     if user.isPlatformAdmin == true {
                         Text("Admin")
-                            .font(.caption2)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
+                            .arkType(.cap)
+                            .padding(.horizontal, ConstellationSpacing.s1)
+                            .padding(.vertical, ConstellationSpacing.s1)
                             .background(.red.opacity(0.2))
                             .foregroundStyle(.red)
                             .clipShape(Capsule())
                     }
                     if user.status == .suspended {
                         Text("Suspended")
-                            .font(.caption2)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
+                            .arkType(.cap)
+                            .padding(.horizontal, ConstellationSpacing.s1)
+                            .padding(.vertical, ConstellationSpacing.s1)
                             .background(.red.opacity(0.1))
                             .foregroundStyle(.red)
                             .clipShape(Capsule())
                     }
                 }
                 if let username = user.username {
-                    HStack(spacing: 4) {
+                    HStack(spacing: ConstellationSpacing.s1) {
                         Text("@\(username)")
                         if let email = user.email {
                             Text("·")
                             Text(email)
                         }
                     }
-                    .font(.caption)
+                    .arkType(.cap)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                 }
@@ -194,7 +194,7 @@ struct CreateUserSheet: View {
                 Section {
                     Text(error)
                         .foregroundStyle(.red)
-                        .font(.caption)
+                        .arkType(.cap)
                 }
             }
         }
@@ -203,13 +203,13 @@ struct CreateUserSheet: View {
     private func successView(_ creds: AdminCreateUserResponse) -> some View {
         Group {
             Section("Credentials") {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
                     Text("Email: \(createdEmail)")
-                        .font(.body.monospaced())
+                        .arkType(.body, monospaced: true)
                     Text("Password: \(creds.generatedPassword)")
-                        .font(.body.monospaced())
+                        .arkType(.body, monospaced: true)
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, ConstellationSpacing.s1)
 
                 Button {
                     #if os(macOS)
@@ -231,7 +231,7 @@ struct CreateUserSheet: View {
             Section {
                 Label("This password will not be shown again. Share it securely with the user.", systemImage: "exclamationmark.triangle.fill")
                     .foregroundStyle(.orange)
-                    .font(.caption)
+                    .arkType(.cap)
             }
         }
     }

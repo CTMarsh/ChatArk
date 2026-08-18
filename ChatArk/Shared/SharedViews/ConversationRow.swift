@@ -8,7 +8,7 @@ struct ConversationRow: View {
     var onPin: (() -> Void)?
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: ConstellationSpacing.gapInline) {
             // Avatar
             ZStack(alignment: .bottomTrailing) {
                 AvatarView(
@@ -23,16 +23,17 @@ struct ConversationRow: View {
             }
 
             // Content
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
                 HStack {
                     Text(displayName)
-                        .font(.headline)
+                        .arkType(.body)
+                        .fontWeight(.semibold)
                         .lineLimit(1)
 
                     Spacer()
 
                     Text(DateFormatting.conversationDate(detail.lastMessage?.createdAt ?? detail.conversation.updatedAt))
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.secondary)
                 }
 
@@ -40,18 +41,18 @@ struct ConversationRow: View {
                     if let lastMessage = detail.lastMessage {
                         if lastMessage.isDeleted {
                             Text("Message deleted")
-                                .font(.subheadline)
+                                .arkType(.body)
                                 .foregroundStyle(.secondary)
                                 .italic()
                         } else {
                             Text(lastMessage.content)
-                                .font(.subheadline)
+                                .arkType(.body)
                                 .foregroundStyle(.secondary)
                                 .lineLimit(1)
                         }
                     } else {
                         Text("No messages yet")
-                            .font(.subheadline)
+                            .arkType(.body)
                             .foregroundStyle(.tertiary)
                     }
 
@@ -59,18 +60,18 @@ struct ConversationRow: View {
 
                     if detail.unreadCount > 0 {
                         Text("\(detail.unreadCount)")
-                            .font(.caption2)
+                            .arkType(.cap)
                             .fontWeight(.bold)
                             .foregroundStyle(.white)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
+                            .padding(.horizontal, ConstellationSpacing.s1)
+                            .padding(.vertical, ConstellationSpacing.s1)
                             .background(ConstellationTheme.primary)
                             .clipShape(Capsule())
                     }
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, ConstellationSpacing.s1)
         #if os(macOS) || os(iOS)
         .contextMenu {
             if detail.unreadCount > 0 {

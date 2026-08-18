@@ -103,7 +103,7 @@ struct AdminWorkspaceDetailView: View {
                         isEditingName = true
                     } label: {
                         Image(systemName: "pencil")
-                            .font(.caption)
+                            .arkType(.cap)
                     }
                     .buttonStyle(.borderless)
                 }
@@ -179,7 +179,7 @@ struct AdminWorkspaceDetailView: View {
                     showAddMember = true
                 } label: {
                     Label("Add", systemImage: "plus")
-                        .font(.caption)
+                        .arkType(.cap)
                 }
             }
         }
@@ -191,7 +191,7 @@ struct AdminWorkspaceDetailView: View {
                 .foregroundStyle(memberColor(member.role))
 
             Text(member.userId.uuidString.prefix(8) + "...")
-                .font(.body)
+                .arkType(.body)
 
             Spacer()
 
@@ -244,7 +244,7 @@ struct AdminWorkspaceDetailView: View {
                     showCreateWidget = true
                 } label: {
                     Label("Create", systemImage: "plus")
-                        .font(.caption)
+                        .arkType(.cap)
                 }
             }
         }
@@ -256,16 +256,16 @@ struct AdminWorkspaceDetailView: View {
                 .foregroundStyle(.indigo)
             VStack(alignment: .leading) {
                 Text(widget.name)
-                    .font(.body)
+                    .arkType(.body)
                 if let createdAt = widget.createdAt {
                     Text(createdAt.formatted(date: .abbreviated, time: .omitted))
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.secondary)
                 }
             }
             Spacer()
             Text(widget.isActive == true ? "Active" : "Inactive")
-                .font(.caption)
+                .arkType(.cap)
                 .foregroundStyle(widget.isActive == true ? .green : .secondary)
         }
     }
@@ -403,7 +403,7 @@ struct CreateWidgetSheet: View {
                     Section {
                         Text(error)
                             .foregroundStyle(.red)
-                            .font(.caption)
+                            .arkType(.cap)
                     }
                 }
             }

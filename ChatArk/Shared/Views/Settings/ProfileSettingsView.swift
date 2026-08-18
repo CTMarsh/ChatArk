@@ -21,7 +21,7 @@ struct ProfileSettingsView: View {
 
                         PhotosPicker(selection: $selectedPhoto, matching: .images) {
                             Text("Change Photo")
-                                .font(.caption)
+                                .arkType(.cap)
                         }
                         .onChange(of: selectedPhoto) { _, newValue in
                             guard let item = newValue else { return }
@@ -87,7 +87,7 @@ struct ProfileSettingsView: View {
                 Section {
                     Text(error)
                         .foregroundStyle(.red)
-                        .font(.caption)
+                        .arkType(.cap)
                 }
             }
         }

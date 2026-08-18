@@ -15,16 +15,16 @@ struct EmojiPicker: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: ConstellationSpacing.gapStack) {
                     // Quick reactions
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 8), spacing: 8) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 8), spacing: ConstellationSpacing.s1) {
                         ForEach(quickEmojis, id: \.self) { emoji in
                             Button {
                                 onSelect(emoji)
                                 dismiss()
                             } label: {
                                 Text(emoji)
-                                    .font(.title)
+                                    .arkType(.stat)
                             }
                             .buttonStyle(.plain)
                         }
@@ -35,19 +35,20 @@ struct EmojiPicker: View {
 
                     // Full grid
                     ForEach(emojiSections, id: \.0) { section in
-                        VStack(alignment: .leading, spacing: 8) {
+                        VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
                             Text(section.0)
-                                .font(.headline)
+                                .arkType(.body)
+                                .fontWeight(.semibold)
                                 .padding(.horizontal)
 
-                            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 8), spacing: 8) {
+                            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 8), spacing: ConstellationSpacing.s1) {
                                 ForEach(section.1, id: \.self) { emoji in
                                     Button {
                                         onSelect(emoji)
                                         dismiss()
                                     } label: {
                                         Text(emoji)
-                                            .font(.title2)
+                                            .arkType(.lead)
                                     }
                                     .buttonStyle(.plain)
                                 }

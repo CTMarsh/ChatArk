@@ -5,15 +5,15 @@ struct EmailConfirmationView: View {
     @Environment(AuthViewModel.self) private var authViewModel
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: ConstellationSpacing.gapPanel) {
             Spacer()
 
             Image(systemName: "envelope.badge")
-                .font(.system(size: 60))
+                .font(.system(size: ConstellationType.hero.size))
                 .foregroundStyle(ConstellationTheme.primary)
 
             Text("Check Your Email")
-                .font(.title)
+                .arkType(.stat)
                 .fontWeight(.bold)
 
             Text("We sent a confirmation link to:")
@@ -25,7 +25,7 @@ struct EmailConfirmationView: View {
             Text("Tap the link in the email to verify your account, then come back here to sign in.")
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
-                .padding(.horizontal, 32)
+                .padding(.horizontal, ConstellationSpacing.gapSection)
 
             Button {
                 authViewModel.state = .unauthenticated
@@ -37,8 +37,8 @@ struct EmailConfirmationView: View {
                     .foregroundStyle(.white)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 8)
+            .padding(.horizontal, ConstellationSpacing.gapPanel)
+            .padding(.top, ConstellationSpacing.s1)
 
             Spacer()
         }

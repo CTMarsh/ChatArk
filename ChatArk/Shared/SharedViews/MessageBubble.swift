@@ -7,15 +7,15 @@ struct MessageBubble: View {
     let senderAvatarUrl: String?
 
     var body: some View {
-        HStack(alignment: .bottom, spacing: 8) {
+        HStack(alignment: .bottom, spacing: ConstellationSpacing.s1) {
             if !isFromCurrentUser {
                 AvatarView(url: senderAvatarUrl, name: senderName, size: 32)
             }
 
-            VStack(alignment: isFromCurrentUser ? .trailing : .leading, spacing: 2) {
+            VStack(alignment: isFromCurrentUser ? .trailing : .leading, spacing: ConstellationSpacing.s1) {
                 if !isFromCurrentUser {
                     Text(senderName)
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.secondary)
                 }
 
@@ -25,14 +25,14 @@ struct MessageBubble: View {
                     messageContent
                 }
 
-                HStack(spacing: 4) {
+                HStack(spacing: ConstellationSpacing.s1) {
                     Text(DateFormatting.messageTime(message.createdAt))
-                        .font(.caption2)
+                        .arkType(.cap)
                         .foregroundStyle(.tertiary)
 
                     if message.isEdited == true {
                         Text("(edited)")
-                            .font(.caption2)
+                            .arkType(.cap)
                             .foregroundStyle(.tertiary)
                     }
                 }
@@ -64,18 +64,18 @@ struct MessageBubble: View {
 
     @ViewBuilder
     private var messageContent: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
             // Reply preview
             if message.replyToId != nil {
-                HStack(spacing: 4) {
+                HStack(spacing: ConstellationSpacing.s1) {
                     Rectangle()
                         .fill(ConstellationTheme.primary)
                         .frame(width: 3)
                     Text("Reply")
-                        .font(.caption)
+                        .arkType(.cap)
                         .foregroundStyle(.secondary)
                 }
-                .padding(.bottom, 2)
+                .padding(.bottom, ConstellationSpacing.s1)
             }
 
             // File attachment
@@ -92,10 +92,10 @@ struct MessageBubble: View {
             // Text content
             if !message.content.isEmpty {
                 Text(message.content)
-                    .font(.body)
+                    .arkType(.body)
             }
         }
-        .padding(12)
+        .padding(ConstellationSpacing.gapInline)
         .background(isFromCurrentUser ? Color.accentColor : Color.gray.opacity(0.15))
         .foregroundStyle(isFromCurrentUser ? .white : .primary)
         .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -103,10 +103,10 @@ struct MessageBubble: View {
 
     private var deletedContent: some View {
         Text("This message was deleted")
-            .font(.body)
+            .arkType(.body)
             .italic()
             .foregroundStyle(.secondary)
-            .padding(12)
+            .padding(ConstellationSpacing.gapInline)
             .background(Color.gray.opacity(0.12))
             .clipShape(RoundedRectangle(cornerRadius: 16))
     }

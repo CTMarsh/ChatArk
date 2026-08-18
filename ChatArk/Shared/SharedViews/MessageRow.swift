@@ -18,11 +18,11 @@ struct MessageRow: View {
     let onPin: () -> Void
 
     var body: some View {
-        VStack(alignment: isFromCurrentUser ? .trailing : .leading, spacing: 4) {
+        VStack(alignment: isFromCurrentUser ? .trailing : .leading, spacing: ConstellationSpacing.s1) {
             // Pinned indicator
             if message.isPinned == true {
                 Label("Pinned", systemImage: "pin.fill")
-                    .font(.caption2)
+                    .arkType(.cap)
                     .foregroundStyle(.orange)
                     .padding(.horizontal)
             }

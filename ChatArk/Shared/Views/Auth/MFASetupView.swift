@@ -7,23 +7,23 @@ struct MFASetupView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 24) {
-                    VStack(spacing: 8) {
+                VStack(spacing: ConstellationSpacing.gapPanel) {
+                    VStack(spacing: ConstellationSpacing.s1) {
                         Image(systemName: "lock.shield.fill")
-                            .font(.system(size: 50))
+                            .font(.system(size: ConstellationType.hero.size))
                             .foregroundStyle(ConstellationTheme.primary)
 
                         Text("Set Up Two-Factor Authentication")
-                            .font(.title2)
+                            .arkType(.lead)
                             .fontWeight(.bold)
                             .multilineTextAlignment(.center)
 
                         Text("Scan the QR code with your authenticator app")
-                            .font(.subheadline)
+                            .arkType(.body)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                     }
-                    .padding(.top, 20)
+                    .padding(.top, ConstellationSpacing.gapStack)
 
                     // QR Code
                     if let qrCode = authViewModel.mfaQrCode {
@@ -45,14 +45,14 @@ struct MFASetupView: View {
                             #endif
                         } else {
                             // Fallback: show secret key
-                            VStack(spacing: 8) {
+                            VStack(spacing: ConstellationSpacing.s1) {
                                 Text("Manual Entry Key:")
-                                    .font(.caption)
+                                    .arkType(.cap)
                                     .foregroundStyle(.secondary)
 
                                 if let secret = authViewModel.mfaSecret {
                                     Text(secret)
-                                        .font(.system(.body, design: .monospaced))
+                                        .arkType(.body, monospaced: true)
                                         .padding()
                                         .background(Color.gray.opacity(0.12))
                                         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -70,9 +70,9 @@ struct MFASetupView: View {
                     }
 
                     // Verification
-                    VStack(spacing: 12) {
+                    VStack(spacing: ConstellationSpacing.gapInline) {
                         Text("Enter the 6-digit code from your authenticator")
-                            .font(.subheadline)
+                            .arkType(.body)
                             .foregroundStyle(.secondary)
 
                         TextField("000000", text: $verificationCode)
@@ -81,12 +81,12 @@ struct MFASetupView: View {
                             .keyboardType(.numberPad)
                             #endif
                             .multilineTextAlignment(.center)
-                            .font(.title2.monospaced())
+                            .arkType(.lead, monospaced: true)
                             .frame(maxWidth: 200)
 
                         if let error = authViewModel.error {
                             Text(error)
-                                .font(.caption)
+                                .arkType(.cap)
                                 .foregroundStyle(.red)
                         }
 
@@ -111,7 +111,7 @@ struct MFASetupView: View {
                         }
                         .disabled(verificationCode.count != 6 || authViewModel.isLoading)
                     }
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, ConstellationSpacing.gapPanel)
                 }
             }
         }

@@ -8,19 +8,19 @@ struct ForgotPasswordView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
+            VStack(spacing: ConstellationSpacing.gapPanel) {
                 if sent {
-                    VStack(spacing: 12) {
+                    VStack(spacing: ConstellationSpacing.gapInline) {
                         Image(systemName: "envelope.badge.fill")
-                            .font(.system(size: 50))
+                            .font(.system(size: ConstellationType.hero.size))
                             .foregroundStyle(.green)
 
                         Text("Check Your Email")
-                            .font(.title2)
+                            .arkType(.lead)
                             .fontWeight(.bold)
 
                         Text("We've sent a password reset link to \(email)")
-                            .font(.subheadline)
+                            .arkType(.body)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
 
@@ -31,22 +31,22 @@ struct ForgotPasswordView: View {
                         .padding(.top)
                     }
                 } else {
-                    VStack(spacing: 12) {
+                    VStack(spacing: ConstellationSpacing.gapInline) {
                         Image(systemName: "key.fill")
-                            .font(.system(size: 50))
+                            .font(.system(size: ConstellationType.hero.size))
                             .foregroundStyle(ConstellationTheme.primary)
 
                         Text("Reset Password")
-                            .font(.title2)
+                            .arkType(.lead)
                             .fontWeight(.bold)
 
                         Text("Enter your email and we'll send you a reset link")
-                            .font(.subheadline)
+                            .arkType(.body)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                     }
 
-                    VStack(spacing: 12) {
+                    VStack(spacing: ConstellationSpacing.gapInline) {
                         TextField("Email", text: $email)
                             .textFieldStyle(.roundedBorder)
                             .textContentType(.emailAddress)
@@ -57,7 +57,7 @@ struct ForgotPasswordView: View {
 
                         if let error = authViewModel.error {
                             Text(error)
-                                .font(.caption)
+                                .arkType(.cap)
                                 .foregroundStyle(.red)
                         }
 
@@ -83,7 +83,7 @@ struct ForgotPasswordView: View {
                         }
                         .disabled(email.isEmpty || authViewModel.isLoading)
                     }
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, ConstellationSpacing.gapPanel)
                 }
             }
             .padding()

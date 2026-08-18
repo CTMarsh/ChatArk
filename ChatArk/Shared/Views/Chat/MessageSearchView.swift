@@ -23,12 +23,12 @@ struct MessageSearchView: View {
                     )
                 } else {
                     List(results) { message in
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: ConstellationSpacing.s1) {
                             Text(message.content)
                                 .lineLimit(3)
                             if let date = message.createdAt {
                                 Text(date, style: .date)
-                                    .font(.caption)
+                                    .arkType(.cap)
                                     .foregroundStyle(.secondary)
                             }
                         }
