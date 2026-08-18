@@ -185,7 +185,13 @@ extension View {
     /// - Parameter monospaced: use the monospaced face at the same role size,
     ///   for codes, IDs and TOTP digits. Tracking is dropped, because a
     ///   monospaced face already carries its own fixed advance width.
-    func arkType(_ role: ConstellationType, monospaced: Bool = false) -> some View {
+    ///
+    /// `nonisolated` because a `View` extension otherwise inherits SwiftUI's
+    /// `@MainActor` isolation, which makes this unusable from the nonisolated
+    /// `@ViewBuilder` closures some components take (e.g. `PhotosPicker`'s
+    /// label) under Swift 6 strict concurrency. The body only composes
+    /// nonisolated view modifiers, so opting out is safe.
+    nonisolated func arkType(_ role: ConstellationType, monospaced: Bool = false) -> some View {
         self
             .font(monospaced ? role.font.monospaced() : role.font)
             .tracking(monospaced ? 0 : role.tracking)
