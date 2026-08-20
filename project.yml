@@ -28,8 +28,14 @@ schemes:
         NotificationServiceExtension: all
         ChatWidgets: all
         ChatArkWatch: all
+        ChatArkTests: [test]
     run:
       config: Debug
+    test:
+      config: Debug
+      gatherCoverageData: true
+      targets:
+        - ChatArkTests
     archive:
       config: Release
 
@@ -166,3 +172,45 @@ targets:
       - package: KeychainAccess
       - package: Nuke
         product: NukeUI
+
+  # -- unit tests -----------------------------------------------------------
+  # ChatArk's first test target. It deliberately compiles the pure source files it
+  # exercises straight into the bundle rather than doing `@testable import ChatArk`.
+  # Reason: `@testable import` drags the whole app module -- and therefore Supabase,
+  # NukeUI and KeychainAccess -- into the test bundle's module graph, which is a large
+  # surface for a first-ever test run to fail on for reasons that have nothing to do
+  # with the tests. Everything listed below is Foundation-only, so the bundle resolves
+  # with no package dependencies at all. The files are the shipped sources, not copies,
+  # so a change to production code is picked up here.
+  #
+  # If XcodeGen rejects `supportedDestinations` on a unit-test bundle in the pinned
+  # version, the one-line fallback is `platform: iOS`.
+  ChatArkTests:
+    type: bundle.unit-test
+    supportedDestinations: [iOS]
+    sources:
+      - ChatArkTests
+      - ChatArk/Shared/Utilities/PostgRESTSanitizer.swift
+      - ChatArk/Shared/Utilities/DeepLinkRoute.swift
+      - ChatArk/Shared/Utilities/SignupGate.swift
+      - ChatArk/Shared/Utilities/AppGroupKeyMaterial.swift
+    # NO host app, deliberately -- and this was measured, not assumed. Pipeline 3882
+    # ran these tests with `- target: ChatArk` as the host and the runner reported
+    # "The test runner crashed before establishing connection". The cause was in the
+    # crash log, not the tests:
+    #
+    #   SwiftData/DataUtilities.swift:1179: Fatal error: Unable to find App Group
+    #   Container in Entitlements: group.com.chrismarsh.chatark
+    #
+    # `CODE_SIGNING_ALLOWED=NO` (which a simulator test run needs) strips entitlements,
+    # so `CacheManager.shared.container` fatal-errors during `ChatArkMain` init and the
+    # host dies before XCTest can attach. Since every source this bundle needs is
+    # compiled into it, there is nothing to host: dropping TEST_HOST removes the whole
+    # failure mode rather than papering over it. The app is still compiled by the
+    # scheme's build action, so a broken app still fails this job.
+    settings:
+      base:
+        PRODUCT_NAME: ChatArkTests
+        PRODUCT_BUNDLE_IDENTIFIER: com.chrismarsh.chatark.tests
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: "6.0"

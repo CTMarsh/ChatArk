@@ -201,22 +201,15 @@ final class AuthViewModel {
 
     // MARK: - Sign Up
 
-    /// Result of querying whether new-account registration is permitted.
-    /// `unverified` is a distinct fail-CLOSED outcome: the check could not be
-    /// completed, so signups must be treated as NOT allowed rather than opened.
-    enum SignupAvailability {
-        case allowed
-        case disabled   // administrator has turned signups off
-        case unverified // check failed — deny on doubt (fail closed)
-    }
-
+    /// Queries the `get_allow_signups` RPC and maps the outcome through `SignupGate`.
+    /// The fail-CLOSED rule itself lives in `SignupGate.evaluate` (see SignupGate.swift)
+    /// so it can be tested without a Supabase client; this function only performs the call.
     func signupAvailability() async -> SignupAvailability {
         do {
-            return try await authService.checkSignupsAllowed() ? .allowed : .disabled
+            let allowed = try await authService.checkSignupsAllowed()
+            return SignupGate.evaluate(.success(allowed))
         } catch {
-            // Administrative gate: deny on doubt. A transient RPC failure must
-            // never open registration that an admin may have disabled.
-            return .unverified
+            return SignupGate.evaluate(.failure(error))
         }
     }
 
@@ -227,14 +220,14 @@ final class AuthViewModel {
 
         // Re-check before submitting (setting may have changed). Fail CLOSED:
         // only an explicit "allowed" proceeds; disabled or unverified blocks.
-        switch await signupAvailability() {
-        case .allowed:
-            break
-        case .disabled:
-            self.error = "Signups are currently disabled by the platform administrator."
-            return
-        case .unverified:
-            self.error = "Couldn't verify signup availability. Please try again."
+        let availability = await signupAvailability()
+        guard SignupGate.permitsRegistration(availability) else {
+            switch availability {
+            case .disabled:
+                self.error = "Signups are currently disabled by the platform administrator."
+            case .unverified, .allowed:   // .allowed is unreachable: the guard above returned
+                self.error = "Couldn't verify signup availability. Please try again."
+            }
             return
         }
 

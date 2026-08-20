@@ -19,11 +19,11 @@ enum AppGroupEncryption {
 
     private static func getOrCreateKey() -> SymmetricKey {
         if let existingKeyData = try? keychain.getData(keyName),
-           existingKeyData.count == 32 {
+           AppGroupKeyMaterial.isValidKeyMaterial(existingKeyData) {
             return SymmetricKey(data: existingKeyData)
         }
 
-        let newKey = SymmetricKey(size: .bits256)
+        let newKey = SymmetricKey(size: .bits256)   // AppGroupKeyMaterial.keyByteCount
         let keyData = newKey.withUnsafeBytes { Data($0) }
         do {
             try keychain.set(keyData, key: keyName)
@@ -51,6 +51,12 @@ enum AppGroupEncryption {
     }
 
     static func decrypt(_ data: Data) -> Data? {
+        // Structural pre-check: anything shorter than nonce + tag cannot be a sealed
+        // box, so reject it without touching the Keychain.
+        guard AppGroupKeyMaterial.isPlausibleCombinedBox(data) else {
+            logger.error("Rejected ciphertext shorter than the minimum AES-GCM box")
+            return nil
+        }
         let key = getOrCreateKey()
         do {
             let sealedBox = try AES.GCM.SealedBox(combined: data)
