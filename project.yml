@@ -194,10 +194,20 @@ targets:
       - ChatArk/Shared/Utilities/DeepLinkRoute.swift
       - ChatArk/Shared/Utilities/SignupGate.swift
       - ChatArk/Shared/Utilities/AppGroupKeyMaterial.swift
-    dependencies:
-      # Host app. Keeps the test run honest: the app itself has to build before a
-      # single assertion runs.
-      - target: ChatArk
+    # NO host app, deliberately -- and this was measured, not assumed. Pipeline 3882
+    # ran these tests with `- target: ChatArk` as the host and the runner reported
+    # "The test runner crashed before establishing connection". The cause was in the
+    # crash log, not the tests:
+    #
+    #   SwiftData/DataUtilities.swift:1179: Fatal error: Unable to find App Group
+    #   Container in Entitlements: group.com.chrismarsh.chatark
+    #
+    # `CODE_SIGNING_ALLOWED=NO` (which a simulator test run needs) strips entitlements,
+    # so `CacheManager.shared.container` fatal-errors during `ChatArkMain` init and the
+    # host dies before XCTest can attach. Since every source this bundle needs is
+    # compiled into it, there is nothing to host: dropping TEST_HOST removes the whole
+    # failure mode rather than papering over it. The app is still compiled by the
+    # scheme's build action, so a broken app still fails this job.
     settings:
       base:
         PRODUCT_NAME: ChatArkTests
