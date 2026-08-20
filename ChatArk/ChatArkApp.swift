@@ -11,6 +11,9 @@ struct ChatArkMain: App {
 
     @State private var authViewModel = AuthViewModel()
     @State private var settingsViewModel = SettingsViewModel()
+    // FIXME: written by handleDeepLink and never read — opening a chatark://conversation
+    // link parses and validates the id, then navigates nowhere. Parsing is now covered by
+    // DeepLinkRouteTests; wiring the navigation is a separate change.
     @State private var deepLinkConversationId: UUID?
 
     #if os(macOS)
@@ -90,24 +93,17 @@ struct ChatArkMain: App {
     }
 
     private func handleDeepLink(_ url: URL) {
-        guard url.scheme == "chatark" else { return }
+        // Parsing and UUID validation live in DeepLinkRoute so they are unit-testable;
+        // this function is only the side effects.
+        guard let route = DeepLinkRoute.parse(url) else { return }
 
-        switch url.host {
-        case "conversation":
-            if let idString = url.pathComponents.dropFirst().first,
-               let id = UUID(uuidString: idString) {
-                deepLinkConversationId = id
+        switch route {
+        case .conversation(let id):
+            deepLinkConversationId = id
+        case .share(let rawId):
+            Task {
+                await PendingShareHandler.shared.processPendingShare(shareId: rawId)
             }
-        case "share":
-            // Validate shareId is a UUID to prevent path traversal
-            if let shareId = url.pathComponents.dropFirst().first,
-               UUID(uuidString: shareId) != nil {
-                Task {
-                    await PendingShareHandler.shared.processPendingShare(shareId: shareId)
-                }
-            }
-        default:
-            break
         }
     }
 }

@@ -12,6 +12,7 @@ workflow:
 stages:
   - version
   - build:ios
+  - test
   - deploy
   - release
 
@@ -25,6 +26,7 @@ stages:
     - ChatWidgets/**/*
     - ChatArkWatch/**/*
     - ChatWatchComplication/**/*
+    - ChatArkTests/**/*
     - project.yml
     - fastlane/**/*
     - Gemfile*
@@ -106,6 +108,53 @@ build:ios:release:
     - if: $CI_COMMIT_BRANCH == "main"
       <<: *ios-changes
 
+# -- Stage: test (unit tests on the macOS runner) ----------
+# ChatArk's first automated tests. Blocking, not allow_failure: a red test must stop
+# the pipeline. If this job is red on its first run, the fix is to fix the target or
+# the test -- do not reach for allow_failure.
+#
+# Runner 9 is PROJECT-SCOPED and shared from notify. If this job sits pending forever,
+# project 40 has not been added to it:
+#   POST /api/v4/projects/40/runners  {"runner_id": 9}
+test:unit:
+  stage: test
+  <<: *ios-base
+  needs: []
+  interruptible: true
+  timeout: 30m
+  script:
+    - xcodegen generate
+    - |
+      # Pick any available iPhone simulator rather than pinning a device name that
+      # disappears with the next Xcode update.
+      DEV=$(xcrun simctl list devices available | grep -oE 'iPhone [0-9]+ Pro \([0-9A-F-]{36}\)' | grep -oE '[0-9A-F-]{36}' | head -1)
+      [ -n "$DEV" ] || DEV=$(xcrun simctl list devices available | grep -oE '\([0-9A-F-]{36}\)' | grep -oE '[0-9A-F-]{36}' | head -1)
+      [ -n "$DEV" ] || { echo "no iOS simulator available on this runner"; exit 1; }
+      echo "simulator $DEV"
+      echo "SIM_UDID=$DEV" > sim.env
+    - |
+      set -o pipefail
+      . ./sim.env
+      xcodebuild test \
+        -project ChatArk.xcodeproj \
+        -scheme ChatArk \
+        -configuration Debug \
+        -destination "platform=iOS Simulator,id=$SIM_UDID" \
+        -derivedDataPath DerivedData \
+        CODE_SIGNING_ALLOWED=NO \
+        | tee test.log | grep -E 'error:|Test Case|failed|passed|\*\* ' || true
+    - grep -q '\*\* TEST SUCCEEDED \*\*' test.log || { echo "unit tests failed"; exit 1; }
+  artifacts:
+    when: always
+    paths:
+      - test.log
+    expire_in: 1 week
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      <<: *ios-changes
+    - if: $CI_COMMIT_BRANCH == "main"
+      <<: *ios-changes
+
 # ── Stage: deploy (TestFlight) ────────────────────────────
 deploy:testflight:
   stage: deploy
@@ -115,6 +164,9 @@ deploy:testflight:
       artifacts: true
     - job: build:ios:release
       artifacts: true
+    # Do not ship past a red test suite.
+    - job: test:unit
+      artifacts: false
   resource_group: testflight-chatark
   script:
     - bundle config set --local path 'vendor/bundle'
