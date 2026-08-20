@@ -46,7 +46,7 @@ final class PostgRESTSanitizerTests: XCTestCase {
     /// escaping `.` would themselves be escaped on a later pass and the payload would
     /// come apart. Input `\.` (backslash, dot) must become `\` + `\.` = `\\.`.
     func testBackslashIsEscapedBeforeTheOtherMetacharacters() {
-        XCTAssertEqual(PostgRESTSanitizer.sanitize(#"\."#), #"\\."#)
+        XCTAssertEqual(PostgRESTSanitizer.sanitize(#"\."#), #"\\\."#)
     }
 
     // MARK: - The injection this exists to stop
@@ -111,7 +111,7 @@ final class PostgRESTSanitizerTests: XCTestCase {
         let once = PostgRESTSanitizer.sanitize(".")
         let twice = PostgRESTSanitizer.sanitize(once)
         XCTAssertEqual(once, #"\."#)
-        XCTAssertEqual(twice, #"\\."#)
+        XCTAssertEqual(twice, #"\\\."#)
         XCTAssertNotEqual(once, twice)
     }
 
