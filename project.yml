@@ -4,7 +4,7 @@ options:
   bundleIdPrefix: com.chrismarsh
   deploymentTarget:
     iOS: "27.1"
-    macOS: "15.0"
+    macOS: "27.0"
     watchOS: "27.0"
   xcodeVersion: "27.1"
 
