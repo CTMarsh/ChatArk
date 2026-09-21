@@ -1,12 +1,12 @@
 import SwiftUI
 import SwiftData
-#if canImport(UIKit)
-import UIKit
-#endif
 
 struct RootView: View {
     @Environment(AuthViewModel.self) private var authViewModel
     @Environment(SettingsViewModel.self) private var settingsViewModel
+    /// Compact width is a phone and iPhone Duo's OUTER display; regular width
+    /// is an iPad and Duo's INNER display.
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     var body: some View {
         Group {
@@ -34,7 +34,19 @@ struct RootView: View {
                         OfflineBanner()
                     }
                     #if os(iOS)
-                    if UIDevice.current.userInterfaceIdiom == .pad {
+                    // Chosen by size class, not device idiom.
+                    //
+                    // This was `UIDevice.current.userInterfaceIdiom == .pad`,
+                    // which is fixed for the life of the process. On iPhone Duo
+                    // the idiom is always `.phone`, so the 7.6-inch inner
+                    // display would have been served the compact tab layout
+                    // forever and SplitChatView -- which already exists and is
+                    // already good -- would never have appeared on it.
+                    //
+                    // Apple's guidance is explicit: adapt on size class. The
+                    // conversation list beside the thread is their own Mail
+                    // example for the inner display.
+                    if horizontalSizeClass == .regular {
                         SplitChatView()
                     } else {
                         MainTabView()
