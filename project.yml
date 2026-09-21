@@ -3,10 +3,10 @@ name: ChatArk
 options:
   bundleIdPrefix: com.chrismarsh
   deploymentTarget:
-    iOS: "18.0"
-    macOS: "15.0"
-    watchOS: "11.0"
-  xcodeVersion: "26.0"
+    iOS: "27.1"
+    macOS: "27.0"
+    watchOS: "27.0"
+  xcodeVersion: "27.1"
 
 packages:
   Supabase:
